@@ -1,0 +1,1002 @@
+// Purpose: PostgreSQL Prisma schema for the JIMPITAN multi-RT financial management platform.
+// Caller: Prisma CLI, migration tooling, backend data-access layer.
+// Deps: PostgreSQL, Prisma Client, DATABASE_URL.
+// MainFuncs: Defines tenants, RBAC, residents, mode-aware jimpitan collections, finance ledger, approvals, notifications, Telegram bindings, audit logs, attachments, reports, and settings.
+// SideEffects: Generates database migrations and Prisma Client when used by Prisma tooling.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum HouseStatus {
+  OCCUPIED
+  EMPTY
+  INACTIVE
+}
+
+enum ResidentStatus {
+  ACTIVE
+  INACTIVE
+  MOVED
+}
+
+enum ScheduleType {
+  WEEKLY
+  MONTHLY
+  CUSTOM
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum CollectionStatus {
+  DRAFT
+  IN_PROGRESS
+  SUBMITTED
+  VALIDATED
+  REJECTED
+  CANCELLED
+}
+
+enum CollectionMode {
+  PER_HOUSE
+  BULK_TOTAL
+  HYBRID
+}
+
+enum CollectionItemStatus {
+  PAID
+  UNPAID
+  HOUSE_EMPTY
+  LEFT_WITH_NEIGHBOR
+  TITIP_TETANGGA
+  OVERDUE
+  MENUNGGAK
+  DISPENSATION
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  DRAFT
+  VALIDATED
+  PENDING_VALIDATION
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  VOIDED
+}
+
+enum LedgerEntryType {
+  INCREASE
+  DECREASE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum NotificationChannel {
+  IN_APP
+  TELEGRAM
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  QUEUED
+  SENT
+  FAILED
+  CANCELLED
+  READ
+}
+
+enum AttachmentStatus {
+  PENDING_UPLOAD
+  UPLOADED
+  SCANNED
+  REJECTED
+  DELETED
+}
+
+enum AttachmentOwnerType {
+  TRANSACTION
+  REPORT_EXPORT
+  RESIDENT_IMPORT
+  ANNOUNCEMENT
+}
+
+enum AuditActorType {
+  USER
+  SYSTEM
+  BOT
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+enum ReportExportStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum ReportExportFormat {
+  PDF
+  EXCEL
+  CSV
+}
+
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AnnouncementVisibility {
+  PUBLIC
+  MEMBERS
+}
+
+enum ImportStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum TelegramBindingStatus {
+  PENDING
+  VERIFIED
+  REVOKED
+}
+
+enum TelegramUpdateStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+model Rt {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(120)
+  code        String    @unique @db.VarChar(40)
+  address     String?
+  timezone    String    @default("Asia/Jakarta") @db.VarChar(64)
+  isActive    Boolean   @default(true) @map("is_active")
+  createdById String?   @map("created_by_id") @db.Uuid
+  updatedById String?   @map("updated_by_id") @db.Uuid
+  deletedById String?   @map("deleted_by_id") @db.Uuid
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  roles                 Role[]
+  memberships           RtMembership[]
+  areas                 Area[]
+  houses                House[]
+  residents             Resident[]
+  cashAccounts          CashAccount[]
+  schedules             JimpitanSchedule[]
+  collections           JimpitanCollection[]
+  transactionCategories TransactionCategory[]
+  transactions          Transaction[]
+  cashLedgers           CashLedger[]
+  expenseApprovals      ExpenseApproval[]
+  notifications         Notification[]
+  attachments           Attachment[]
+  auditLogs             AuditLog[]
+  settings              Setting[]
+  announcements         Announcement[]
+  reportExports         ReportExport[]
+  residentImports       ResidentImport[]
+  outboxEvents          OutboxEvent[]
+  telegramBindings      TelegramBinding[]
+  telegramUpdates       TelegramUpdate[]
+
+  @@index([isActive, deletedAt])
+  @@map("rts")
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  fullName     String     @map("full_name") @db.VarChar(160)
+  email        String?    @unique @db.VarChar(160)
+  phone        String?    @unique @db.VarChar(32)
+  passwordHash String?    @map("password_hash")
+  status       UserStatus @default(ACTIVE)
+  lastLoginAt  DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedById  String?    @map("deleted_by_id") @db.Uuid
+  deletedAt    DateTime?  @map("deleted_at") @db.Timestamptz(6)
+
+  sessions                 Session[]
+  memberships              RtMembership[]
+  telegramAccounts         TelegramAccount[]    @relation("TelegramAccountLinkedUser")
+  createdSchedules         JimpitanSchedule[]   @relation("ScheduleCreatedBy")
+  validatedCollections     JimpitanCollection[] @relation("CollectionValidatedBy")
+  rejectedCollections      JimpitanCollection[] @relation("CollectionRejectedBy")
+  createdTransactions      Transaction[]        @relation("TransactionCreatedBy")
+  updatedTransactions      Transaction[]        @relation("TransactionUpdatedBy")
+  validatedTransactions    Transaction[]        @relation("TransactionValidatedBy")
+  rejectedTransactions     Transaction[]        @relation("TransactionRejectedBy")
+  postedTransactions       Transaction[]        @relation("TransactionPostedBy")
+  voidedTransactions       Transaction[]        @relation("TransactionVoidedBy")
+  requestedApprovals       ExpenseApproval[]    @relation("ApprovalRequestedBy")
+  decidedApprovals         ExpenseApproval[]    @relation("ApprovalDecisionBy")
+  uploadedAttachments      Attachment[]         @relation("AttachmentUploadedBy")
+  notifications            Notification[]
+  auditLogs                AuditLog[]           @relation("AuditActorUser")
+  updatedSettings          Setting[]            @relation("SettingUpdatedBy")
+  createdAnnouncements     Announcement[]       @relation("AnnouncementCreatedBy")
+  updatedAnnouncements     Announcement[]       @relation("AnnouncementUpdatedBy")
+  requestedReportExports   ReportExport[]       @relation("ReportExportRequestedBy")
+  requestedResidentImports ResidentImport[]     @relation("ResidentImportRequestedBy")
+  telegramBindings         TelegramBinding[]
+
+  @@index([status, deletedAt])
+  @@map("users")
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @map("refresh_token_hash")
+  userAgent        String?   @map("user_agent")
+  ipAddress        String?   @map("ip_address") @db.Inet
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedById      String?   @map("revoked_by_id") @db.Uuid
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Role {
+  id          String    @id @default(uuid()) @db.Uuid
+  rtId        String?   @map("rt_id") @db.Uuid
+  key         String    @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  isSystem    Boolean   @default(false) @map("is_system")
+  createdById String?   @map("created_by_id") @db.Uuid
+  updatedById String?   @map("updated_by_id") @db.Uuid
+  deletedById String?   @map("deleted_by_id") @db.Uuid
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt          Rt?              @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  permissions RolePermission[]
+  userRoles   UserRole[]
+
+  @@unique([rtId, key])
+  @@index([key])
+  @@index([rtId, deletedAt])
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique @db.VarChar(120)
+  description String
+  module      String   @db.VarChar(80)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  roles RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RtMembership {
+  id        String           @id @default(uuid()) @db.Uuid
+  rtId      String           @map("rt_id") @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  status    MembershipStatus @default(ACTIVE)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt                 Rt                   @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  roles              UserRole[]
+  officerSchedules   JimpitanSchedule[]   @relation("ScheduleOfficer")
+  officerCollections JimpitanCollection[] @relation("CollectionOfficer")
+  assignedApprovals  ExpenseApproval[]    @relation("ApprovalApprover")
+  telegramBindings   TelegramBinding[]
+
+  @@unique([rtId, userId])
+  @@index([userId, status])
+  @@index([rtId, status])
+  @@map("rt_memberships")
+}
+
+model UserRole {
+  membershipId String   @map("membership_id") @db.Uuid
+  roleId       String   @map("role_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  membership RtMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  role       Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([membershipId, roleId])
+  @@map("user_roles")
+}
+
+model Area {
+  id          String    @id @default(uuid()) @db.Uuid
+  rtId        String    @map("rt_id") @db.Uuid
+  code        String    @db.VarChar(40)
+  name        String    @db.VarChar(120)
+  sortOrder   Int       @default(0) @map("sort_order")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdById String?   @map("created_by_id") @db.Uuid
+  updatedById String?   @map("updated_by_id") @db.Uuid
+  deletedById String?   @map("deleted_by_id") @db.Uuid
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt        Rt                 @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  houses    House[]
+  schedules JimpitanSchedule[]
+
+  @@unique([rtId, code])
+  @@index([rtId, isActive, sortOrder])
+  @@index([rtId, deletedAt])
+  @@map("areas")
+}
+
+model House {
+  id          String      @id @default(uuid()) @db.Uuid
+  rtId        String      @map("rt_id") @db.Uuid
+  areaId      String      @map("area_id") @db.Uuid
+  houseNumber String      @map("house_number") @db.VarChar(40)
+  addressNote String?     @map("address_note")
+  status      HouseStatus @default(OCCUPIED)
+  createdById String?     @map("created_by_id") @db.Uuid
+  updatedById String?     @map("updated_by_id") @db.Uuid
+  deletedById String?     @map("deleted_by_id") @db.Uuid
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime?   @map("deleted_at") @db.Timestamptz(6)
+
+  rt              Rt               @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  area            Area             @relation(fields: [areaId], references: [id], onDelete: Restrict)
+  residents       Resident[]
+  collectionItems CollectionItem[]
+
+  @@unique([rtId, houseNumber])
+  @@index([rtId, areaId, status])
+  @@index([rtId, deletedAt])
+  @@map("houses")
+}
+
+model Resident {
+  id                    String         @id @default(uuid()) @db.Uuid
+  rtId                  String         @map("rt_id") @db.Uuid
+  houseId               String         @map("house_id") @db.Uuid
+  fullName              String         @map("full_name") @db.VarChar(160)
+  phone                 String?        @db.VarChar(32)
+  status                ResidentStatus @default(ACTIVE)
+  defaultJimpitanAmount Decimal        @default(2000) @map("default_jimpitan_amount") @db.Decimal(14, 2)
+  notes                 String?
+  createdById           String?        @map("created_by_id") @db.Uuid
+  updatedById           String?        @map("updated_by_id") @db.Uuid
+  deletedById           String?        @map("deleted_by_id") @db.Uuid
+  createdAt             DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt             DateTime?      @map("deleted_at") @db.Timestamptz(6)
+
+  rt               Rt                @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  house            House             @relation(fields: [houseId], references: [id], onDelete: Restrict)
+  collectionItems  CollectionItem[]
+  notifications    Notification[]
+  telegramBindings TelegramBinding[]
+
+  @@index([rtId, houseId, status])
+  @@index([rtId, status, deletedAt])
+  @@index([rtId, fullName])
+  @@map("residents")
+}
+
+model TelegramAccount {
+  id             String    @id @default(uuid()) @db.Uuid
+  telegramUserId String    @unique @map("telegram_user_id") @db.VarChar(64)
+  username       String?   @db.VarChar(120)
+  displayName    String?   @map("display_name") @db.VarChar(160)
+  linkedUserId   String?   @map("linked_user_id") @db.Uuid
+  verifiedAt     DateTime? @map("verified_at") @db.Timestamptz(6)
+  revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  linkedUser    User?             @relation("TelegramAccountLinkedUser", fields: [linkedUserId], references: [id], onDelete: SetNull)
+  bindings      TelegramBinding[]
+  updates       TelegramUpdate[]
+  notifications Notification[]
+
+  @@index([linkedUserId])
+  @@map("telegram_accounts")
+}
+
+model TelegramBinding {
+  id                String                @id @default(uuid()) @db.Uuid
+  rtId              String                @map("rt_id") @db.Uuid
+  telegramAccountId String                @map("telegram_account_id") @db.Uuid
+  userId            String?               @map("user_id") @db.Uuid
+  membershipId      String?               @map("membership_id") @db.Uuid
+  residentId        String?               @map("resident_id") @db.Uuid
+  status            TelegramBindingStatus @default(PENDING)
+  bindTokenHash     String?               @map("bind_token_hash")
+  verifiedAt        DateTime?             @map("verified_at") @db.Timestamptz(6)
+  revokedAt         DateTime?             @map("revoked_at") @db.Timestamptz(6)
+  createdAt         DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt              Rt              @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  telegramAccount TelegramAccount @relation(fields: [telegramAccountId], references: [id], onDelete: Restrict)
+  user            User?           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  membership      RtMembership?   @relation(fields: [membershipId], references: [id], onDelete: Restrict)
+  resident        Resident?       @relation(fields: [residentId], references: [id], onDelete: Restrict)
+
+  @@unique([rtId, telegramAccountId])
+  @@unique([rtId, membershipId])
+  @@unique([rtId, residentId])
+  @@index([telegramAccountId, status])
+  @@index([rtId, status])
+  @@map("telegram_bindings")
+}
+
+model TelegramUpdate {
+  id                String               @id @default(uuid()) @db.Uuid
+  rtId              String?              @map("rt_id") @db.Uuid
+  telegramAccountId String?              @map("telegram_account_id") @db.Uuid
+  telegramUpdateId  BigInt               @unique @map("telegram_update_id")
+  updateType        String               @map("update_type") @db.VarChar(80)
+  status            TelegramUpdateStatus @default(RECEIVED)
+  payload           Json                 @db.JsonB
+  errorMessage      String?              @map("error_message")
+  processedAt       DateTime?            @map("processed_at") @db.Timestamptz(6)
+  createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt              Rt?              @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  telegramAccount TelegramAccount? @relation(fields: [telegramAccountId], references: [id], onDelete: SetNull)
+
+  @@index([rtId, status, createdAt])
+  @@index([telegramAccountId, createdAt])
+  @@map("telegram_updates")
+}
+
+model CashAccount {
+  id             String    @id @default(uuid()) @db.Uuid
+  rtId           String    @map("rt_id") @db.Uuid
+  key            String    @default("main") @db.VarChar(80)
+  name           String    @db.VarChar(120)
+  currency       String    @default("IDR") @db.VarChar(3)
+  currentBalance Decimal   @default(0) @map("current_balance") @db.Decimal(14, 2)
+  version        Int       @default(1)
+  isActive       Boolean   @default(true) @map("is_active")
+  createdById    String?   @map("created_by_id") @db.Uuid
+  updatedById    String?   @map("updated_by_id") @db.Uuid
+  deletedById    String?   @map("deleted_by_id") @db.Uuid
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt           Rt            @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  transactions Transaction[]
+  ledgers      CashLedger[]
+
+  @@unique([rtId, key])
+  @@index([rtId, isActive])
+  @@index([rtId, deletedAt])
+  @@map("cash_accounts")
+}
+
+model JimpitanSchedule {
+  id                  String         @id @default(uuid()) @db.Uuid
+  rtId                String         @map("rt_id") @db.Uuid
+  areaId              String?        @map("area_id") @db.Uuid
+  officerMembershipId String         @map("officer_membership_id") @db.Uuid
+  scheduleDate        DateTime       @map("schedule_date") @db.Date
+  scheduleType        ScheduleType   @map("schedule_type")
+  status              ScheduleStatus @default(SCHEDULED)
+  createdById         String         @map("created_by_id") @db.Uuid
+  updatedById         String?        @map("updated_by_id") @db.Uuid
+  cancelledById       String?        @map("cancelled_by_id") @db.Uuid
+  startedAt           DateTime?      @map("started_at") @db.Timestamptz(6)
+  completedAt         DateTime?      @map("completed_at") @db.Timestamptz(6)
+  cancelledAt         DateTime?      @map("cancelled_at") @db.Timestamptz(6)
+  cancellationReason  String?        @map("cancellation_reason")
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt                Rt                   @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  area              Area?                @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  officerMembership RtMembership         @relation("ScheduleOfficer", fields: [officerMembershipId], references: [id], onDelete: Restrict)
+  createdBy         User                 @relation("ScheduleCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  collections       JimpitanCollection[]
+
+  @@unique([rtId, officerMembershipId, scheduleDate, areaId])
+  @@index([rtId, scheduleDate, status])
+  @@index([rtId, officerMembershipId, scheduleDate])
+  @@map("jimpitan_schedules")
+}
+
+model JimpitanCollection {
+  id                  String           @id @default(uuid()) @db.Uuid
+  rtId                String           @map("rt_id") @db.Uuid
+  scheduleId          String?          @map("schedule_id") @db.Uuid
+  officerMembershipId String           @map("officer_membership_id") @db.Uuid
+  collectionDate      DateTime         @map("collection_date") @db.Date
+  collectionMode      CollectionMode   @default(PER_HOUSE) @map("collection_mode")
+  status              CollectionStatus @default(DRAFT)
+  submitRequestId     String?          @map("submit_request_id") @db.VarChar(120)
+  submittedAt         DateTime?        @map("submitted_at") @db.Timestamptz(6)
+  createdById         String?          @map("created_by_id") @db.Uuid
+  updatedById         String?          @map("updated_by_id") @db.Uuid
+  validatedById       String?          @map("validated_by_id") @db.Uuid
+  validatedAt         DateTime?        @map("validated_at") @db.Timestamptz(6)
+  rejectedById        String?          @map("rejected_by_id") @db.Uuid
+  rejectedAt          DateTime?        @map("rejected_at") @db.Timestamptz(6)
+  cancelledById       String?          @map("cancelled_by_id") @db.Uuid
+  cancelledAt         DateTime?        @map("cancelled_at") @db.Timestamptz(6)
+  totalAmount         Decimal          @default(0) @map("total_amount") @db.Decimal(14, 2)
+  note                String?
+  validationNote      String?          @map("validation_note")
+  rejectionReason     String?          @map("rejection_reason")
+  cancellationReason  String?          @map("cancellation_reason")
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt                Rt                @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  schedule          JimpitanSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  officerMembership RtMembership      @relation("CollectionOfficer", fields: [officerMembershipId], references: [id], onDelete: Restrict)
+  validatedBy       User?             @relation("CollectionValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+  rejectedBy        User?             @relation("CollectionRejectedBy", fields: [rejectedById], references: [id], onDelete: SetNull)
+  items             CollectionItem[]
+  sourceTransaction Transaction?
+
+  @@unique([rtId, submitRequestId])
+  @@index([rtId, collectionDate, status])
+  @@index([rtId, collectionMode, status])
+  @@index([rtId, officerMembershipId, collectionDate])
+  @@index([rtId, scheduleId])
+  @@map("jimpitan_collections")
+}
+
+model CollectionItem {
+  id           String               @id @default(uuid()) @db.Uuid
+  rtId         String               @map("rt_id") @db.Uuid
+  collectionId String               @map("collection_id") @db.Uuid
+  houseId      String               @map("house_id") @db.Uuid
+  residentId   String?              @map("resident_id") @db.Uuid
+  amount       Decimal              @default(0) @db.Decimal(14, 2)
+  status       CollectionItemStatus
+  note         String?
+  createdById  String?              @map("created_by_id") @db.Uuid
+  updatedById  String?              @map("updated_by_id") @db.Uuid
+  createdAt    DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  collection JimpitanCollection @relation(fields: [collectionId], references: [id], onDelete: Restrict)
+  house      House              @relation(fields: [houseId], references: [id], onDelete: Restrict)
+  resident   Resident?          @relation(fields: [residentId], references: [id], onDelete: SetNull)
+
+  @@unique([collectionId, houseId])
+  @@index([rtId, houseId, status])
+  @@index([rtId, residentId])
+  @@index([rtId, status, createdAt])
+  @@map("collection_items")
+}
+
+model TransactionCategory {
+  id          String          @id @default(uuid()) @db.Uuid
+  rtId        String?         @map("rt_id") @db.Uuid
+  type        TransactionType
+  key         String          @db.VarChar(80)
+  name        String          @db.VarChar(120)
+  isSystem    Boolean         @default(false) @map("is_system")
+  isActive    Boolean         @default(true) @map("is_active")
+  createdById String?         @map("created_by_id") @db.Uuid
+  updatedById String?         @map("updated_by_id") @db.Uuid
+  deletedById String?         @map("deleted_by_id") @db.Uuid
+  deletedAt   DateTime?       @map("deleted_at") @db.Timestamptz(6)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt           Rt?           @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  transactions Transaction[]
+
+  @@unique([rtId, key, type])
+  @@index([type, isActive])
+  @@index([rtId, deletedAt])
+  @@map("transaction_categories")
+}
+
+model Transaction {
+  id                 String            @id @default(uuid()) @db.Uuid
+  rtId               String            @map("rt_id") @db.Uuid
+  cashAccountId      String            @map("cash_account_id") @db.Uuid
+  categoryId         String            @map("category_id") @db.Uuid
+  sourceCollectionId String?           @map("source_collection_id") @db.Uuid
+  referenceNumber    String?           @map("reference_number") @db.VarChar(80)
+  idempotencyKey     String?           @map("idempotency_key") @db.VarChar(120)
+  externalRef        String?           @map("external_ref") @db.VarChar(120)
+  type               TransactionType
+  status             TransactionStatus @default(DRAFT)
+  amount             Decimal           @db.Decimal(14, 2)
+  description        String
+  transactionDate    DateTime          @map("transaction_date") @db.Date
+  createdById        String            @map("created_by_id") @db.Uuid
+  updatedById        String?           @map("updated_by_id") @db.Uuid
+  validatedById      String?           @map("validated_by_id") @db.Uuid
+  validatedAt        DateTime?         @map("validated_at") @db.Timestamptz(6)
+  validationNote     String?           @map("validation_note")
+  rejectedById       String?           @map("rejected_by_id") @db.Uuid
+  rejectedAt         DateTime?         @map("rejected_at") @db.Timestamptz(6)
+  rejectionReason    String?           @map("rejection_reason")
+  postedById         String?           @map("posted_by_id") @db.Uuid
+  postedAt           DateTime?         @map("posted_at") @db.Timestamptz(6)
+  voidedById         String?           @map("voided_by_id") @db.Uuid
+  voidedAt           DateTime?         @map("voided_at") @db.Timestamptz(6)
+  deletedById        String?           @map("deleted_by_id") @db.Uuid
+  deletedAt          DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt               Rt                  @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  cashAccount      CashAccount         @relation(fields: [cashAccountId], references: [id], onDelete: Restrict)
+  category         TransactionCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  sourceCollection JimpitanCollection? @relation(fields: [sourceCollectionId], references: [id], onDelete: SetNull)
+  createdBy        User                @relation("TransactionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy        User?               @relation("TransactionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  validatedBy      User?               @relation("TransactionValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+  rejectedBy       User?               @relation("TransactionRejectedBy", fields: [rejectedById], references: [id], onDelete: SetNull)
+  postedBy         User?               @relation("TransactionPostedBy", fields: [postedById], references: [id], onDelete: SetNull)
+  voidedBy         User?               @relation("TransactionVoidedBy", fields: [voidedById], references: [id], onDelete: SetNull)
+  ledger           CashLedger?
+  approvals        ExpenseApproval[]
+  attachments      Attachment[]
+
+  @@unique([rtId, referenceNumber])
+  @@unique([rtId, idempotencyKey])
+  @@unique([rtId, externalRef])
+  @@unique([sourceCollectionId])
+  @@index([rtId, transactionDate, type])
+  @@index([rtId, status])
+  @@index([rtId, categoryId, transactionDate])
+  @@index([rtId, cashAccountId, transactionDate])
+  @@index([rtId, sourceCollectionId])
+  @@index([rtId, deletedAt])
+  @@map("transactions")
+}
+
+model CashLedger {
+  id             String          @id @default(uuid()) @db.Uuid
+  rtId           String          @map("rt_id") @db.Uuid
+  cashAccountId  String          @map("cash_account_id") @db.Uuid
+  transactionId  String          @unique @map("transaction_id") @db.Uuid
+  ledgerSequence Int             @map("ledger_sequence")
+  entryType      LedgerEntryType @map("entry_type")
+  amount         Decimal         @db.Decimal(14, 2)
+  balanceBefore  Decimal         @map("balance_before") @db.Decimal(14, 2)
+  balanceAfter   Decimal         @map("balance_after") @db.Decimal(14, 2)
+  ledgerDate     DateTime        @map("ledger_date") @db.Timestamptz(6)
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  rt          Rt          @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  cashAccount CashAccount @relation(fields: [cashAccountId], references: [id], onDelete: Restrict)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+
+  @@unique([cashAccountId, ledgerSequence])
+  @@index([rtId, cashAccountId, ledgerDate, id])
+  @@index([rtId, ledgerDate])
+  @@map("cash_ledgers")
+}
+
+model ExpenseApproval {
+  id                   String         @id @default(uuid()) @db.Uuid
+  rtId                 String         @map("rt_id") @db.Uuid
+  transactionId        String         @map("transaction_id") @db.Uuid
+  requestedById        String         @map("requested_by_id") @db.Uuid
+  approverMembershipId String         @map("approver_membership_id") @db.Uuid
+  decisionById         String?        @map("decision_by_id") @db.Uuid
+  idempotencyKey       String?        @map("idempotency_key") @db.VarChar(120)
+  status               ApprovalStatus @default(PENDING)
+  reason               String?
+  decisionNote         String?        @map("decision_note")
+  expiresAt            DateTime?      @map("expires_at") @db.Timestamptz(6)
+  decidedAt            DateTime?      @map("decided_at") @db.Timestamptz(6)
+  createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt                 Rt           @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  transaction        Transaction  @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+  requestedBy        User         @relation("ApprovalRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  decisionBy         User?        @relation("ApprovalDecisionBy", fields: [decisionById], references: [id], onDelete: SetNull)
+  approverMembership RtMembership @relation("ApprovalApprover", fields: [approverMembershipId], references: [id], onDelete: Restrict)
+
+  @@unique([transactionId, approverMembershipId])
+  @@unique([rtId, idempotencyKey])
+  @@index([rtId, status, createdAt])
+  @@index([approverMembershipId, status])
+  @@index([rtId, transactionId])
+  @@map("expense_approvals")
+}
+
+model Notification {
+  id                  String              @id @default(uuid()) @db.Uuid
+  rtId                String              @map("rt_id") @db.Uuid
+  recipientUserId     String?             @map("recipient_user_id") @db.Uuid
+  recipientResidentId String?             @map("recipient_resident_id") @db.Uuid
+  telegramAccountId   String?             @map("telegram_account_id") @db.Uuid
+  idempotencyKey      String?             @map("idempotency_key") @db.VarChar(120)
+  dedupeKey           String?             @map("dedupe_key") @db.VarChar(160)
+  channel             NotificationChannel
+  type                String              @db.VarChar(80)
+  title               String              @db.VarChar(160)
+  body                String
+  status              NotificationStatus  @default(PENDING)
+  payload             Json                @default("{}") @db.JsonB
+  failureReason       String?             @map("failure_reason")
+  sentAt              DateTime?           @map("sent_at") @db.Timestamptz(6)
+  failedAt            DateTime?           @map("failed_at") @db.Timestamptz(6)
+  readAt              DateTime?           @map("read_at") @db.Timestamptz(6)
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt                Rt               @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  recipientUser     User?            @relation(fields: [recipientUserId], references: [id], onDelete: SetNull)
+  recipientResident Resident?        @relation(fields: [recipientResidentId], references: [id], onDelete: SetNull)
+  telegramAccount   TelegramAccount? @relation(fields: [telegramAccountId], references: [id], onDelete: SetNull)
+
+  @@unique([rtId, idempotencyKey])
+  @@unique([rtId, dedupeKey])
+  @@index([rtId, recipientUserId, status])
+  @@index([rtId, recipientResidentId, status])
+  @@index([rtId, channel, status])
+  @@index([rtId, type, createdAt])
+  @@map("notifications")
+}
+
+model Attachment {
+  id               String              @id @default(uuid()) @db.Uuid
+  rtId             String              @map("rt_id") @db.Uuid
+  transactionId    String?             @map("transaction_id") @db.Uuid
+  reportExportId   String?             @map("report_export_id") @db.Uuid
+  residentImportId String?             @map("resident_import_id") @db.Uuid
+  announcementId   String?             @map("announcement_id") @db.Uuid
+  ownerType        AttachmentOwnerType @map("owner_type")
+  ownerId          String              @map("owner_id") @db.Uuid
+  status           AttachmentStatus    @default(PENDING_UPLOAD)
+  bucket           String              @db.VarChar(120)
+  objectKey        String              @map("object_key")
+  fileName         String              @map("file_name") @db.VarChar(255)
+  mimeType         String              @map("mime_type") @db.VarChar(120)
+  sizeBytes        BigInt              @map("size_bytes")
+  checksum         String?             @db.VarChar(128)
+  metadata         Json                @default("{}") @db.JsonB
+  uploadedById     String              @map("uploaded_by_id") @db.Uuid
+  completedAt      DateTime?           @map("completed_at") @db.Timestamptz(6)
+  deletedById      String?             @map("deleted_by_id") @db.Uuid
+  deletedAt        DateTime?           @map("deleted_at") @db.Timestamptz(6)
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt             Rt              @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  transaction    Transaction?    @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  reportExport   ReportExport?   @relation(fields: [reportExportId], references: [id], onDelete: SetNull)
+  residentImport ResidentImport? @relation(fields: [residentImportId], references: [id], onDelete: SetNull)
+  announcement   Announcement?   @relation(fields: [announcementId], references: [id], onDelete: SetNull)
+  uploadedBy     User            @relation("AttachmentUploadedBy", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@unique([rtId, objectKey])
+  @@index([rtId, ownerType, ownerId])
+  @@index([rtId, transactionId])
+  @@index([rtId, reportExportId])
+  @@index([rtId, residentImportId])
+  @@index([rtId, announcementId])
+  @@index([rtId, status])
+  @@index([rtId, deletedAt])
+  @@map("attachments")
+}
+
+model AuditLog {
+  id            String         @id @default(uuid()) @db.Uuid
+  rtId          String?        @map("rt_id") @db.Uuid
+  actorUserId   String?        @map("actor_user_id") @db.Uuid
+  actorType     AuditActorType @map("actor_type")
+  action        String         @db.VarChar(120)
+  entityType    String         @map("entity_type") @db.VarChar(80)
+  entityId      String?        @map("entity_id") @db.Uuid
+  requestId     String?        @map("request_id") @db.VarChar(120)
+  correlationId String?        @map("correlation_id") @db.VarChar(120)
+  beforeData    Json?          @map("before_data") @db.JsonB
+  afterData     Json?          @map("after_data") @db.JsonB
+  ipAddress     String?        @map("ip_address") @db.Inet
+  userAgent     String?        @map("user_agent")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  rt        Rt?   @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  actorUser User? @relation("AuditActorUser", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([rtId, entityType, entityId])
+  @@index([rtId, actorUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([requestId])
+  @@index([correlationId])
+  @@map("audit_logs")
+}
+
+model Setting {
+  id          String   @id @default(uuid()) @db.Uuid
+  rtId        String   @map("rt_id") @db.Uuid
+  key         String   @db.VarChar(120)
+  value       Json     @db.JsonB
+  updatedById String?  @map("updated_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt        Rt    @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  updatedBy User? @relation("SettingUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([rtId, key])
+  @@map("settings")
+}
+
+model Announcement {
+  id          String                 @id @default(uuid()) @db.Uuid
+  rtId        String                 @map("rt_id") @db.Uuid
+  title       String                 @db.VarChar(180)
+  body        String
+  status      AnnouncementStatus     @default(DRAFT)
+  visibility  AnnouncementVisibility @default(PUBLIC)
+  publishedAt DateTime?              @map("published_at") @db.Timestamptz(6)
+  createdById String                 @map("created_by_id") @db.Uuid
+  updatedById String?                @map("updated_by_id") @db.Uuid
+  deletedById String?                @map("deleted_by_id") @db.Uuid
+  deletedAt   DateTime?              @map("deleted_at") @db.Timestamptz(6)
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt          Rt           @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  createdBy   User         @relation("AnnouncementCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy   User?        @relation("AnnouncementUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  attachments Attachment[]
+
+  @@index([rtId, status, visibility, publishedAt])
+  @@index([rtId, deletedAt])
+  @@map("announcements")
+}
+
+model ReportExport {
+  id             String             @id @default(uuid()) @db.Uuid
+  rtId           String             @map("rt_id") @db.Uuid
+  requestedById  String             @map("requested_by_id") @db.Uuid
+  reportType     String             @map("report_type") @db.VarChar(80)
+  format         ReportExportFormat
+  status         ReportExportStatus @default(QUEUED)
+  filters        Json               @default("{}") @db.JsonB
+  fileName       String?            @map("file_name") @db.VarChar(255)
+  objectKey      String?            @map("object_key")
+  errorMessage   String?            @map("error_message")
+  idempotencyKey String?            @map("idempotency_key") @db.VarChar(120)
+  expiresAt      DateTime?          @map("expires_at") @db.Timestamptz(6)
+  completedAt    DateTime?          @map("completed_at") @db.Timestamptz(6)
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt          Rt           @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  requestedBy User         @relation("ReportExportRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  attachments Attachment[]
+
+  @@unique([rtId, idempotencyKey])
+  @@index([rtId, status, createdAt])
+  @@index([rtId, reportType, createdAt])
+  @@index([status, format, createdAt])
+  @@map("report_exports")
+}
+
+model ResidentImport {
+  id             String       @id @default(uuid()) @db.Uuid
+  rtId           String       @map("rt_id") @db.Uuid
+  requestedById  String       @map("requested_by_id") @db.Uuid
+  status         ImportStatus @default(QUEUED)
+  fileName       String       @map("file_name") @db.VarChar(255)
+  idempotencyKey String?      @map("idempotency_key") @db.VarChar(120)
+  totalRows      Int          @default(0) @map("total_rows")
+  successRows    Int          @default(0) @map("success_rows")
+  failedRows     Int          @default(0) @map("failed_rows")
+  errorSummary   Json?        @map("error_summary") @db.JsonB
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt          Rt           @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  requestedBy User         @relation("ResidentImportRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  attachments Attachment[]
+
+  @@unique([rtId, idempotencyKey])
+  @@index([rtId, status, createdAt])
+  @@map("resident_imports")
+}
+
+model OutboxEvent {
+  id            String       @id @default(uuid()) @db.Uuid
+  rtId          String?      @map("rt_id") @db.Uuid
+  eventType     String       @map("event_type") @db.VarChar(120)
+  aggregateType String       @map("aggregate_type") @db.VarChar(80)
+  aggregateId   String       @map("aggregate_id") @db.Uuid
+  dedupeKey     String?      @map("dedupe_key") @db.VarChar(160)
+  payload       Json         @default("{}") @db.JsonB
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  availableAt   DateTime     @default(now()) @map("available_at") @db.Timestamptz(6)
+  processedAt   DateTime?    @map("processed_at") @db.Timestamptz(6)
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rt Rt? @relation(fields: [rtId], references: [id], onDelete: Restrict)
+
+  @@unique([dedupeKey])
+  @@index([status, availableAt])
+  @@index([rtId, eventType, createdAt])
+  @@index([aggregateType, aggregateId])
+  @@map("outbox_events")
+}

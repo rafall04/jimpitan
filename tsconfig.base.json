@@ -1,0 +1,25 @@
+// Purpose: Shared TypeScript compiler settings for JIMPITAN backend packages.
+// Caller: tsc builds and editor TypeScript tooling.
+// Deps: TypeScript 6 compiler.
+// MainFuncs: Defines strict compiler defaults for API source compilation.
+// SideEffects: None.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "moduleDetection": "force",
+    "lib": ["ES2022"],
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  }
+}

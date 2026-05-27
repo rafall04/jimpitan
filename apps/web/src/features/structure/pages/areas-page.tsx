@@ -1,0 +1,230 @@
+/**
+ * Purpose: Complete tenant-aware Areas management page.
+ * Caller: App Router /dashboard/areas route.
+ * Deps: Structure hooks, forms, status badges, data table, sheets, dialogs, tenant permissions, and toast.
+ * MainFuncs: Lists, searches, filters, sorts, creates, updates, archives, and shows area details.
+ * SideEffects: Performs tenant-scoped API mutations through TanStack Query hooks.
+ */
+'use client';
+
+import { Archive, Eye, Pencil, Plus } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { DataTable, type DataTableColumn } from '@/components/data-table/data-table';
+import { EmptyState } from '@/components/feedback/empty-state';
+import { Button } from '@/components/ui/button';
+import { useTenantContext } from '@/features/tenants/tenant-provider';
+import { AreaForm } from '../components/area-form';
+import { getAreaActions } from '../components/action-rules';
+import { ConfirmActionDialog } from '../components/confirm-action-dialog';
+import { toUserMessage } from '../components/error-message';
+import { ListSkeleton, PaginationControls, SearchField, SelectField, StructurePageHeader } from '../components/list-shell';
+import { DetailItem, DetailList, RecordSheet } from '../components/record-sheet';
+import { AreaStatusBadge } from '../components/status-badge';
+import { useAreasQuery, useStructureMutations } from '../hooks';
+import { toCreateAreaPayload, toUpdateAreaPayload, type AreaFormValues } from '../schemas';
+import type { AreaListParams, AreaRecord } from '../types';
+
+type AreaSheetState = { mode: 'create' } | { mode: 'detail' | 'edit'; area: AreaRecord };
+
+export function AreasPage() {
+  const { permissions } = useTenantContext();
+  const canManage = permissions.has('areas.manage');
+  const [search, setSearch] = useState('');
+  const [activeFilter, setActiveFilter] = useState('active');
+  const [page, setPage] = useState(1);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sheet, setSheet] = useState<AreaSheetState | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<AreaRecord | null>(null);
+  const mutations = useStructureMutations();
+  const params = useMemo<AreaListParams>(
+    () => ({
+      page,
+      limit: 20,
+      search,
+      isActive: activeFilter === 'all' ? undefined : activeFilter === 'active',
+      sortBy: 'sortOrder',
+      sortDirection,
+    }),
+    [activeFilter, page, search, sortDirection],
+  );
+  const areasQuery = useAreasQuery(params);
+
+  async function submitArea(values: AreaFormValues) {
+    try {
+      if (sheet?.mode === 'edit') {
+        await mutations.updateArea.mutateAsync({ areaId: sheet.area.id, payload: toUpdateAreaPayload(values) });
+      } else {
+        await mutations.createArea.mutateAsync(toCreateAreaPayload(values));
+      }
+      setSheet(null);
+    } catch (error) {
+      toast.error(toUserMessage(error));
+    }
+  }
+
+  async function confirmArchive() {
+    if (!archiveTarget) {
+      return;
+    }
+    try {
+      await mutations.archiveArea.mutateAsync(archiveTarget.id);
+      setArchiveTarget(null);
+    } catch (error) {
+      toast.error(toUserMessage(error));
+    }
+  }
+
+  const columns = useMemo<DataTableColumn<AreaRecord>[]>(
+    () => [
+      { key: 'code', header: 'Code', cell: (area) => <span className="font-medium">{area.code}</span> },
+      { key: 'name', header: 'Name', cell: (area) => area.name },
+      { key: 'sortOrder', header: 'Sort', cell: (area) => area.sortOrder },
+      { key: 'status', header: 'Status', cell: (area) => <AreaStatusBadge isActive={area.isActive} /> },
+      {
+        key: 'actions',
+        header: <span className="sr-only">Actions</span>,
+        className: 'text-right',
+        cell: (area) => <AreaActions area={area} permissions={permissions} onDetail={() => setSheet({ mode: 'detail', area })} onEdit={() => setSheet({ mode: 'edit', area })} onArchive={() => setArchiveTarget(area)} />,
+      },
+    ],
+    [permissions],
+  );
+
+  return (
+    <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <StructurePageHeader
+        title="Areas"
+        description="Manage RT routes and blocks used by houses, residents, and collection assignments."
+        action={
+          canManage ? (
+            <Button type="button" onClick={() => setSheet({ mode: 'create' })}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New area
+            </Button>
+          ) : null
+        }
+      />
+      <section className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-[minmax(0,1fr)_12rem_10rem]">
+        <SearchField
+          label="Search areas"
+          placeholder="Search by code or name"
+          value={search}
+          onChange={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+        />
+        <SelectField id="area-status-filter" label="Status" value={activeFilter} onChange={(value) => {
+          setActiveFilter(value);
+          setPage(1);
+        }}>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+          <option value="all">All</option>
+        </SelectField>
+        <SelectField id="area-sort-direction" label="Sort" value={sortDirection} onChange={(value) => setSortDirection(value as 'asc' | 'desc')}>
+          <option value="asc">Route order</option>
+          <option value="desc">Reverse order</option>
+        </SelectField>
+      </section>
+      {areasQuery.isPending ? <ListSkeleton label="Loading areas" /> : null}
+      {areasQuery.isError ? <QueryError onRetry={() => void areasQuery.refetch()} /> : null}
+      {areasQuery.data ? (
+        <div className="space-y-4">
+          <div className="hidden md:block">
+            <DataTable columns={columns} rows={areasQuery.data.items} getRowKey={(area) => area.id} emptyTitle="No areas found" emptyDescription="Adjust filters or create an area to begin." />
+          </div>
+          <div className="space-y-3 md:hidden">
+            {areasQuery.data.items.length === 0 ? <EmptyState title="No areas found" description="Adjust filters or create an area to begin." /> : null}
+            {areasQuery.data.items.map((area) => (
+              <AreaCard key={area.id} area={area} permissions={permissions} onDetail={() => setSheet({ mode: 'detail', area })} onEdit={() => setSheet({ mode: 'edit', area })} onArchive={() => setArchiveTarget(area)} />
+            ))}
+          </div>
+          <PaginationControls page={areasQuery.data.page} totalPages={areasQuery.data.totalPages} total={areasQuery.data.total} onPageChange={setPage} />
+        </div>
+      ) : null}
+      <RecordSheet open={Boolean(sheet)} title={sheetTitle(sheet)} description="Area changes are tenant-scoped and audited by the backend." onOpenChange={(open) => !open && setSheet(null)}>
+        {sheet?.mode === 'detail' ? <AreaDetail area={sheet.area} /> : null}
+        {sheet?.mode === 'create' || sheet?.mode === 'edit' ? (
+          <AreaForm initialArea={sheet.mode === 'edit' ? sheet.area : null} isPending={mutations.createArea.isPending || mutations.updateArea.isPending} submitLabel={sheet.mode === 'edit' ? 'Update area' : 'Create area'} onSubmit={submitArea} onCancel={() => setSheet(null)} />
+        ) : null}
+      </RecordSheet>
+      <ConfirmActionDialog open={Boolean(archiveTarget)} title="Archive area" description="Archived areas cannot receive new house assignments. Existing backend rules prevent archiving areas with active houses." actionLabel="Archive" destructive isPending={mutations.archiveArea.isPending} onOpenChange={(open) => !open && setArchiveTarget(null)} onConfirm={confirmArchive} />
+    </main>
+  );
+}
+
+function AreaActions({ area, permissions, onDetail, onEdit, onArchive }: { area: AreaRecord; permissions: ReadonlySet<string>; onDetail: () => void; onEdit: () => void; onArchive: () => void }) {
+  const actions = getAreaActions(area, permissions);
+  return (
+    <div className="flex justify-end gap-2">
+      <Button type="button" variant="ghost" size="icon" onClick={onDetail} aria-label={`View ${area.code}`}>
+        <Eye className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      {actions.includes('edit') ? (
+        <Button type="button" variant="ghost" size="icon" onClick={onEdit} aria-label={`Edit ${area.code}`}>
+          <Pencil className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      ) : null}
+      {actions.includes('archive') ? (
+        <Button type="button" variant="ghost" size="icon" onClick={onArchive} aria-label={`Archive ${area.code}`}>
+          <Archive className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+function AreaCard(props: { area: AreaRecord; permissions: ReadonlySet<string>; onDetail: () => void; onEdit: () => void; onArchive: () => void }) {
+  const { area } = props;
+  return (
+    <article className="rounded-lg border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-semibold">{area.code}</h2>
+          <p className="text-sm text-muted-foreground">{area.name}</p>
+        </div>
+        <AreaStatusBadge isActive={area.isActive} />
+      </div>
+      <div className="mt-3 flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">Sort {area.sortOrder}</span>
+        <AreaActions {...props} />
+      </div>
+    </article>
+  );
+}
+
+function AreaDetail({ area }: { area: AreaRecord }) {
+  return (
+    <DetailList>
+      <DetailItem label="Code" value={area.code} />
+      <DetailItem label="Name" value={area.name} />
+      <DetailItem label="Sort order" value={area.sortOrder} />
+      <DetailItem label="Status" value={<AreaStatusBadge isActive={area.isActive} />} />
+      <DetailItem label="Created" value={new Date(area.createdAt).toLocaleString()} />
+      <DetailItem label="Updated" value={new Date(area.updatedAt).toLocaleString()} />
+    </DetailList>
+  );
+}
+
+function QueryError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <section className="rounded-lg border bg-card p-4" role="alert">
+      <p className="text-sm font-medium">Areas could not be loaded.</p>
+      <Button type="button" variant="outline" size="sm" className="mt-3" onClick={onRetry}>
+        Retry
+      </Button>
+    </section>
+  );
+}
+
+function sheetTitle(sheet: AreaSheetState | null): string {
+  if (!sheet) {
+    return 'Area';
+  }
+  if (sheet.mode === 'create') {
+    return 'New area';
+  }
+  return sheet.mode === 'edit' ? `Edit ${sheet.area.code}` : sheet.area.name;
+}

@@ -1,0 +1,15 @@
+// Purpose: TypeScript project config for the JIMPITAN NestJS API.
+// Caller: API build script and editor TypeScript tooling.
+// Deps: tsconfig.base.json and apps/api/src.
+// MainFuncs: Sets API source and output directories.
+// SideEffects: None.
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "../../dist/apps/api",
+    "tsBuildInfoFile": "../../dist/apps/api.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

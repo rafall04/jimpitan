@@ -1,0 +1,13 @@
+# Purpose: Docker build ignore file for the JIMPITAN API image.
+# Caller: Docker build context packaging.
+# Deps: Docker.
+# MainFuncs: Keeps local dependencies, build output, caches, and secrets out of Docker context.
+# SideEffects: Excludes matching files from Docker build context.
+
+node_modules
+dist
+coverage
+.env
+.env.*
+.git
+.superpowers

@@ -1,0 +1,11 @@
+// Purpose: TypeScript build config for the JIMPITAN NestJS API.
+// Caller: npm run build:api.
+// Deps: apps/api/tsconfig.json.
+// MainFuncs: Enables emitting compiled API files.
+// SideEffects: Creates dist/apps/api output during builds.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false
+  }
+}

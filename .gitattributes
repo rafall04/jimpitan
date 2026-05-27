@@ -1,0 +1,22 @@
+# Purpose: Normalize repository text files for cross-platform JIMPITAN development and VPS deployment.
+# Caller: Git checkout, commit, and archive operations.
+# Deps: Git attributes support.
+# MainFuncs: Keeps source/config/docs as text and preserves LF for shell scripts, Dockerfiles, YAML, and generated deployment configs.
+# SideEffects: Controls line-ending normalization in Git worktrees.
+
+* text=auto
+
+*.sh text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.mts text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.conf text eol=lf
+*.prisma text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf

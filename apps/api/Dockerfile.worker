@@ -1,0 +1,35 @@
+# Purpose: Docker image definition for the JIMPITAN API background worker.
+# Caller: Docker build, CI/CD, and production worker deployment.
+# Deps: Node.js, npm, Prisma schema, apps/api worker TypeScript source.
+# MainFuncs: Installs dependencies, generates Prisma client, builds API worker, and starts compiled worker loop.
+# SideEffects: Produces a container image with compiled backend worker artifacts.
+
+FROM node:20-bookworm-slim AS deps
+WORKDIR /app
+ENV npm_config_cache=/tmp/npm-cache
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+FROM deps AS build
+WORKDIR /app
+COPY tsconfig.base.json ./
+COPY prisma ./prisma
+COPY apps/api ./apps/api
+RUN npm run prisma:generate
+RUN npm run build:worker
+
+FROM node:20-bookworm-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+ENV npm_config_cache=/tmp/npm-cache
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY prisma ./prisma
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=build /app/dist/apps/api ./dist
+RUN mkdir -p /var/lib/jimpitan/uploads /var/lib/jimpitan/exports && chown -R node:node /app /var/lib/jimpitan
+USER node
+HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 CMD node -e "const fs=require('fs');const f=process.env.WORKER_HEALTH_FILE||'/tmp/jimpitan-worker-health';const s=fs.statSync(f);const max=Number(process.env.WORKER_POLL_INTERVAL_MS||5000)*4+10000;process.exit(Date.now()-s.mtimeMs<=max?0:1);"
+CMD ["node", "dist/worker/main.js"]

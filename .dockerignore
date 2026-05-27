@@ -1,0 +1,19 @@
+# Purpose: Root Docker build ignore file for JIMPITAN container contexts.
+# Caller: Docker build for API, worker, and web images.
+# Deps: Docker.
+# MainFuncs: Keeps dependencies, build output, caches, VCS metadata, and secrets out of build contexts.
+# SideEffects: Excludes matching files from Docker build contexts.
+
+node_modules
+dist
+coverage
+.next
+.nuxt
+.cache
+.npm-cache
+.env
+.env.*
+.git
+.superpowers
+tmp
+build

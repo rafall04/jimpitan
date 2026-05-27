@@ -1,0 +1,1361 @@
+<!--
+Purpose: Static visual planning companion for the JIMPITAN RT financial management platform.
+Caller: Browser review during product discovery and UX approval.
+Deps: Static HTML and CSS only; no external runtime dependencies.
+MainFuncs: Presents information architecture, user flows, wireframes, design system, navigation, tables, forms, badges, dashboard widgets, Telegram bot flow, and mobile officer workflow.
+SideEffects: None.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JIMPITAN Visual Planning</title>
+  <style>
+    :root {
+      --bg: #f7f8f5;
+      --surface: #ffffff;
+      --surface-2: #f0f4ef;
+      --ink: #17211b;
+      --muted: #647067;
+      --line: #dfe6dc;
+      --soft-line: #edf1e9;
+      --green: #1f7a4d;
+      --green-2: #e6f4ec;
+      --green-3: #c9e8d5;
+      --blue: #2f6ea8;
+      --amber: #a26510;
+      --red: #b3382c;
+      --purple: #7357a4;
+      --radius: 8px;
+      --shadow: 0 12px 34px rgba(23, 33, 27, 0.08);
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 284px minmax(0, 1fr);
+    }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 22px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(18px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 6px 22px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--green);
+      color: white;
+      font-weight: 800;
+    }
+
+    .brand strong { display: block; font-size: 16px; }
+    .brand span { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+    .nav-group { margin: 14px 0; }
+    .nav-label {
+      color: #8b958d;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 8px 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 34px;
+      padding: 7px 9px;
+      color: #435047;
+      border-radius: 7px;
+      font-size: 13px;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--green-2);
+      color: var(--green);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.65;
+      flex: 0 0 auto;
+    }
+
+    main {
+      min-width: 0;
+      padding: 28px;
+    }
+
+    .hero {
+      min-height: 520px;
+      display: grid;
+      grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 26px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.7);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    h1 {
+      margin: 26px 0 14px;
+      max-width: 680px;
+      font-size: clamp(40px, 6vw, 86px);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 580px;
+      color: #4b584f;
+      font-size: 18px;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .button {
+      min-height: 42px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .button.primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+
+    .hero-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .panel-top {
+      height: 46px;
+      border-bottom: 1px solid var(--soft-line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .traffic { display: flex; gap: 6px; }
+    .traffic i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--line);
+      display: block;
+    }
+
+    .overview-preview {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      min-height: 470px;
+    }
+
+    .preview-nav {
+      background: #fbfcfa;
+      border-right: 1px solid var(--soft-line);
+      padding: 16px 10px;
+    }
+
+    .preview-nav .mini-item {
+      height: 30px;
+      border-radius: 7px;
+      margin-bottom: 6px;
+      padding: 8px 9px;
+      color: #59645c;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .preview-nav .mini-item.on {
+      background: var(--green-2);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .preview-main {
+      padding: 17px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search {
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      border: 1px solid var(--soft-line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fff;
+      min-height: 92px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi small, .tile small { color: var(--muted); font-size: 11px; }
+    .kpi strong { font-size: 18px; }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1.5fr 0.9fr;
+      gap: 10px;
+    }
+
+    .chart, .tile {
+      border: 1px solid var(--soft-line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 13px;
+      min-height: 180px;
+    }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 7px;
+      align-items: end;
+      height: 112px;
+      margin-top: 18px;
+    }
+
+    .bar {
+      border-radius: 4px 4px 0 0;
+      background: var(--green-3);
+      min-height: 22px;
+    }
+
+    .bar:nth-child(3n) { background: #9bcdb4; }
+    .bar:nth-child(4n) { background: #e6c98f; }
+
+    section {
+      margin: 24px 0;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: 24px;
+      line-height: 1.15;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 640px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: #516056;
+      font-size: 11px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 15px;
+      min-width: 0;
+    }
+
+    .box h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .box p, .box li {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .box p { margin: 0; }
+    .box ul { margin: 10px 0 0; padding-left: 18px; }
+
+    .tree {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 12px;
+      overflow: auto;
+      padding-bottom: 4px;
+    }
+
+    .tree-col {
+      min-width: 170px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .tree-col strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 9px;
+    }
+
+    .tree-col span {
+      display: block;
+      padding: 7px 8px;
+      margin: 6px 0;
+      background: #f7faf5;
+      border: 1px solid var(--soft-line);
+      border-radius: 7px;
+      color: #4f5d53;
+      font-size: 12px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 160px repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      overflow: auto;
+    }
+
+    .actor {
+      background: var(--ink);
+      color: white;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 750;
+      min-width: 150px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 11px;
+      min-width: 130px;
+      font-size: 12px;
+      color: #526057;
+      position: relative;
+    }
+
+    .step strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+
+    .wire-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .wire {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      min-height: 300px;
+    }
+
+    .wire .wire-head {
+      height: 38px;
+      border-bottom: 1px solid var(--soft-line);
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .wire-body {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .hero-wire {
+      min-height: 170px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #163d2c, #276241);
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+    }
+
+    .hero-wire strong { font-size: 26px; max-width: 360px; line-height: 1.06; }
+    .hero-wire span { margin-top: 8px; color: rgba(255,255,255,0.75); font-size: 12px; }
+
+    .line {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--soft-line);
+    }
+
+    .line.dark { background: #d3dfd2; }
+    .line.short { width: 54%; }
+    .line.med { width: 72%; }
+
+    .table {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .tr {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr 0.7fr;
+      min-height: 40px;
+      border-bottom: 1px solid var(--soft-line);
+      align-items: center;
+    }
+
+    .tr:last-child { border-bottom: 0; }
+    .td {
+      padding: 10px;
+      font-size: 12px;
+      color: #505c54;
+      min-width: 0;
+    }
+
+    .tr.head {
+      background: #f7faf5;
+      font-weight: 750;
+      color: var(--ink);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 750;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .badge.green { color: #16613d; background: #e5f5eb; border-color: #cae8d4; }
+    .badge.amber { color: #7a4a0e; background: #fbefd7; border-color: #efd5a4; }
+    .badge.red { color: #8e2b21; background: #f9e7e4; border-color: #ebc8c3; }
+    .badge.blue { color: #245984; background: #e5f0f8; border-color: #caddf0; }
+    .badge.gray { color: #56615a; background: #edf1ec; border-color: #dfe6dc; }
+    .badge.purple { color: #60468e; background: #eee9f7; border-color: #dacff0; }
+
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .swatch {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .swatch i {
+      display: block;
+      height: 62px;
+      background: var(--color);
+    }
+
+    .swatch span {
+      display: block;
+      padding: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .components {
+      display: grid;
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 14px;
+    }
+
+    .hierarchy {
+      display: grid;
+      gap: 8px;
+    }
+
+    .node {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      background: #fff;
+      color: #4f5d54;
+      font-size: 13px;
+    }
+
+    .node.l1 { background: var(--ink); color: white; font-weight: 800; }
+    .node.l2 { margin-left: 18px; }
+    .node.l3 { margin-left: 36px; color: var(--muted); }
+
+    .form-demo {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 750;
+      margin-bottom: 6px;
+    }
+
+    .input {
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 11px;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .phone-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(230px, 1fr));
+      gap: 16px;
+      overflow: auto;
+      padding-bottom: 4px;
+    }
+
+    .phone {
+      width: 100%;
+      min-width: 230px;
+      max-width: 290px;
+      border: 1px solid #cfd8ce;
+      border-radius: 26px;
+      background: #111814;
+      padding: 10px;
+      justify-self: center;
+      box-shadow: 0 16px 38px rgba(23, 33, 27, 0.12);
+    }
+
+    .phone-screen {
+      min-height: 510px;
+      background: #fbfcfa;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-top {
+      height: 48px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--soft-line);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .mobile-body {
+      padding: 13px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .big-number {
+      font-size: 30px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .house-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .house {
+      min-height: 54px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .amount {
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .amount.on {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .bottom-bar {
+      margin-top: auto;
+      border-top: 1px solid var(--soft-line);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: #fff;
+    }
+
+    .bottom-bar span {
+      height: 48px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .bottom-bar .on { color: var(--green); font-weight: 800; }
+
+    .telegram {
+      background: #e8f2fb;
+      border: 1px solid #caddf0;
+      border-radius: 12px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .chat {
+      max-width: 740px;
+      margin: 0 auto;
+      display: grid;
+      gap: 8px;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.45;
+      background: #fff;
+      border: 1px solid #d6e5f2;
+    }
+
+    .bubble.user {
+      justify-self: end;
+      background: #2f6ea8;
+      color: white;
+      border-color: #2f6ea8;
+    }
+
+    .kbd-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .kbd {
+      padding: 7px 9px;
+      border-radius: 7px;
+      background: #edf6ff;
+      border: 1px solid #caddf0;
+      font-size: 12px;
+      color: #245984;
+      font-weight: 750;
+    }
+
+    .decision {
+      border: 1px solid var(--green-3);
+      background: var(--green-2);
+      border-radius: var(--radius);
+      padding: 14px;
+      color: #245438;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .rail {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-group { display: none; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .overview-preview { grid-template-columns: 150px 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .components, .grid-2, .wire-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      main { padding: 16px; }
+      section { padding: 16px; border-radius: 10px; }
+      .hero-copy { padding: 0; }
+      h1 { font-size: 44px; }
+      .lead { font-size: 15px; }
+      .overview-preview { grid-template-columns: 1fr; }
+      .preview-nav { display: none; }
+      .kpi-grid, .chart-row, .grid-3, .grid-4, .palette, .form-demo { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .wire-grid { gap: 12px; }
+      .tr { grid-template-columns: 1.2fr 1fr; }
+      .tr .td:nth-child(n+3) { display: none; }
+      .flow-row { grid-template-columns: 150px repeat(5, 135px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <div class="mark">J</div>
+        <div>
+          <strong>JIMPITAN</strong>
+          <span>RT finance platform plan</span>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-group">
+          <div class="nav-label">Planning</div>
+          <a class="nav-link active" href="#overview"><span class="dot"></span>Overview</a>
+          <a class="nav-link" href="#ia"><span class="dot"></span>Information architecture</a>
+          <a class="nav-link" href="#flows"><span class="dot"></span>User flows</a>
+          <a class="nav-link" href="#dashboard"><span class="dot"></span>Dashboard layout</a>
+          <a class="nav-link" href="#mobile"><span class="dot"></span>Mobile workflow</a>
+          <a class="nav-link" href="#telegram"><span class="dot"></span>Telegram bot</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">UI System</div>
+          <a class="nav-link" href="#wireframes"><span class="dot"></span>Wireframes</a>
+          <a class="nav-link" href="#system"><span class="dot"></span>Design system</a>
+          <a class="nav-link" href="#components"><span class="dot"></span>Components</a>
+          <a class="nav-link" href="#tables"><span class="dot"></span>Tables and forms</a>
+          <a class="nav-link" href="#badges"><span class="dot"></span>Status badges</a>
+        </div>
+      </nav>
+    </aside>
+
+    <main id="overview">
+      <div class="hero">
+        <div class="hero-copy">
+          <div>
+            <span class="eyebrow">Visual thesis: quiet civic finance, fast field input, readable reports</span>
+            <h1>JIMPITAN visual planning</h1>
+            <p class="lead">A clean, mobile-first RT finance system that keeps public transparency simple, internal workflows fast, and collection input usable for officers in the field.</p>
+            <div class="hero-actions">
+              <a class="button primary" href="#dashboard">Review dashboard</a>
+              <a class="button" href="#mobile">Review officer mobile flow</a>
+              <a class="button" href="#telegram">Review Telegram flow</a>
+            </div>
+          </div>
+          <div class="decision">
+            Recommended direction: build a restrained shadcn-style operational dashboard with green as the primary civic accent, neutral surfaces, dense but readable tables, and a dedicated mobile collection flow optimized for one-handed use.
+          </div>
+        </div>
+
+        <div class="hero-panel" aria-label="Dashboard preview">
+          <div class="panel-top">
+            <div class="traffic"><i></i><i></i><i></i></div>
+            <span>Private dashboard preview</span>
+          </div>
+          <div class="overview-preview">
+            <div class="preview-nav">
+              <div class="mini-item on">Overview <span>01</span></div>
+              <div class="mini-item">Warga</div>
+              <div class="mini-item">Jimpitan</div>
+              <div class="mini-item">Keuangan</div>
+              <div class="mini-item">Approval</div>
+              <div class="mini-item">Reports</div>
+              <div class="mini-item">Audit</div>
+            </div>
+            <div class="preview-main">
+              <div class="toolbar">
+                <div>
+                  <strong>Ringkasan RT 04</strong><br />
+                  <small style="color: var(--muted)">Minggu berjalan</small>
+                </div>
+                <div class="search">Search warga, rumah, transaksi</div>
+              </div>
+              <div class="kpi-grid">
+                <div class="kpi"><small>Saldo kas</small><strong>Rp 18,45 jt</strong><span class="badge green">stabil</span></div>
+                <div class="kpi"><small>Jimpitan minggu ini</small><strong>Rp 820 rb</strong><span class="badge blue">86 rumah</span></div>
+                <div class="kpi"><small>Tunggakan</small><strong>12</strong><span class="badge amber">perlu follow-up</span></div>
+                <div class="kpi"><small>Approval</small><strong>3</strong><span class="badge red">menunggu</span></div>
+              </div>
+              <div class="chart-row">
+                <div class="chart">
+                  <small>Pemasukan vs pengeluaran</small>
+                  <div class="bars">
+                    <div class="bar" style="height: 48px"></div><div class="bar" style="height: 82px"></div><div class="bar" style="height: 66px"></div><div class="bar" style="height: 38px"></div><div class="bar" style="height: 96px"></div><div class="bar" style="height: 74px"></div><div class="bar" style="height: 52px"></div><div class="bar" style="height: 88px"></div><div class="bar" style="height: 62px"></div><div class="bar" style="height: 110px"></div>
+                  </div>
+                </div>
+                <div class="tile">
+                  <small>Petugas hari ini</small>
+                  <h3 style="margin: 14px 0 7px">Blok A dan B</h3>
+                  <p style="color: var(--muted); font-size: 13px; line-height: 1.45">24 dari 38 rumah selesai. Estimasi selesai 20:30.</p>
+                  <span class="badge green">on track</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section id="ia">
+        <div class="section-head">
+          <div>
+            <h2>Information Architecture</h2>
+            <p>Public pages focus on transparency. Private dashboard separates operational finance, collection, approvals, reporting, audit, and settings.</p>
+          </div>
+          <span class="tag">Public + Private + Bot</span>
+        </div>
+        <div class="tree">
+          <div class="tree-col">
+            <strong>Public Web</strong>
+            <span>Home</span><span>Ringkasan Kas</span><span>Laporan Publik</span><span>Pengumuman</span><span>Jadwal Jimpitan</span><span>Kontak Pengurus</span>
+          </div>
+          <div class="tree-col">
+            <strong>Dashboard</strong>
+            <span>Overview</span><span>Warga</span><span>Rumah dan Area</span><span>Koleksi Jimpitan</span><span>Keuangan</span><span>Approval</span>
+          </div>
+          <div class="tree-col">
+            <strong>Operations</strong>
+            <span>Jadwal Petugas</span><span>Validasi Bendahara</span><span>Notifikasi</span><span>Reports</span><span>Audit Logs</span><span>Settings</span>
+          </div>
+          <div class="tree-col">
+            <strong>Telegram Bot</strong>
+            <span>/saldo</span><span>/input_jimpitan</span><span>/input_pemasukan</span><span>/input_pengeluaran</span><span>/approval</span><span>/rekap</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="flows">
+        <div class="section-head">
+          <div>
+            <h2>User Flow</h2>
+            <p>Every role lands on the smallest working surface needed for the next action. High-risk finance actions move through validation and audit.</p>
+          </div>
+          <span class="tag">RBAC-first</span>
+        </div>
+        <div class="flow">
+          <div class="flow-row">
+            <div class="actor">Warga</div>
+            <div class="step"><strong>Open public site</strong>View kas summary</div>
+            <div class="step"><strong>Check report</strong>Monthly PDF/CSV</div>
+            <div class="step"><strong>See schedule</strong>Jimpitan calendar</div>
+            <div class="step"><strong>Receive reminder</strong>Telegram optional</div>
+            <div class="step"><strong>Trust boundary</strong>No private notes</div>
+          </div>
+          <div class="flow-row">
+            <div class="actor">Petugas</div>
+            <div class="step"><strong>Reminder</strong>Telegram schedule</div>
+            <div class="step"><strong>Open mobile flow</strong>Area route</div>
+            <div class="step"><strong>Input collection</strong>Status + amount</div>
+            <div class="step"><strong>Submit batch</strong>Await validation</div>
+            <div class="step"><strong>Audit trail</strong>Officer stamped</div>
+          </div>
+          <div class="flow-row">
+            <div class="actor">Bendahara</div>
+            <div class="step"><strong>Review queue</strong>Collections + finance</div>
+            <div class="step"><strong>Validate</strong>Batch or item</div>
+            <div class="step"><strong>Ledger update</strong>Cash balance moves</div>
+            <div class="step"><strong>Create report</strong>Daily/monthly</div>
+            <div class="step"><strong>Notify</strong>RT summary</div>
+          </div>
+          <div class="flow-row">
+            <div class="actor">Ketua RT</div>
+            <div class="step"><strong>Monitor</strong>KPIs and trends</div>
+            <div class="step"><strong>Approve expense</strong>Threshold based</div>
+            <div class="step"><strong>Reject with reason</strong>Back to treasurer</div>
+            <div class="step"><strong>Audit</strong>Before/after data</div>
+            <div class="step"><strong>Publish</strong>Public-safe report</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard">
+        <div class="section-head">
+          <div>
+            <h2>Dashboard Layout</h2>
+            <p>Desktop layout uses persistent sidebar, compact top command area, KPI strip, chart area, validation queues, and operational lists.</p>
+          </div>
+          <span class="tag">Linear + Supabase density</span>
+        </div>
+        <div class="grid-4">
+          <div class="box"><h3>Current cash</h3><p>Large number, freshness timestamp, source ledger link.</p></div>
+          <div class="box"><h3>Weekly collection</h3><p>Collected amount, house coverage, route progress.</p></div>
+          <div class="box"><h3>Outstanding houses</h3><p>Count by severity with direct filter into collection table.</p></div>
+          <div class="box"><h3>Expense approval</h3><p>Pending approvals with amount and deadline signal.</p></div>
+        </div>
+        <div style="height: 14px"></div>
+        <div class="grid-2">
+          <div class="box">
+            <h3>Primary dashboard zones</h3>
+            <ul>
+              <li>Top: RT scope switcher, date range, global search, create action.</li>
+              <li>Middle: cash, collection, outstanding, approval widgets.</li>
+              <li>Lower: cash flow chart, collection route status, recent audit.</li>
+              <li>Right inspector: contextual detail for selected queue item on wide screens.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Navigation structure</h3>
+            <ul>
+              <li>Overview</li>
+              <li>Warga: residents, houses, areas, imports</li>
+              <li>Jimpitan: schedules, collection sessions, validation</li>
+              <li>Finance: transactions, categories, ledgers, approvals</li>
+              <li>Reports, Telegram, Audit, Settings</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="mobile">
+        <div class="section-head">
+          <div>
+            <h2>Mobile-First Officer Collection Workflow</h2>
+            <p>Officer workflow avoids dense admin UI. It is route-based, thumb-friendly, resumable, and optimized for repeated house status entry.</p>
+          </div>
+          <span class="tag">Field speed</span>
+        </div>
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="mobile-top"><span>Route hari ini</span><span class="badge green">24/38</span></div>
+              <div class="mobile-body">
+                <div class="box"><small>Blok A</small><div class="big-number">63%</div><p>14 rumah tersisa</p></div>
+                <div class="house-list">
+                  <div class="house"><div><strong>A-01</strong><br /><span>Pak Budi</span></div><span class="badge gray">belum</span></div>
+                  <div class="house"><div><strong>A-02</strong><br /><span>Bu Sari</span></div><span class="badge green">paid</span></div>
+                  <div class="house"><div><strong>A-03</strong><br /><span>Pak Dani</span></div><span class="badge amber">kosong</span></div>
+                  <div class="house"><div><strong>A-04</strong><br /><span>Ibu Lina</span></div><span class="badge red">menunggak</span></div>
+                </div>
+              </div>
+              <div class="bottom-bar"><span class="on">Route</span><span>Input</span><span>Rekap</span><span>Akun</span></div>
+            </div>
+          </div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="mobile-top"><span>Input A-01</span><span>20:12</span></div>
+              <div class="mobile-body">
+                <div class="box"><h3>Pak Budi</h3><p>Default Rp 2.000. Catatan: titip satpam bila rumah kosong.</p></div>
+                <div class="amount-grid">
+                  <div class="amount">0</div><div class="amount on">2 rb</div><div class="amount">5 rb</div>
+                  <div class="amount">10 rb</div><div class="amount">Lain</div><div class="amount">Titip</div>
+                </div>
+                <div class="grid-2">
+                  <span class="badge green">Paid</span>
+                  <span class="badge amber">House empty</span>
+                  <span class="badge blue">Titip tetangga</span>
+                  <span class="badge red">Menunggak</span>
+                </div>
+                <div class="input">Catatan opsional</div>
+              </div>
+              <div style="padding: 13px; margin-top: auto"><div class="button primary" style="width:100%">Simpan dan lanjut</div></div>
+            </div>
+          </div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="mobile-top"><span>Rekap sesi</span><span class="badge blue">draft</span></div>
+              <div class="mobile-body">
+                <div class="box"><small>Total terkumpul</small><div class="big-number">Rp 76 rb</div><p>32 rumah selesai, 6 perlu follow-up.</p></div>
+                <div class="table">
+                  <div class="tr head"><div class="td">Status</div><div class="td">Jumlah</div><div></div><div></div><div></div></div>
+                  <div class="tr"><div class="td">Paid</div><div class="td">28</div><div></div><div></div><div></div></div>
+                  <div class="tr"><div class="td">Kosong</div><div class="td">4</div><div></div><div></div><div></div></div>
+                  <div class="tr"><div class="td">Menunggak</div><div class="td">2</div><div></div><div></div><div></div></div>
+                </div>
+              </div>
+              <div style="padding: 13px; margin-top: auto"><div class="button primary" style="width:100%">Kirim ke bendahara</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="telegram">
+        <div class="section-head">
+          <div>
+            <h2>Telegram Bot Interaction Flow</h2>
+            <p>Telegram is a fast command surface, not a replacement for the dashboard. It handles reminders, quick inputs, status checks, and approval notifications.</p>
+          </div>
+          <span class="tag">grammY / Telegraf ready</span>
+        </div>
+        <div class="telegram">
+          <div class="chat">
+            <div class="bubble user">/input_jimpitan</div>
+            <div class="bubble">Pilih area tugas hari ini.<div class="kbd-row"><span class="kbd">Blok A</span><span class="kbd">Blok B</span><span class="kbd">Lihat jadwal</span></div></div>
+            <div class="bubble user">Blok A</div>
+            <div class="bubble">Pilih rumah atau ketik nomor rumah.<div class="kbd-row"><span class="kbd">A-01</span><span class="kbd">A-02</span><span class="kbd">A-03</span></div></div>
+            <div class="bubble user">A-01</div>
+            <div class="bubble">Masukkan nominal dan status.<div class="kbd-row"><span class="kbd">Rp 2.000 paid</span><span class="kbd">Kosong</span><span class="kbd">Menunggak</span></div></div>
+            <div class="bubble user">Rp 2.000 paid</div>
+            <div class="bubble">Tersimpan sebagai draft. Konfirmasi?<div class="kbd-row"><span class="kbd">Ya, simpan</span><span class="kbd">Ubah</span><span class="kbd">Batal</span></div></div>
+          </div>
+        </div>
+        <div style="height: 14px"></div>
+        <div class="grid-3">
+          <div class="box"><h3>Finance commands</h3><p>/saldo, /rekap, /input_pemasukan, /input_pengeluaran.</p></div>
+          <div class="box"><h3>Jimpitan commands</h3><p>/input_jimpitan, /jadwal, /tunggakan with role-based menus.</p></div>
+          <div class="box"><h3>Admin commands</h3><p>/approval and /laporan send secure deep links for dashboard review.</p></div>
+        </div>
+      </section>
+
+      <section id="wireframes">
+        <div class="section-head">
+          <div>
+            <h2>Wireframes For Major Pages</h2>
+            <p>Wireframes use real product structure without marketing copy. Public pages stay simple; dashboard pages prioritize scanning and action.</p>
+          </div>
+          <span class="tag">Major pages</span>
+        </div>
+        <div class="wire-grid">
+          <div class="wire">
+            <div class="wire-head"><span>Public Home</span><span>mobile-first</span></div>
+            <div class="wire-body">
+              <div class="hero-wire"><strong>Kas RT transparan, jimpitan tercatat rapi.</strong><span>Saldo, jadwal, pengumuman, dan laporan publik.</span></div>
+              <div class="grid-3"><div class="line"></div><div class="line"></div><div class="line"></div></div>
+              <div class="line med"></div><div class="line short"></div>
+            </div>
+          </div>
+          <div class="wire">
+            <div class="wire-head"><span>Reports Public</span><span>safe data</span></div>
+            <div class="wire-body">
+              <div class="grid-3"><div class="kpi"><small>Saldo</small><strong>Rp 18,45 jt</strong></div><div class="kpi"><small>Masuk</small><strong>Rp 3,2 jt</strong></div><div class="kpi"><small>Keluar</small><strong>Rp 1,1 jt</strong></div></div>
+              <div class="chart"><div class="bars"><div class="bar" style="height: 42px"></div><div class="bar" style="height: 90px"></div><div class="bar" style="height: 72px"></div><div class="bar" style="height: 48px"></div><div class="bar" style="height: 98px"></div><div class="bar" style="height: 62px"></div></div></div>
+            </div>
+          </div>
+          <div class="wire">
+            <div class="wire-head"><span>Residents</span><span>admin</span></div>
+            <div class="wire-body">
+              <div class="toolbar"><div class="search">Search warga</div><div class="button primary">Tambah</div></div>
+              <div class="table">
+                <div class="tr head"><div class="td">Nama</div><div class="td">Rumah</div><div class="td">Area</div><div class="td">Status</div><div class="td">Aksi</div></div>
+                <div class="tr"><div class="td">Budi</div><div class="td">A-01</div><div class="td">A</div><div class="td"><span class="badge green">active</span></div><div class="td">...</div></div>
+                <div class="tr"><div class="td">Sari</div><div class="td">A-02</div><div class="td">A</div><div class="td"><span class="badge gray">inactive</span></div><div class="td">...</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="wire">
+            <div class="wire-head"><span>Finance</span><span>ledger</span></div>
+            <div class="wire-body">
+              <div class="toolbar"><div class="search">Filter tanggal, kategori, status</div><div class="button primary">Transaksi</div></div>
+              <div class="grid-3"><div class="kpi"><small>Income</small><strong>Rp 3,2 jt</strong></div><div class="kpi"><small>Expense</small><strong>Rp 1,1 jt</strong></div><div class="kpi"><small>Net</small><strong>Rp 2,1 jt</strong></div></div>
+              <div class="table"><div class="tr head"><div class="td">Tanggal</div><div class="td">Kategori</div><div class="td">Nominal</div><div class="td">Status</div><div class="td">Bukti</div></div><div class="tr"><div class="td">25 Mei</div><div class="td">Jimpitan</div><div class="td">Rp 76 rb</div><div class="td"><span class="badge green">valid</span></div><div class="td">file</div></div></div>
+            </div>
+          </div>
+          <div class="wire">
+            <div class="wire-head"><span>Approvals</span><span>ketua RT</span></div>
+            <div class="wire-body">
+              <div class="box"><h3>Pengeluaran renovasi pos</h3><p>Rp 2.500.000 exceeds threshold. Requires Ketua RT approval.</p></div>
+              <div class="grid-2"><div class="button primary">Approve</div><div class="button">Reject</div></div>
+              <div class="line dark"></div><div class="line med"></div><div class="line short"></div>
+            </div>
+          </div>
+          <div class="wire">
+            <div class="wire-head"><span>Audit Logs</span><span>immutable view</span></div>
+            <div class="wire-body">
+              <div class="table"><div class="tr head"><div class="td">Waktu</div><div class="td">User</div><div class="td">Action</div><div class="td">Object</div><div class="td">IP</div></div><div class="tr"><div class="td">20:12</div><div class="td">Bendahara</div><div class="td">VALIDATE</div><div class="td">Collection</div><div class="td">10.0...</div></div><div class="tr"><div class="td">20:16</div><div class="td">Ketua</div><div class="td">APPROVE</div><div class="td">Expense</div><div class="td">10.0...</div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="system">
+        <div class="section-head">
+          <div>
+            <h2>Design System</h2>
+            <p>Green is used for trust and completion only. Supporting colors are reserved for status semantics, not decoration.</p>
+          </div>
+          <span class="tag">shadcn-compatible</span>
+        </div>
+        <div class="palette">
+          <div class="swatch" style="--color:#17211b"><i></i><span>Ink<br />#17211B</span></div>
+          <div class="swatch" style="--color:#f7f8f5"><i></i><span>Canvas<br />#F7F8F5</span></div>
+          <div class="swatch" style="--color:#ffffff"><i></i><span>Surface<br />#FFFFFF</span></div>
+          <div class="swatch" style="--color:#1f7a4d"><i></i><span>Primary<br />#1F7A4D</span></div>
+          <div class="swatch" style="--color:#2f6ea8"><i></i><span>Info<br />#2F6EA8</span></div>
+          <div class="swatch" style="--color:#a26510"><i></i><span>Warning<br />#A26510</span></div>
+        </div>
+        <div style="height: 14px"></div>
+        <div class="grid-3">
+          <div class="box"><h3>Typography</h3><p>Inter/system sans. 14px base. 16px mobile form fields. No viewport-scaling body text.</p></div>
+          <div class="box"><h3>Radius</h3><p>7-8px for controls and cards. 12px only for large app shells and browser frames.</p></div>
+          <div class="box"><h3>Spacing</h3><p>4px rhythm. Dense dashboard spacing, generous mobile tap areas with 44px minimum controls.</p></div>
+        </div>
+      </section>
+
+      <section id="components">
+        <div class="section-head">
+          <div>
+            <h2>Component Hierarchy</h2>
+            <p>Components are split by responsibility. Core UI stays reusable; domain components own finance and RT-specific language.</p>
+          </div>
+          <span class="tag">SRP</span>
+        </div>
+        <div class="components">
+          <div class="hierarchy">
+            <div class="node l1">AppShell</div>
+            <div class="node l2">SidebarNav</div>
+            <div class="node l2">TopCommandBar</div>
+            <div class="node l2">PageHeader</div>
+            <div class="node l2">DataRegion</div>
+            <div class="node l3">Table, FilterBar, Pagination</div>
+          </div>
+          <div class="hierarchy">
+            <div class="node l1">Domain Components</div>
+            <div class="node l2">CashBalanceWidget</div>
+            <div class="node l2">CollectionProgressWidget</div>
+            <div class="node l2">OutstandingHouseList</div>
+            <div class="node l2">ExpenseApprovalPanel</div>
+            <div class="node l2">MobileCollectionStepper</div>
+            <div class="node l3">HousePicker, AmountPad, StatusPicker, ConfirmationSheet</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tables">
+        <div class="section-head">
+          <div>
+            <h2>Data Table Standards and Form UX</h2>
+            <p>Tables emphasize stable scanning and safe bulk actions. Forms are short, validated inline, and defer complex fields into progressive sections.</p>
+          </div>
+          <span class="tag">Operational UI</span>
+        </div>
+        <div class="grid-2">
+          <div class="box">
+            <h3>Table standard</h3>
+            <div class="table">
+              <div class="tr head"><div class="td">Primary</div><div class="td">Amount</div><div class="td">Status</div><div class="td">Owner</div><div class="td">Action</div></div>
+              <div class="tr"><div class="td">A-01 / Budi</div><div class="td">Rp 2 rb</div><div class="td"><span class="badge green">paid</span></div><div class="td">Petugas A</div><div class="td">Open</div></div>
+              <div class="tr"><div class="td">Expense 204</div><div class="td">Rp 2,5 jt</div><div class="td"><span class="badge amber">approval</span></div><div class="td">Bendahara</div><div class="td">Review</div></div>
+            </div>
+            <ul>
+              <li>Sticky header, explicit empty states, server pagination.</li>
+              <li>Primary column includes the human-readable object label.</li>
+              <li>Every destructive action opens a confirmation dialog with audit reason.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Form pattern</h3>
+            <div class="form-demo">
+              <div class="field"><label>Nominal</label><div class="input">Rp 2.000</div><div class="help">Format currency automatically.</div></div>
+              <div class="field"><label>Kategori</label><div class="input">Jimpitan</div><div class="help">Filtered by transaction type.</div></div>
+              <div class="field"><label>Status</label><div class="input">Paid</div><div class="help">Visible status with badge preview.</div></div>
+              <div class="field"><label>Bukti</label><div class="input">Upload receipt</div><div class="help">Image/PDF, size limit enforced.</div></div>
+            </div>
+            <ul>
+              <li>Inline validation with Zod message text.</li>
+              <li>Save buttons show exact state: draft, validating, saved, queued.</li>
+              <li>Mobile forms use bottom action bars and large segmented options.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="badges">
+        <div class="section-head">
+          <div>
+            <h2>Status Badges and Financial Widgets</h2>
+            <p>Statuses are consistent across dashboard, mobile, Telegram confirmations, and reports.</p>
+          </div>
+          <span class="tag">Shared language</span>
+        </div>
+        <div class="grid-2">
+          <div class="box">
+            <h3>Collection status badges</h3>
+            <p style="display:flex; flex-wrap:wrap; gap:8px; margin-top: 8px">
+              <span class="badge green">Paid</span>
+              <span class="badge gray">Unpaid</span>
+              <span class="badge amber">House empty</span>
+              <span class="badge blue">Titip tetangga</span>
+              <span class="badge red">Menunggak</span>
+              <span class="badge purple">Dispensation</span>
+            </p>
+          </div>
+          <div class="box">
+            <h3>Finance status badges</h3>
+            <p style="display:flex; flex-wrap:wrap; gap:8px; margin-top: 8px">
+              <span class="badge gray">Draft</span>
+              <span class="badge amber">Pending validation</span>
+              <span class="badge green">Validated</span>
+              <span class="badge blue">Needs approval</span>
+              <span class="badge red">Rejected</span>
+              <span class="badge purple">Adjusted</span>
+            </p>
+          </div>
+        </div>
+        <div style="height: 14px"></div>
+        <div class="grid-4">
+          <div class="kpi"><small>Cash balance</small><strong>Rp 18,45 jt</strong><span class="badge green">ledger synced</span></div>
+          <div class="kpi"><small>Weekly collection</small><strong>86%</strong><span class="badge blue">route progress</span></div>
+          <div class="kpi"><small>Outstanding</small><strong>12 rumah</strong><span class="badge amber">follow-up</span></div>
+          <div class="kpi"><small>Expense summary</small><strong>Rp 1,1 jt</strong><span class="badge red">3 approval</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

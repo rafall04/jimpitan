@@ -1,0 +1,8 @@
+# Purpose: Public crawler policy for the JIMPITAN frontend shell.
+# Caller: Search engine crawlers and Next.js static asset serving.
+# Deps: apps/web public asset handling.
+# MainFuncs: Allows public shell crawling while avoiding private dashboard indexing by route convention.
+# SideEffects: May influence external crawler behavior.
+User-agent: *
+Allow: /
+Disallow: /dashboard

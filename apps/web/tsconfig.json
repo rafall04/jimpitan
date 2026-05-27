@@ -1,0 +1,26 @@
+// Purpose: TypeScript project config for the JIMPITAN Next.js frontend.
+// Caller: npm run typecheck:web and Next.js build tooling.
+// Deps: tsconfig.base.json and apps/web/src.
+// MainFuncs: Sets App Router JSX compilation and path aliases.
+// SideEffects: Next.js may update the plugin list during development.
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "incremental": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "plugins": [{ "name": "next" }],
+    "rootDir": ".",
+    "tsBuildInfoFile": "../../dist/apps/web.tsbuildinfo"
+  },
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next", "dist"]
+}

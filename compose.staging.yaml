@@ -1,0 +1,22 @@
+# Purpose: Staging Compose override for VPS hosts that already run host Nginx and other public apps.
+# Caller: Operators running docker compose with compose.prod.yaml on an existing VPS.
+# Deps: compose.prod.yaml, host Nginx, API/web Dockerfiles, PostgreSQL, Redis, and a private env file.
+# MainFuncs: Publishes JIMPITAN web/API only on localhost ports 3100/3101 and keeps PostgreSQL/Redis internal.
+# SideEffects: Creates or updates containers and loopback-only host port bindings.
+
+services:
+  api:
+    ports:
+      - "127.0.0.1:${JIMPITAN_API_HOST_PORT:-3101}:3001"
+    environment:
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+
+  web:
+    ports:
+      - "127.0.0.1:${JIMPITAN_WEB_HOST_PORT:-3100}:3000"
+
+  nginx:
+    profiles:
+      - docker-nginx-disabled-for-host-proxy
+    ports: !reset []

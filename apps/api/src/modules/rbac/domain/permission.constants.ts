@@ -1,0 +1,60 @@
+/**
+ * Purpose: Canonical RBAC permission keys for JIMPITAN.
+ * Caller: Future permission guard, seed routines, and feature modules.
+ * Deps: None.
+ * MainFuncs: Defines stable permission key constants from the approved architecture.
+ * SideEffects: None.
+ */
+export const PERMISSION_KEYS = [
+  'auth.session.manage',
+  'users.read',
+  'users.create',
+  'users.update',
+  'users.deactivate',
+  'users.roles.manage',
+  'roles.read',
+  'roles.manage',
+  'permissions.read',
+  'residents.read',
+  'residents.create',
+  'residents.update',
+  'residents.delete',
+  'residents.import',
+  'residents.export',
+  'houses.read',
+  'houses.manage',
+  'areas.read',
+  'areas.manage',
+  'schedules.read',
+  'schedules.manage',
+  'schedules.assign',
+  'collections.read',
+  'collections.create',
+  'collections.update_own',
+  'collections.submit_own',
+  'collections.validate',
+  'collections.reject',
+  'transactions.read',
+  'transactions.create',
+  'transactions.update',
+  'transactions.delete',
+  'transactions.validate',
+  'transactions.post',
+  'approvals.read',
+  'approvals.decide',
+  'reports.public.read',
+  'reports.private.read',
+  'reports.export',
+  'reports.publish',
+  'notifications.read',
+  'notifications.manage',
+  'telegram.bind',
+  'telegram.manage',
+  'audit.read',
+  'settings.read',
+  'settings.update',
+  'backup.manage',
+  'monitoring.read',
+] as const;
+
+export type PermissionKey = (typeof PERMISSION_KEYS)[number];

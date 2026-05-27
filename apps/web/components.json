@@ -1,0 +1,27 @@
+{
+  "x-doc": {
+    "Purpose": "shadcn/ui configuration for the JIMPITAN frontend shell.",
+    "Caller": "shadcn component generator and maintainers.",
+    "Deps": "Tailwind CSS tokens, TypeScript path aliases, and src/components/ui.",
+    "MainFuncs": "Defines component aliases, CSS variable strategy, and App Router settings.",
+    "SideEffects": "Generators may add or update files under src/components/ui."
+  },
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/app/globals.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  }
+}
