@@ -36,6 +36,7 @@ SideEffects: None.
 - `docs/frontend/finance-approval-ui.md`: frontend finance, ledger, posting, approval, cache, and safety UX notes.
 - `docs/frontend/public-transparency-ui.md`: frontend public transparency pages, public-safe API usage, empty/error/loading states, and safety notes.
 - `docs/deployment/README.md`: VPS-friendly Compose deployment, env, migration, health, worker, security, storage, and backup/restore runbook.
+- `docs/deployment/vps-installer.md`: safe semi-automatic existing-VPS installer, update, SSL, smoke, and rollback runbook.
 - `docs/testing/README.md`: E2E, smoke, deterministic fixture, cleanup, and manual Docker validation runbook.
 - `docs/testing/e2e.md`: Playwright E2E runtime, seed, cleanup, and artifact runbook.
 - `docs/deployment/runtime-smoke.md`: runtime smoke-check and Docker validation fallback runbook.
@@ -93,6 +94,8 @@ SideEffects: None.
 - `infrastructure/nginx/nginx.conf`: reverse proxy, security headers, request size limit, health route, and rate-limit foundation.
 - `env.example`, `apps/api/env.example`, and `apps/web/env.example`: safe placeholder env examples with no committed secrets and optional blank S3 settings for local-volume storage.
 - `.gitattributes`: Git line-ending normalization for source, config, shell scripts, Dockerfiles, and deployment files.
+- `scripts/install-vps.sh`: safe semi-automatic installer for existing host-Nginx VPS deployments using loopback-only web/API ports and generated `compose.vps-nginx.yaml`.
+- `scripts/rollback-vps.sh`: rollback helper that stops JIMPITAN containers without deleting volumes and restores the latest JIMPITAN Nginx backup.
 - `scripts/backup-postgres.sh` and `scripts/restore-postgres.sh`: PostgreSQL backup/restore script foundation.
 - `scripts/check-production-infra.mjs`: static production infrastructure safety checks used by `npm run infra:check`.
 - `scripts/check-import-cycles.mjs`: dependency-cycle scan used by `npm run scan:imports`.
