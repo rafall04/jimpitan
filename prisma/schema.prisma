@@ -1,11 +1,12 @@
 // Purpose: PostgreSQL Prisma schema for the JIMPITAN multi-RT financial management platform.
 // Caller: Prisma CLI, migration tooling, backend data-access layer.
-// Deps: PostgreSQL, Prisma Client, DATABASE_URL.
-// MainFuncs: Defines tenants, RBAC, residents, mode-aware jimpitan collections, finance ledger, approvals, notifications, Telegram bindings, audit logs, attachments, reports, and settings.
+// Deps: PostgreSQL, Prisma Client, DATABASE_URL, Debian Bookworm/OpenSSL 3 production runtime.
+// MainFuncs: Defines tenants, RBAC, residents, mode-aware jimpitan collections, finance ledger, approvals, notifications, Telegram bindings, audit logs, attachments, reports, settings, and Prisma engine targets.
 // SideEffects: Generates database migrations and Prisma Client when used by Prisma tooling.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {

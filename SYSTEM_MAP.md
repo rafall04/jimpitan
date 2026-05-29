@@ -97,7 +97,7 @@ SideEffects: None.
 - `scripts/install-vps.sh`: safe semi-automatic installer for existing host-Nginx VPS deployments using loopback-only web/API ports and generated `compose.vps-nginx.yaml`.
 - `scripts/rollback-vps.sh`: rollback helper that stops JIMPITAN containers without deleting volumes and restores the latest JIMPITAN Nginx backup.
 - `scripts/backup-postgres.sh` and `scripts/restore-postgres.sh`: PostgreSQL backup/restore script foundation.
-- `scripts/check-production-infra.mjs`: static production infrastructure safety checks used by `npm run infra:check`.
+- `scripts/check-production-infra.mjs`: static production infrastructure safety checks, including Prisma Bookworm/OpenSSL 3 engine target validation, used by `npm run infra:check`.
 - `scripts/check-import-cycles.mjs`: dependency-cycle scan used by `npm run scan:imports`.
 - `scripts/run-prisma-schema-command.mjs`: schema-only Prisma generate/validate wrapper with a non-secret placeholder database URL.
 

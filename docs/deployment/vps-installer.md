@@ -1,8 +1,8 @@
 <!--
 Purpose: Operator runbook for the safe semi-automatic JIMPITAN VPS installer and rollback helper.
 Caller: VPS operators using scripts/install-vps.sh or scripts/rollback-vps.sh.
-Deps: scripts/install-vps.sh, scripts/rollback-vps.sh, scripts/run-prisma-schema-command.mjs, apps/api/Dockerfile, apps/api/Dockerfile.worker, compose.prod.yaml, generated compose.vps-nginx.yaml, .env.production, host Nginx, Docker Compose.
-MainFuncs: Documents installer modes, safety boundaries, prompts, generated files, smoke checks, update flow, SSL handling, and rollback.
+Deps: scripts/install-vps.sh, scripts/rollback-vps.sh, scripts/run-prisma-schema-command.mjs, prisma/schema.prisma, apps/api/Dockerfile, apps/api/Dockerfile.worker, compose.prod.yaml, generated compose.vps-nginx.yaml, .env.production, host Nginx, Docker Compose.
+MainFuncs: Documents installer modes, safety boundaries, prompts, generated files, Prisma runtime target checks, smoke checks, update flow, SSL handling, and rollback.
 SideEffects: None.
 -->
 
@@ -78,7 +78,8 @@ The installer validates:
 - Required commands: `docker`, `docker compose`, `git`, `curl`, `openssl`, and `nginx`.
 - Ports `3100` and `3101` are free on a fresh install.
 - Existing listeners on `80` and `443` are reported but not changed.
-- API and worker Docker build stages include `scripts/run-prisma-schema-command.mjs` before Prisma client generation.
+- API and worker Docker build stages include `scripts/run-prisma-schema-command.mjs` and `prisma/schema.prisma` before Prisma client generation.
+- Prisma Client is generated with `native` and `debian-openssl-3.0.x`, and runtime images copy generated Prisma client engine files from the build stage for `node:20-bookworm-slim`.
 - Docker Compose config is valid.
 - Containers `api`, `web`, `worker`, `postgres`, and `redis` become healthy.
 - Internal endpoints respond:

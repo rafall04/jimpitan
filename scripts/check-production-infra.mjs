@@ -1,14 +1,15 @@
 /**
  * Purpose: Static production infrastructure safety checks.
  * Caller: npm run infra:check and deployment verification workflows.
- * Deps: Node.js fs module plus Compose, staging override, API/worker Dockerfiles, Nginx, and backup script files.
- * MainFuncs: Verifies production exposure, staging host-Nginx exposure, env guards, health checks, Docker build script availability, proxy headers, public URL requirements, and backup restore safety markers.
+ * Deps: Node.js fs module plus Compose, staging override, Prisma schema, API/worker Dockerfiles, Nginx, and backup script files.
+ * MainFuncs: Verifies production exposure, staging host-Nginx exposure, env guards, health checks, Prisma runtime targets, Docker build script availability, proxy headers, public URL requirements, and backup restore safety markers.
  * SideEffects: Reads infrastructure files and writes findings to stdout/stderr.
  */
 import { readFileSync } from 'node:fs';
 
 const prodCompose = readFileSync('compose.prod.yaml', 'utf8');
 const stagingCompose = readFileSync('compose.staging.yaml', 'utf8');
+const prismaSchema = readFileSync('prisma/schema.prisma', 'utf8');
 const apiDockerfile = readFileSync('apps/api/Dockerfile', 'utf8');
 const workerDockerfile = readFileSync('apps/api/Dockerfile.worker', 'utf8');
 const nginx = readFileSync('infrastructure/nginx/nginx.conf', 'utf8');
@@ -65,6 +66,15 @@ for (const [name, source] of [
   if (!copiesPrismaCommandScriptBeforeGenerate(source)) {
     failures.push(`${name} must copy scripts/run-prisma-schema-command.mjs before npm run prisma:generate`);
   }
+  if (!copiesPrismaSchemaBeforeGenerate(source)) {
+    failures.push(`${name} must copy prisma schema before npm run prisma:generate`);
+  }
+  if (!copiesGeneratedPrismaClientToRuntime(source)) {
+    failures.push(`${name} must copy generated Prisma client and engines into the runtime image`);
+  }
+}
+if (!hasBookwormPrismaBinaryTarget(prismaSchema)) {
+  failures.push('prisma/schema.prisma generator client must include binaryTargets native and debian-openssl-3.0.x');
 }
 for (const header of ['X-Forwarded-Host', 'X-Forwarded-Port', 'X-Forwarded-Proto', 'X-Request-Id']) {
   if (!nginx.includes(header)) {
@@ -102,4 +112,26 @@ function copiesPrismaCommandScriptBeforeGenerate(source) {
   const copyIndex = source.indexOf('COPY scripts/run-prisma-schema-command.mjs ./scripts/run-prisma-schema-command.mjs');
   const generateIndex = source.indexOf('RUN npm run prisma:generate');
   return copyIndex !== -1 && generateIndex !== -1 && copyIndex < generateIndex;
+}
+
+function copiesPrismaSchemaBeforeGenerate(source) {
+  const copyIndex = source.indexOf('COPY prisma ./prisma');
+  const generateIndex = source.indexOf('RUN npm run prisma:generate');
+  return copyIndex !== -1 && generateIndex !== -1 && copyIndex < generateIndex;
+}
+
+function copiesGeneratedPrismaClientToRuntime(source) {
+  return (
+    source.includes('COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma') &&
+    source.includes('COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma')
+  );
+}
+
+function hasBookwormPrismaBinaryTarget(source) {
+  const generatorBlock = source.match(/generator\s+client\s+\{[\s\S]*?\}/)?.[0] ?? '';
+  return (
+    generatorBlock.includes('binaryTargets') &&
+    generatorBlock.includes('"native"') &&
+    generatorBlock.includes('"debian-openssl-3.0.x"')
+  );
 }

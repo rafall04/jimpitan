@@ -1,8 +1,8 @@
 <!--
 Purpose: VPS-friendly deployment runbook for the JIMPITAN production infrastructure foundation.
 Caller: Operators and maintainers preparing Docker Compose deployments.
-Deps: compose.prod.yaml, compose.staging.yaml, compose.dev.yaml, env.example, apps/api/Dockerfile, apps/api/Dockerfile.worker, infrastructure/nginx/nginx.conf, scripts/run-prisma-schema-command.mjs, scripts/backup-postgres.sh, scripts/restore-postgres.sh, scripts/deployment-verify.mjs, docs/testing/README.md, docs/deployment/runtime-smoke.md, docs/production-readiness/README.md.
-MainFuncs: Documents environment handling, service topology, migration, health checks, worker queues, storage, security, readiness, testing, and backup/restore commands.
+Deps: compose.prod.yaml, compose.staging.yaml, compose.dev.yaml, env.example, prisma/schema.prisma, apps/api/Dockerfile, apps/api/Dockerfile.worker, infrastructure/nginx/nginx.conf, scripts/run-prisma-schema-command.mjs, scripts/backup-postgres.sh, scripts/restore-postgres.sh, scripts/deployment-verify.mjs, docs/testing/README.md, docs/deployment/runtime-smoke.md, docs/production-readiness/README.md.
+MainFuncs: Documents environment handling, service topology, Prisma runtime targets, migration, health checks, worker queues, storage, security, readiness, testing, and backup/restore commands.
 SideEffects: None.
 -->
 
@@ -34,7 +34,7 @@ Build and start production:
 APP_ENV_FILE=.env.production docker compose -f compose.prod.yaml --env-file .env.production up -d --build
 ```
 
-API and worker Docker builds copy only the Prisma command wrapper from `scripts/run-prisma-schema-command.mjs` into the build stage before `npm run prisma:generate`; `.env` files and `node_modules` are not copied into the image build context by those Dockerfile instructions.
+API and worker Docker builds copy only the Prisma command wrapper from `scripts/run-prisma-schema-command.mjs` into the build stage before `npm run prisma:generate`; `.env` files and `node_modules` are not copied into the image build context by those Dockerfile instructions. The Prisma schema generates both `native` and `debian-openssl-3.0.x` clients so locally generated clients and `node:20-bookworm-slim` production images have the required query engine. Runtime images copy `node_modules/.prisma` and `node_modules/@prisma` from the build stage.
 
 Build and start on an existing VPS with host Nginx:
 
