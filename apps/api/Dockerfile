@@ -1,6 +1,6 @@
 # Purpose: Docker image definition for the JIMPITAN NestJS API.
 # Caller: Docker build, CI/CD, and production deployment.
-# Deps: Node.js, npm, Prisma schema, apps/api TypeScript source.
+# Deps: Node.js, npm, Prisma schema, scripts/run-prisma-schema-command.mjs, apps/api TypeScript source.
 # MainFuncs: Installs dependencies, generates Prisma client, builds API, and starts compiled server.
 # SideEffects: Produces a container image with compiled backend artifacts.
 
@@ -13,6 +13,7 @@ RUN npm ci --ignore-scripts
 FROM deps AS build
 WORKDIR /app
 COPY tsconfig.base.json ./
+COPY scripts/run-prisma-schema-command.mjs ./scripts/run-prisma-schema-command.mjs
 COPY prisma ./prisma
 COPY apps/api ./apps/api
 RUN npm run prisma:generate

@@ -1,7 +1,7 @@
 <!--
 Purpose: VPS-friendly deployment runbook for the JIMPITAN production infrastructure foundation.
 Caller: Operators and maintainers preparing Docker Compose deployments.
-Deps: compose.prod.yaml, compose.staging.yaml, compose.dev.yaml, env.example, infrastructure/nginx/nginx.conf, scripts/backup-postgres.sh, scripts/restore-postgres.sh, scripts/deployment-verify.mjs, docs/testing/README.md, docs/deployment/runtime-smoke.md, docs/production-readiness/README.md.
+Deps: compose.prod.yaml, compose.staging.yaml, compose.dev.yaml, env.example, apps/api/Dockerfile, apps/api/Dockerfile.worker, infrastructure/nginx/nginx.conf, scripts/run-prisma-schema-command.mjs, scripts/backup-postgres.sh, scripts/restore-postgres.sh, scripts/deployment-verify.mjs, docs/testing/README.md, docs/deployment/runtime-smoke.md, docs/production-readiness/README.md.
 MainFuncs: Documents environment handling, service topology, migration, health checks, worker queues, storage, security, readiness, testing, and backup/restore commands.
 SideEffects: None.
 -->
@@ -33,6 +33,8 @@ Build and start production:
 ```bash
 APP_ENV_FILE=.env.production docker compose -f compose.prod.yaml --env-file .env.production up -d --build
 ```
+
+API and worker Docker builds copy only the Prisma command wrapper from `scripts/run-prisma-schema-command.mjs` into the build stage before `npm run prisma:generate`; `.env` files and `node_modules` are not copied into the image build context by those Dockerfile instructions.
 
 Build and start on an existing VPS with host Nginx:
 

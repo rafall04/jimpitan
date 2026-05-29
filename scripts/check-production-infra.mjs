@@ -1,14 +1,16 @@
 /**
  * Purpose: Static production infrastructure safety checks.
  * Caller: npm run infra:check and deployment verification workflows.
- * Deps: Node.js fs module plus Compose, staging override, Nginx, and backup script files.
- * MainFuncs: Verifies production exposure, staging host-Nginx exposure, env guards, health checks, proxy headers, public URL requirements, and backup restore safety markers.
+ * Deps: Node.js fs module plus Compose, staging override, API/worker Dockerfiles, Nginx, and backup script files.
+ * MainFuncs: Verifies production exposure, staging host-Nginx exposure, env guards, health checks, Docker build script availability, proxy headers, public URL requirements, and backup restore safety markers.
  * SideEffects: Reads infrastructure files and writes findings to stdout/stderr.
  */
 import { readFileSync } from 'node:fs';
 
 const prodCompose = readFileSync('compose.prod.yaml', 'utf8');
 const stagingCompose = readFileSync('compose.staging.yaml', 'utf8');
+const apiDockerfile = readFileSync('apps/api/Dockerfile', 'utf8');
+const workerDockerfile = readFileSync('apps/api/Dockerfile.worker', 'utf8');
 const nginx = readFileSync('infrastructure/nginx/nginx.conf', 'utf8');
 const backup = readFileSync('scripts/backup-postgres.sh', 'utf8');
 const restore = readFileSync('scripts/restore-postgres.sh', 'utf8');
@@ -56,6 +58,14 @@ if (!prodCompose.includes('${NEXT_PUBLIC_API_BASE_URL:?NEXT_PUBLIC_API_BASE_URL 
 if (!prodCompose.includes('${NEXT_PUBLIC_APP_URL:?NEXT_PUBLIC_APP_URL is required}')) {
   failures.push('compose.prod.yaml must require NEXT_PUBLIC_APP_URL');
 }
+for (const [name, source] of [
+  ['apps/api/Dockerfile', apiDockerfile],
+  ['apps/api/Dockerfile.worker', workerDockerfile],
+]) {
+  if (!copiesPrismaCommandScriptBeforeGenerate(source)) {
+    failures.push(`${name} must copy scripts/run-prisma-schema-command.mjs before npm run prisma:generate`);
+  }
+}
 for (const header of ['X-Forwarded-Host', 'X-Forwarded-Port', 'X-Forwarded-Proto', 'X-Request-Id']) {
   if (!nginx.includes(header)) {
     failures.push(`nginx.conf missing ${header}`);
@@ -86,4 +96,10 @@ console.log('Production infrastructure static checks passed.');
 function serviceBlock(source, service) {
   const match = source.match(new RegExp(`\\n  ${service}:\\n([\\s\\S]*?)(?=\\n  [a-zA-Z0-9_-]+:\\n|\\nvolumes:\\n|\\nnetworks:\\n|$)`));
   return match?.[1] ?? '';
+}
+
+function copiesPrismaCommandScriptBeforeGenerate(source) {
+  const copyIndex = source.indexOf('COPY scripts/run-prisma-schema-command.mjs ./scripts/run-prisma-schema-command.mjs');
+  const generateIndex = source.indexOf('RUN npm run prisma:generate');
+  return copyIndex !== -1 && generateIndex !== -1 && copyIndex < generateIndex;
 }
