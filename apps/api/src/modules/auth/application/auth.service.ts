@@ -1,13 +1,12 @@
 /**
  * Purpose: Application service for Auth foundation use cases.
  * Caller: AuthController, auth guards, and unit tests.
- * Deps: Auth repository port, password hasher port, JWT token port.
+ * Deps: Auth repository port, password hasher port, JWT token port, session ID factory token.
  * MainFuncs: Handles login, refresh rotation, logout, and current principal resolution.
  * SideEffects: Persists refresh sessions and auth audit records through the repository port.
  */
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { AUTH_REPOSITORY, AUTH_TOKEN_SERVICE, PASSWORD_HASHER } from '../auth.tokens';
+import { AUTH_REPOSITORY, AUTH_SESSION_ID_FACTORY, AUTH_TOKEN_SERVICE, PASSWORD_HASHER } from '../auth.tokens';
 import type { LoginCommand, RefreshTokenCommand, LogoutCommand, ChangePasswordCommand } from './auth.commands';
 import type { AuthUseCases, LoginResult } from './auth.use-cases';
 import type { AccessTokenPayload, AuthLoginIdentity, AuthPrincipal, IssuedAuthTokens, SafeAuthUser } from '../domain/auth.types';
@@ -21,7 +20,7 @@ export class AuthService implements AuthUseCases {
     @Inject(AUTH_REPOSITORY) private readonly authRepository: AuthRepositoryPort,
     @Inject(PASSWORD_HASHER) private readonly passwordHasher: PasswordHasherPort,
     @Inject(AUTH_TOKEN_SERVICE) private readonly tokenService: AuthTokenPort,
-    private readonly sessionIdFactory: () => string = randomUUID,
+    @Inject(AUTH_SESSION_ID_FACTORY) private readonly sessionIdFactory: () => string,
   ) {}
 
   async login(command: LoginCommand): Promise<LoginResult> {

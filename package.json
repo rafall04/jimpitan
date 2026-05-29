@@ -2,8 +2,8 @@
   "x-doc": {
     "Purpose": "Root package manifest for the JIMPITAN backend and frontend workspace.",
     "Caller": "npm scripts, Docker builds, and local development commands.",
-    "Deps": "NestJS, Prisma, Next.js, React, Tailwind CSS, TypeScript, and runtime packages.",
-    "MainFuncs": "Defines dependency versions plus backend, worker, frontend, Prisma, Docker config, import-scan, E2E, smoke, readiness, and E2E start scripts.",
+    "Deps": "NestJS, Nest testing utilities, Prisma, Next.js, React, Tailwind CSS, TypeScript, and runtime packages.",
+    "MainFuncs": "Defines dependency versions plus backend, worker, frontend, Prisma, Docker config, import-scan, E2E, smoke, readiness, DI regression, and E2E start scripts.",
     "SideEffects": "npm install creates node_modules; build scripts create dist output."
   },
   "name": "jimpitan",
@@ -66,6 +66,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@nestjs/testing": "^11.1.23",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "4.3.0",
     "@types/bcrypt": "^6.0.0",
