@@ -48,6 +48,8 @@ Run database migrations:
 APP_ENV_FILE=.env.production docker compose -f compose.prod.yaml --env-file .env.production run --rm api npm run migrate:deploy
 ```
 
+Production deployments apply committed Prisma migrations with `prisma migrate deploy` for production and VPS updates.
+
 Bootstrap the first tenant and admin user after migrations with `npm run bootstrap:admin` inside the API container. The full runbook is `docs/deployment/first-admin-bootstrap.md`.
 
 For the host-Nginx staging layout, include the override when running one-off commands:

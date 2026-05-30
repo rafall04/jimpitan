@@ -23,6 +23,7 @@ SideEffects: None.
 - `docs/visual-planning/index.html`: static visual planning companion for JIMPITAN IA, flows, layouts, design system, and mobile workflows.
 - `docs/architecture/jimpitan-technical-architecture.md`: production architecture, schema blueprint, RBAC, API plan, operations, and implementation phases.
 - `prisma/schema.prisma`: database-only Prisma schema for JIMPITAN.
+- `prisma/migrations`: production Prisma migration history beginning with the initial schema migration.
 - `docs/database/prisma-schema-notes.md`: schema explanation, constraints, indexes, ledger rules, and migration notes.
 - `docs/backend/backend-skeleton.md`: generated NestJS backend skeleton structure and boundaries.
 - `docs/backend/jimpitan-collection-api.md`: Jimpitan collection REST/OpenAPI contract notes.
@@ -73,10 +74,10 @@ SideEffects: None.
 
 ## Frontend Foundation
 - `apps/web/.module_map.md`: local frontend shell map.
-- `apps/web/src/app`: Next.js App Router public, auth, dashboard, health, same-origin auth API, and allowlisted backend proxy route groups with implemented public transparency, structure, Jimpitan, finance, ledger, approval, and report export pages plus remaining private placeholders.
+- `apps/web/src/app`: Next.js App Router public, auth, dashboard, health, same-origin auth session API, and allowlisted backend proxy route groups with implemented public transparency, structure, Jimpitan, finance, ledger, approval, and report export pages plus remaining private placeholders.
 - `apps/web/src/proxy.ts`: Next.js proxy guard for dashboard session routing and login redirect behavior.
 - `apps/web/src/components`: shadcn-compatible primitives, app shell, feedback, form, and table foundations.
-- `apps/web/src/features/auth`: safe login form, same-origin auth client, same-origin POST validation, backend Auth adapter, httpOnly cookie helpers, session mapper/loader, refresh/logout hooks, permission UI helper, and server cookie reader.
+- `apps/web/src/features/auth`: safe login form, configured-backend login client, same-origin POST validation, backend Auth adapter, httpOnly cookie helpers, session mapper/loader, refresh/logout hooks, permission UI helper, and server cookie reader.
 - `apps/web/src/features/tenants`: tenant context provider for RT switching and permission scope.
 - `apps/web/src/features/structure`: Residents/Houses/Areas API adapter, TanStack hooks, forms, status display, detail sheets, RBAC-aware actions, mobile list cards, and tests.
 - `apps/web/src/features/jimpitan`: Jimpitan collection API adapter, mode contracts, TanStack hooks, lifecycle helpers, session list/detail pages, per-house and bulk-total mobile collection flow, validation controls, outstanding tracking, and tests.

@@ -9,14 +9,14 @@ SideEffects: None.
 # Frontend Web Architecture
 
 ## Scope
-- Implemented shell, public transparency UI, Auth/Session UI, Residents/Houses/Areas management, Jimpitan operational workflows, and Finance/Ledger/Approval workflows: Next.js App Router, TypeScript, Tailwind CSS v4, shadcn-compatible primitives, TanStack Query, React Hook Form, Zod, public/private route separation, same-origin auth route handlers, same-origin backend proxy, same-origin POST validation, httpOnly cookie session strategy, refresh/logout flow, and Docker readiness.
+- Implemented shell, public transparency UI, Auth/Session UI, Residents/Houses/Areas management, Jimpitan operational workflows, and Finance/Ledger/Approval workflows: Next.js App Router, TypeScript, Tailwind CSS v4, shadcn-compatible primitives, TanStack Query, React Hook Form, Zod, public/private route separation, configured backend login, same-origin auth session route handlers, same-origin backend proxy, same-origin POST validation, httpOnly cookie session strategy, refresh/logout flow, and Docker readiness.
 - Excluded: PDF/Excel generation UI, payment gateway UI, masjid-specific modules, AI analytics, Telegram UI, fake business data, and private reports dashboard visuals.
 
 ## Route Architecture
 - `apps/web/src/app/(public)`: public home, reports summary, monthly reports, collection summary, announcements, loading skeleton, and public-safe error boundary. Public serializers remain backend-owned; frontend rejects private-shaped payload fields before rendering.
-- `apps/web/src/app/(auth)`: login shell. The form posts to the backend and expects secure backend-managed session cookies; it does not persist tokens in browser storage.
+- `apps/web/src/app/(auth)`: login shell. The form posts to the configured backend login endpoint and then asks the same-origin session route to persist secure cookies; it does not persist tokens in browser storage.
 - `apps/web/src/app/(dashboard)`: private dashboard shell with implemented Residents, Houses, Areas, Jimpitan, Finance/Ledger, and Approval routes; reports and settings remain placeholders.
-- `apps/web/src/app/api/auth`: same-origin login, session, refresh, and logout route handlers that call backend Auth/RBAC APIs server-side.
+- `apps/web/src/app/api/auth`: same-origin session, refresh, and logout route handlers that persist backend login results and call backend Auth/RBAC APIs server-side when needed.
 - `apps/web/src/app/api/backend/[...path]`: allowlisted same-origin proxy for Residents/Houses/Areas/Jimpitan/Finance/Ledger/Approval/Reports APIs and membership lookup. It requires an active tenant header matching session metadata and attaches bearer tokens server-side.
 - `apps/web/src/proxy.ts`: Next.js 16 proxy guard for dashboard routes and authenticated-login redirects.
 
@@ -32,7 +32,7 @@ SideEffects: None.
 - `src/lib/api/client.ts` centralizes `fetch`, credentials, `X-Tenant-Id`, and `Idempotency-Key` headers for future feature APIs.
 - `src/lib/api/url.ts` joins API URLs while preserving configured base paths and rejecting absolute path overrides.
 - `src/features/auth/backend-auth.server.ts` is the server-only Auth API adapter used by Next auth route handlers.
-- `src/features/auth/auth-client.ts` calls same-origin auth routes only, so browser code never receives backend access or refresh tokens.
+- `src/features/auth/auth-client.ts` calls the configured backend login endpoint with `NEXT_PUBLIC_API_BASE_URL`, then uses the same-origin session route to persist cookie-backed session state without browser token storage.
 - `src/features/structure/api.ts` calls same-origin `/api/backend/*` routes for Residents/Houses/Areas so browser code never handles bearer tokens for business APIs.
 - `src/features/jimpitan/api.ts` calls same-origin `/api/backend/jimpitan/collections*` for session, checklist, summary, outstanding, lifecycle, and mobile input operations.
 - `src/features/finance/api.ts` calls same-origin `/api/backend/finance*`, `/api/backend/ledger*`, `/api/backend/approvals*`, and private report summary endpoints for finance and approval operations.
@@ -52,7 +52,7 @@ SideEffects: None.
 - `src/features/public-reports`: public report response types, API adapter, Indonesian formatting helpers, route filter sanitizers, private-field payload guard, public report views, accessible CSS bar/table summaries, empty/loading/error coverage, and tests.
 
 ## Auth, Tenant, And Permissions
-- `jimpitan_access_token` and `jimpitan_refresh_token` are httpOnly cookies set by Next route handlers after backend Auth responses.
+- `jimpitan_access_token` and `jimpitan_refresh_token` are httpOnly cookies set by Next route handlers after configured backend Auth responses.
 - `jimpitan_session_meta` is an httpOnly cookie containing non-sensitive user, tenant, role, and permission metadata for server layout gating.
 - Dashboard proxy treats either an access cookie or a refresh cookie plus session metadata as an auth hint, allowing expired access tokens to refresh through `/api/auth/session`.
 - `/api/auth/session` loads backend `/auth/me`, `/users/me`, `/users/me/memberships`, and `/tenants/current`; it refreshes expired access tokens and avoids clearing cookies on refresh failure to prevent stale concurrent refresh responses from overwriting newer cookies.
@@ -68,9 +68,9 @@ SideEffects: None.
 - Structure forms validate UUID-v4 identifiers to match backend DTOs, and client toasts suppress unexpected server error details while preserving actionable validation messages.
 
 ## Auth Security Posture
-- State-changing auth route handlers validate same-origin browser headers before calling backend Auth APIs.
+- State-changing auth session route handlers validate same-origin browser headers before persisting backend Auth responses.
 - Backend Auth adapters are server-only modules and never enter client component imports.
-- Browser code does not read, store, or forward access/refresh tokens; no `localStorage`, `sessionStorage`, or `document.cookie` token storage is used.
+- Browser code does not store access/refresh tokens in `localStorage`, `sessionStorage`, or `document.cookie`; login tokens are forwarded only to the same-origin session route for httpOnly cookie persistence.
 - Login redirects are normalized to dashboard-relative paths only.
 - Generic browser API client no longer accepts bearer token callbacks; privileged backend calls stay behind server route handlers.
 

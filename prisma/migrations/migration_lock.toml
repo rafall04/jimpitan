@@ -1,0 +1,6 @@
+# Purpose: Prisma migration lock for the JIMPITAN PostgreSQL schema.
+# Caller: Prisma migrate deploy and migration tooling.
+# Deps: prisma/schema.prisma datasource provider.
+# MainFuncs: Pins migration history to the PostgreSQL provider.
+# SideEffects: None.
+provider = "postgresql"

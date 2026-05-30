@@ -2,8 +2,8 @@
  * Purpose: Client TanStack Query hooks for auth session, refresh, and logout flows.
  * Caller: DashboardShell, LoginForm, Topbar, and future auth-aware UI.
  * Deps: TanStack Query, Next router, sonner, auth client, and query keys.
- * MainFuncs: Loads current session/profile/tenant context, logs in, refreshes, and logs out without exposing tokens.
- * SideEffects: Performs same-origin auth requests, updates query cache, navigates, and shows toasts.
+ * MainFuncs: Loads current session/profile/tenant context, logs in through the configured backend, refreshes, and logs out without storing tokens.
+ * SideEffects: Performs backend login and same-origin session requests, updates query cache, navigates, and shows toasts.
  */
 'use client';
 

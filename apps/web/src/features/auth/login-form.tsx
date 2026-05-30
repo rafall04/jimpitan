@@ -2,7 +2,7 @@
  * Purpose: Accessible login form shell wired to the API client.
  * Caller: Login page route.
  * Deps: React Hook Form, Zod resolver, API client, shadcn-compatible inputs, and toast.
- * MainFuncs: Validates credentials and asks backend auth to establish secure session cookies.
+ * MainFuncs: Validates credentials, calls configured backend auth, and establishes secure session cookies.
  * SideEffects: Sends login request and navigates after success.
  */
 'use client';

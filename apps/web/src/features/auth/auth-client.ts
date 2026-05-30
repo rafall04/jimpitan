@@ -1,26 +1,43 @@
 /**
- * Purpose: Same-origin auth client for browser components.
+ * Purpose: Browser auth client for configured backend login and same-origin session routes.
  * Caller: Login form, session hooks, logout UI, and tests.
- * Deps: ApiError and auth/session response types.
- * MainFuncs: Calls Next auth route handlers without exposing backend tokens to JavaScript.
- * SideEffects: Performs browser fetch requests and relies on httpOnly cookies set by route handlers.
+ * Deps: Frontend environment parser, API URL helper, ApiError, and auth/session response types.
+ * MainFuncs: Calls backend login through NEXT_PUBLIC_API_BASE_URL and uses same-origin session routes for cookie-backed session state.
+ * SideEffects: Performs browser fetch requests and relies on httpOnly cookies set by route handlers after login.
  */
 import { ApiError } from '@/lib/api/api-error';
+import { joinApiUrl } from '@/lib/api/url';
+import { getWebEnv } from '@/lib/env/env';
 import type { LoginFormValues } from './login.schema';
+import type { BackendPrincipal, BackendSafeUser } from './session-mapper';
 import type { SessionSnapshot } from './session-types';
 
 export type AuthSessionResponse = {
   session: SessionSnapshot;
 };
 
+type DirectBackendLoginResult = {
+  user: BackendSafeUser;
+  principal: BackendPrincipal;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiresInSeconds: number;
+  };
+};
+
 export async function loginWithPassword(values: LoginFormValues): Promise<AuthSessionResponse> {
-  return authJson<AuthSessionResponse>('/api/auth/login', {
+  const loginResult = await authJson<DirectBackendLoginResult>(joinApiUrl(getWebEnv().NEXT_PUBLIC_API_BASE_URL, '/auth/login').toString(), {
     method: 'POST',
     body: JSON.stringify({
       identifier: values.identifier.trim(),
       password: values.password,
       rtId: values.rtId || undefined,
     }),
+  });
+  return authJson<AuthSessionResponse>('/api/auth/session', {
+    method: 'POST',
+    body: JSON.stringify(loginResult),
   });
 }
 
