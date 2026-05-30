@@ -3,7 +3,7 @@
     "Purpose": "Root package manifest for the JIMPITAN backend and frontend workspace.",
     "Caller": "npm scripts, Docker builds, and local development commands.",
     "Deps": "NestJS, Nest testing utilities, Prisma, Next.js, React, Tailwind CSS, TypeScript, and runtime packages.",
-    "MainFuncs": "Defines dependency versions plus backend, worker, frontend, Prisma, Docker config, import-scan, E2E, smoke, readiness, DI regression, and E2E start scripts.",
+    "MainFuncs": "Defines dependency versions plus backend, worker, frontend, first-admin bootstrap, Prisma, Docker config, import-scan, E2E, smoke, readiness, DI regression, and E2E start scripts.",
     "SideEffects": "npm install creates node_modules; build scripts create dist output."
   },
   "name": "jimpitan",
@@ -16,6 +16,7 @@
     "build:web": "next build apps/web",
     "start:api:e2e": "node dist/apps/api/main.js",
     "start:web:e2e": "next start apps/web -p 3100",
+    "bootstrap:admin": "node -e \"const fs=require('node:fs');const paths=['dist/bootstrap/admin.js','dist/apps/api/bootstrap/admin.js'];const target=paths.find((path)=>fs.existsSync(path));if(!target){console.error('Build API before running bootstrap:admin.');process.exit(1);}process.argv.splice(1,0,target);require('./'+target);\" --",
     "dev:web": "next dev apps/web",
     "test:api": "vitest run --dir apps/api/src",
     "test:web": "vitest run --dir apps/web/src",

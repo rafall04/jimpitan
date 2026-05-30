@@ -1,8 +1,8 @@
 <!--
 Purpose: VPS-friendly deployment runbook for the JIMPITAN production infrastructure foundation.
 Caller: Operators and maintainers preparing Docker Compose deployments.
-Deps: compose.prod.yaml, compose.staging.yaml, compose.dev.yaml, env.example, prisma/schema.prisma, apps/api/Dockerfile, apps/api/Dockerfile.worker, infrastructure/nginx/nginx.conf, scripts/run-prisma-schema-command.mjs, scripts/backup-postgres.sh, scripts/restore-postgres.sh, scripts/deployment-verify.mjs, docs/testing/README.md, docs/deployment/runtime-smoke.md, docs/production-readiness/README.md.
-MainFuncs: Documents environment handling, service topology, Prisma runtime targets, migration, health checks, worker queues, storage, security, readiness, testing, and backup/restore commands.
+Deps: compose.prod.yaml, compose.staging.yaml, compose.dev.yaml, env.example, prisma/schema.prisma, apps/api/Dockerfile, apps/api/Dockerfile.worker, infrastructure/nginx/nginx.conf, scripts/run-prisma-schema-command.mjs, scripts/backup-postgres.sh, scripts/restore-postgres.sh, scripts/deployment-verify.mjs, docs/deployment/first-admin-bootstrap.md, docs/testing/README.md, docs/deployment/runtime-smoke.md, docs/production-readiness/README.md.
+MainFuncs: Documents environment handling, service topology, Prisma runtime targets, first-admin bootstrap, migration, health checks, worker queues, storage, security, readiness, testing, and backup/restore commands.
 SideEffects: None.
 -->
 
@@ -47,6 +47,8 @@ Run database migrations:
 ```bash
 APP_ENV_FILE=.env.production docker compose -f compose.prod.yaml --env-file .env.production run --rm api npm run migrate:deploy
 ```
+
+Bootstrap the first tenant and admin user after migrations with `npm run bootstrap:admin` inside the API container. The full runbook is `docs/deployment/first-admin-bootstrap.md`.
 
 For the host-Nginx staging layout, include the override when running one-off commands:
 

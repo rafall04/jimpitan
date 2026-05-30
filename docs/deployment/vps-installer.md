@@ -1,8 +1,8 @@
 <!--
 Purpose: Operator runbook for the safe semi-automatic JIMPITAN VPS installer and rollback helper.
 Caller: VPS operators using scripts/install-vps.sh or scripts/rollback-vps.sh.
-Deps: scripts/install-vps.sh, scripts/rollback-vps.sh, scripts/run-prisma-schema-command.mjs, prisma/schema.prisma, apps/api/Dockerfile, apps/api/Dockerfile.worker, compose.prod.yaml, generated compose.vps-nginx.yaml, .env.production, host Nginx, Docker Compose.
-MainFuncs: Documents installer modes, safety boundaries, prompts, generated files, Prisma runtime target checks, smoke checks, update flow, SSL handling, and rollback.
+Deps: scripts/install-vps.sh, scripts/rollback-vps.sh, scripts/run-prisma-schema-command.mjs, prisma/schema.prisma, apps/api/Dockerfile, apps/api/Dockerfile.worker, compose.prod.yaml, generated compose.vps-nginx.yaml, .env.production, host Nginx, Docker Compose, docs/deployment/first-admin-bootstrap.md.
+MainFuncs: Documents installer modes, safety boundaries, prompts, generated files, Prisma runtime target checks, first-admin bootstrap handoff, smoke checks, update flow, SSL handling, and rollback.
 SideEffects: None.
 -->
 
@@ -97,6 +97,8 @@ curl -fsS http://DOMAIN/api/v1/health
 ```
 
 When SSL is enabled, HTTPS versions are checked too.
+
+After install or update, create the first login user with `npm run bootstrap:admin` inside the API container. See `docs/deployment/first-admin-bootstrap.md`; the installer does not ask for or print the admin password.
 
 ## Rollback
 

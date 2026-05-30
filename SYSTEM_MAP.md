@@ -1,8 +1,8 @@
 <!--
 Purpose: Root-level navigation map for the JIMPITAN planning workspace, app foundation, and infrastructure foundation.
 Caller: Codex agents and maintainers before making project changes.
-Deps: .module_map.md, infrastructure/.module_map.md, tests/.module_map.md, docs/deployment/README.md, docs/deployment/runtime-smoke.md, docs/testing/README.md, docs/testing/e2e.md, docs/production-readiness.md, docs/production-readiness/README.md, docs/security/audit.md, docs/visual-planning/index.html, docs/architecture/jimpitan-technical-architecture.md, prisma/schema.prisma, docs/database/prisma-schema-notes.md, apps/api/.module_map.md, apps/web/.module_map.md, docs/backend/backend-skeleton.md, docs/backend/notification-api.md, docs/backend/telegram-bot-api.md, docs/backend/reporting-api.md, docs/frontend/web-architecture.md, docs/frontend/jimpitan-operational-ui.md, docs/frontend/finance-approval-ui.md, docs/frontend/public-transparency-ui.md.
-MainFuncs: Documents current workspace state, planning artifacts, collection mode support, implemented app foundations, infrastructure foundations, testing foundations, and required read order.
+Deps: .module_map.md, infrastructure/.module_map.md, tests/.module_map.md, docs/deployment/README.md, docs/deployment/first-admin-bootstrap.md, docs/deployment/runtime-smoke.md, docs/testing/README.md, docs/testing/e2e.md, docs/production-readiness.md, docs/production-readiness/README.md, docs/security/audit.md, docs/visual-planning/index.html, docs/architecture/jimpitan-technical-architecture.md, prisma/schema.prisma, docs/database/prisma-schema-notes.md, apps/api/.module_map.md, apps/web/.module_map.md, docs/backend/backend-skeleton.md, docs/backend/notification-api.md, docs/backend/telegram-bot-api.md, docs/backend/reporting-api.md, docs/frontend/web-architecture.md, docs/frontend/jimpitan-operational-ui.md, docs/frontend/finance-approval-ui.md, docs/frontend/public-transparency-ui.md.
+MainFuncs: Documents current workspace state, planning artifacts, collection mode support, implemented app foundations, first-admin bootstrap, infrastructure foundations, testing foundations, and required read order.
 SideEffects: None.
 -->
 
@@ -36,6 +36,7 @@ SideEffects: None.
 - `docs/frontend/finance-approval-ui.md`: frontend finance, ledger, posting, approval, cache, and safety UX notes.
 - `docs/frontend/public-transparency-ui.md`: frontend public transparency pages, public-safe API usage, empty/error/loading states, and safety notes.
 - `docs/deployment/README.md`: VPS-friendly Compose deployment, env, migration, health, worker, security, storage, and backup/restore runbook.
+- `docs/deployment/first-admin-bootstrap.md`: production first-tenant and first-admin bootstrap runbook.
 - `docs/deployment/vps-installer.md`: safe semi-automatic existing-VPS installer, update, SSL, smoke, and rollback runbook.
 - `docs/testing/README.md`: E2E, smoke, deterministic fixture, cleanup, and manual Docker validation runbook.
 - `docs/testing/e2e.md`: Playwright E2E runtime, seed, cleanup, and artifact runbook.
@@ -49,6 +50,7 @@ SideEffects: None.
 - `apps/api/src/modules/residents/.module_map.md`: resident module map.
 - `apps/api/src/modules/houses/.module_map.md`: houses and areas module map.
 - `apps/api/src/main.ts`: NestJS bootstrap with validation, versioning, exception filter, and Swagger.
+- `apps/api/src/bootstrap`: one-shot first-admin CLI bootstrap command for production API containers.
 - `apps/api/src/worker`: NestJS application-context background worker for report exports and notification/Telegram outbox delivery.
 - `apps/api/src/runtime/logging.ts`: shared API/worker logging level resolver.
 - `apps/api/src/app.module.ts`: backend module wiring.
