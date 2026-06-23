@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { EmptyState } from '@/components/feedback/empty-state';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { ApiError } from '@/lib/api/api-error';
 import { cn } from '@/lib/utils/cn';
 import { useTenantContext } from '@/features/tenants/tenant-provider';
@@ -22,8 +23,6 @@ import { contentImageSrc, formatDateTime } from '../format';
 import { useContentListQuery, useContentMutations } from '../hooks';
 import { CONTENT_TYPE_OPTIONS } from '../schemas';
 import type { ContentListParams, ContentListRow, ContentStatus, ContentType } from '../types';
-
-const FIELD = 'flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
 
 export function ContentListPage() {
   const { permissions } = useTenantContext();
@@ -54,7 +53,7 @@ export function ContentListPage() {
     <main id="main-content" className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Konten RT</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Konten RT</h1>
           <p className="text-sm text-muted-foreground">Kelola pengumuman, kegiatan, artikel, dan galeri foto yang tampil di situs publik RT.</p>
         </div>
         {canCreate ? (
@@ -74,21 +73,21 @@ export function ContentListPage() {
         </div>
         <div className="space-y-1">
           <label htmlFor="content-type-filter" className="text-xs font-medium text-muted-foreground">Jenis</label>
-          <select id="content-type-filter" className={FIELD} value={type} onChange={(event) => { setType(event.target.value as ContentType | ''); setPage(1); }}>
+          <Select id="content-type-filter" value={type} onChange={(event) => { setType(event.target.value as ContentType | ''); setPage(1); }}>
             <option value="">Semua jenis</option>
             {CONTENT_TYPE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="space-y-1">
           <label htmlFor="content-status-filter" className="text-xs font-medium text-muted-foreground">Status</label>
-          <select id="content-status-filter" className={FIELD} value={status} onChange={(event) => { setStatus(event.target.value as ContentStatus | ''); setPage(1); }}>
+          <Select id="content-status-filter" value={status} onChange={(event) => { setStatus(event.target.value as ContentStatus | ''); setPage(1); }}>
             <option value="">Semua status</option>
             <option value="DRAFT">Draf</option>
             <option value="PUBLISHED">Terbit</option>
             <option value="ARCHIVED">Arsip</option>
-          </select>
+          </Select>
         </div>
       </section>
 

@@ -1,24 +1,24 @@
 /**
- * Purpose: Small status + type badges for content posts.
+ * Purpose: Status + type badges for content posts (built on the shared Badge primitive).
  * Caller: Content list and editor pages.
- * Deps: content label maps, cn utility.
- * MainFuncs: Renders an accessible colored status pill and a type pill.
+ * Deps: Badge UI primitive, content label maps.
+ * MainFuncs: Maps content status/type to a semantic Badge variant.
  * SideEffects: None.
  */
-import { cn } from '@/lib/utils/cn';
+import { Badge } from '@/components/ui/badge';
 import { CONTENT_STATUS_LABELS, CONTENT_TYPE_LABELS } from '../schemas';
 import type { ContentStatus, ContentType } from '../types';
 
-const STATUS_STYLES: Record<ContentStatus, string> = {
-  DRAFT: 'bg-muted text-muted-foreground',
-  PUBLISHED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-  ARCHIVED: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+const STATUS_VARIANT: Record<ContentStatus, 'success' | 'gold' | 'secondary'> = {
+  DRAFT: 'gold',
+  PUBLISHED: 'success',
+  ARCHIVED: 'secondary',
 };
 
 export function ContentStatusBadge({ status }: { status: ContentStatus }) {
-  return <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', STATUS_STYLES[status])}>{CONTENT_STATUS_LABELS[status]}</span>;
+  return <Badge variant={STATUS_VARIANT[status]}>{CONTENT_STATUS_LABELS[status]}</Badge>;
 }
 
 export function ContentTypeBadge({ type }: { type: ContentType }) {
-  return <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{CONTENT_TYPE_LABELS[type]}</span>;
+  return <Badge variant="outline">{CONTENT_TYPE_LABELS[type]}</Badge>;
 }
