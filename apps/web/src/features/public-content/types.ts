@@ -42,6 +42,22 @@ export interface PublicPaginatedResult<T> {
   totalPages: number;
 }
 
+export interface PublicDesaContentItem extends PublicContentItem {
+  rtCode: string;
+  rtName: string;
+}
+
+export interface PublicRtSummary {
+  code: string;
+  name: string;
+  contentCount: number;
+}
+
+export interface PublicDesaOverview {
+  rts: PublicRtSummary[];
+  latest: PublicDesaContentItem[];
+}
+
 export interface ReactionResult {
   reactionType: ReactionType;
   reactionCount: number;

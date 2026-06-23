@@ -150,6 +150,10 @@ export class ContentService {
     await this.attachments.deleteImage(actor, attachmentId);
   }
 
+  getPublicDesaOverview() {
+    return this.repository.getPublicDesaOverview(12);
+  }
+
   async listPublicPosts(rtCode: string, query: PublicContentListQuery): Promise<PaginatedResult<PublicContentItem>> {
     const result = await this.repository.listPublicPosts(rtCode, query);
     if (!result) {

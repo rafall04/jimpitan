@@ -189,6 +189,40 @@ async function main() {
     }
   }
 
+  const EXTRA_RTS = [
+    { code: 'rt-mawar', name: 'RT 02 / RW 01 — Mawar', posts: [
+      { type: 'ACTIVITY', slug: 'lomba-masak-mawar', title: 'Lomba Masak Antar Warga', location: 'Lapangan RT 02', event: '2026-07-05T09:00:00+07:00', excerpt: 'Adu kreasi masakan rumahan antar ibu-ibu PKK.', body: 'Yuk meriahkan lomba masak antar warga RT 02! Pendaftaran ke Bu Ketua PKK paling lambat 1 Juli. Hadiah menarik menanti.' },
+      { type: 'ANNOUNCEMENT', slug: 'rapat-warga-mawar', title: 'Rapat Warga Bulanan', excerpt: 'Rapat rutin membahas program kerja RT.', body: 'Rapat warga bulan ini diadakan Sabtu malam pukul 19.30 di Balai RT 02. Mohon kehadiran perwakilan tiap rumah.' },
+      { type: 'GALLERY', slug: 'kerja-bakti-mawar', title: 'Galeri Kerja Bakti Mei', excerpt: 'Dokumentasi gotong royong warga RT 02.', body: 'Kumpulan foto kegiatan kerja bakti membersihkan selokan dan menata taman lingkungan RT 02.' },
+    ] },
+    { code: 'rt-melati', name: 'RT 08 / RW 03 — Melati', posts: [
+      { type: 'ACTIVITY', slug: 'pengajian-rutin-melati', title: 'Pengajian Rutin Malam Jumat', location: 'Musala Al-Ikhlas', event: '2026-07-03T19:30:00+07:00', excerpt: 'Pengajian dan tahlil bersama warga.', body: 'Pengajian rutin malam Jumat kembali digelar di Musala Al-Ikhlas. Terbuka untuk seluruh warga RT 08.' },
+      { type: 'ARTICLE', slug: 'profil-rt-melati', title: 'Mengenal RT 08 Melati', excerpt: 'Sekilas tentang warga dan lingkungan RT 08.', body: 'RT 08 dikenal dengan lingkungannya yang asri dan warganya yang aktif dalam berbagai kegiatan sosial dan keagamaan.' },
+      { type: 'ANNOUNCEMENT', slug: 'jadwal-ronda-melati', title: 'Jadwal Ronda Malam Juli', excerpt: 'Pembagian jadwal ronda untuk keamanan lingkungan.', body: 'Jadwal ronda malam bulan Juli telah ditempel di pos kamling. Mohon dicek dan ditaati demi keamanan bersama.' },
+    ] },
+  ];
+  for (const extra of EXTRA_RTS) {
+    const extraRt = await prisma.rt.upsert({
+      where: { code: extra.code },
+      update: { name: extra.name, isActive: true, deletedAt: null },
+      create: { code: extra.code, name: extra.name, timezone: 'Asia/Jakarta', isActive: true },
+    });
+    if ((await prisma.announcement.count({ where: { rtId: extraRt.id } })) === 0) {
+      for (let i = 0; i < extra.posts.length; i += 1) {
+        const post = extra.posts[i];
+        await prisma.announcement.create({
+          data: {
+            rtId: extraRt.id, type: post.type, title: post.title, slug: post.slug, excerpt: post.excerpt, body: post.body,
+            status: 'PUBLISHED', visibility: 'PUBLIC', publishedAt: daysAgo(i + 1),
+            eventStartAt: post.event ? new Date(post.event) : null, location: post.location ?? null,
+            reactionCount: Math.floor(Math.random() * 30) + 2, viewCount: Math.floor(Math.random() * 150) + 10,
+            createdById: admin.id, updatedById: admin.id,
+          },
+        });
+      }
+    }
+  }
+
   const counts = {
     areas: await prisma.area.count({ where: { rtId: rt.id } }),
     houses: await prisma.house.count({ where: { rtId: rt.id } }),
@@ -196,6 +230,7 @@ async function main() {
     transactions: await prisma.transaction.count({ where: { rtId: rt.id } }),
     content: await prisma.announcement.count({ where: { rtId: rt.id } }),
     rolePermissions: await prisma.rolePermission.count({ where: { roleId: role.id } }),
+    totalActiveRts: await prisma.rt.count({ where: { isActive: true } }),
   };
   console.log('SEED OK', JSON.stringify({ rt: rt.code, admin: ADMIN_EMAIL, ...counts }));
 }

@@ -23,6 +23,13 @@ export class PublicContentController {
   constructor(private readonly contentService: ContentService) {}
 
   @PublicRoute()
+  @ApiOperation({ summary: 'Public desa overview: RT directory + cross-RT latest content' })
+  @Get('public/overview')
+  async overview() {
+    return this.contentService.getPublicDesaOverview();
+  }
+
+  @PublicRoute()
   @ApiOperation({ summary: 'List public content posts for an RT' })
   @Get('public/:rtCode/posts')
   async list(@Param('rtCode') rtCode: string, @Query() query: PublicContentQueryDto) {

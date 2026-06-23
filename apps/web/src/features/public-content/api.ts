@@ -13,6 +13,7 @@ import type {
   PublicContentDetail,
   PublicContentItem,
   PublicContentListParams,
+  PublicDesaOverview,
   PublicPaginatedResult,
   ReactionResult,
   ReactionType,
@@ -36,6 +37,10 @@ export function publicContentTypeLabel(path: string): string {
 // Image refs are returned relative to the API base; resolve to a browser-loadable absolute URL.
 export function publicContentImageSrc(relativeUrl: string): string {
   return String(joinApiUrl(getWebEnv().NEXT_PUBLIC_API_BASE_URL, relativeUrl));
+}
+
+export async function getPublicDesaOverview(): Promise<PublicDesaOverview> {
+  return publicGet('content/public/overview');
 }
 
 export async function listPublicContent(rtCode: string, params: PublicContentListParams = {}): Promise<PublicPaginatedResult<PublicContentItem>> {

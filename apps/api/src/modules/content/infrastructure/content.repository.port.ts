@@ -14,6 +14,7 @@ import type {
   ContentPostRecord,
   PublicContentDetail,
   PublicContentItem,
+  PublicDesaOverview,
   ReactionResult,
 } from '../domain/content.types';
 
@@ -73,4 +74,5 @@ export interface ContentRepositoryPort {
   listPublicPosts(rtCode: string, filter: PublicContentFilter): Promise<PaginatedResult<PublicContentItem> | null>;
   findPublicPostBySlug(rtCode: string, type: ContentType, slug: string): Promise<PublicContentDetail | null>;
   reactToPost(rtCode: string, type: ContentType, slug: string, input: ReactionData): Promise<ReactionResult | null>;
+  getPublicDesaOverview(limit: number): Promise<PublicDesaOverview>;
 }

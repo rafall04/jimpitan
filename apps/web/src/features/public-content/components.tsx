@@ -6,14 +6,14 @@
  * SideEffects: None (data is fetched by the calling page).
  */
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays, Heart, ImageIcon, MapPin, Megaphone, Newspaper, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarDays, Heart, ImageIcon, MapPin, Megaphone, Newspaper, Users } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 import { formatIndonesianDate } from '@/features/public-reports/format';
 import { PUBLIC_CONTENT_TYPES, publicContentImageSrc, publicContentTypeLabel } from './api';
 import { ReactionBar } from './reaction-bar';
-import type { ContentType, PublicContentDetail, PublicContentItem } from './types';
+import type { ContentType, PublicContentDetail, PublicContentItem, PublicDesaOverview } from './types';
 
 const COVER_GRADIENT: Record<ContentType, string> = {
   ACTIVITY: 'linear-gradient(135deg, #1e6f4e, #2f9d6b)',
@@ -81,7 +81,7 @@ function ContentCover({ item, className }: { item: { type: ContentType; coverIma
   );
 }
 
-export function PublicContentCard({ rtCode, item }: { rtCode: string; item: PublicContentItem }) {
+export function PublicContentCard({ rtCode, item, rtLabel }: { rtCode: string; item: PublicContentItem; rtLabel?: string }) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
       <Link href={rtHref(`/${item.typePath}/${item.slug}`, rtCode)} className="flex h-full flex-col">
@@ -90,6 +90,11 @@ export function PublicContentCard({ rtCode, item }: { rtCode: string; item: Publ
           <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-background/90 px-2.5 py-0.5 text-xs font-semibold text-foreground backdrop-blur-sm">
             {publicContentTypeLabel(item.typePath)}
           </span>
+          {rtLabel ? (
+            <span className="absolute right-3 top-3 inline-flex max-w-[55%] items-center truncate rounded-full bg-primary/90 px-2.5 py-0.5 text-xs font-semibold text-primary-foreground backdrop-blur-sm">
+              {rtLabel}
+            </span>
+          ) : null}
         </div>
         <div className="flex flex-1 flex-col gap-2 p-5">
           <h3 className="font-bold leading-snug tracking-tight">{item.title}</h3>
@@ -128,6 +133,55 @@ export function PublicLatestContent({ rtCode, items }: { rtCode: string; items: 
         ))}
       </div>
     </section>
+  );
+}
+
+export function PublicDesaLanding({ overview }: { overview: PublicDesaOverview }) {
+  return (
+    <main id="main-content" className="w-full">
+      <section className="border-b bg-secondary/30">
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 text-center sm:px-6 lg:px-8">
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">Portal warga</p>
+          <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">Satu portal, semua kabar RT</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">Pilih RT untuk melihat kas yang transparan, kegiatan, dan pengumuman warga — semua terbuka tanpa perlu login.</p>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-extrabold tracking-tight">Pilih RT</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{overview.rts.length} RT terdaftar di portal ini.</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {overview.rts.map((rt) => (
+            <Link
+              key={rt.code}
+              href={`/?rt=${encodeURIComponent(rt.code)}`}
+              className="group flex items-center gap-4 rounded-xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <MapPin className="h-6 w-6" aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-bold tracking-tight">{rt.name}</span>
+                <span className="block text-sm text-muted-foreground">{rt.contentCount} kabar terbit</span>
+              </span>
+              <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {overview.latest.length > 0 ? (
+        <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">Se-desa</p>
+          <h2 className="mt-1 text-2xl font-extrabold tracking-tight">Kabar terbaru dari semua RT</h2>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {overview.latest.map((item) => (
+              <PublicContentCard key={`${item.rtCode}-${item.typePath}-${item.slug}`} rtCode={item.rtCode} item={item} rtLabel={item.rtName} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </main>
   );
 }
 

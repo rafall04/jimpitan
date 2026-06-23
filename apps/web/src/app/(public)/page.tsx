@@ -6,8 +6,8 @@
  * SideEffects: Performs server-side public backend fetches without auth cookies or tenant headers.
  */
 import type { Metadata } from 'next';
-import { listPublicContent } from '@/features/public-content/api';
-import { PublicLatestContent } from '@/features/public-content/components';
+import { getPublicDesaOverview, listPublicContent } from '@/features/public-content/api';
+import { PublicDesaLanding, PublicLatestContent } from '@/features/public-content/components';
 import { getPublicSummary, listPublicAnnouncements, listPublicReportMetadata } from '@/features/public-reports/api';
 import { PublicHomeView, PublicTenantRequiredView } from '@/features/public-reports/components';
 import { resolvePublicReportParams, type PublicSearchParams } from '@/features/public-reports/format';
@@ -26,7 +26,11 @@ type PageProps = {
 export default async function PublicHomePage({ searchParams }: PageProps) {
   const { rtCode } = resolvePublicReportParams(await searchParams);
   if (!rtCode) {
-    return <PublicTenantRequiredView />;
+    const overview = await getPublicDesaOverview().catch(() => null);
+    if (!overview || overview.rts.length === 0) {
+      return <PublicTenantRequiredView />;
+    }
+    return <PublicDesaLanding overview={overview} />;
   }
   const [summary, reportFeed, announcementFeed, contentFeed] = await Promise.all([
     getPublicSummary(rtCode),

@@ -27,6 +27,7 @@ import type {
   ContentPostRecord,
   PublicContentDetail,
   PublicContentItem,
+  PublicDesaOverview,
   ReactionResult,
 } from '../domain/content.types';
 import type {
@@ -220,6 +221,33 @@ export class PrismaContentRepository implements ContentRepositoryPort {
       this.prisma.announcement.count({ where }),
     ]);
     return this.paginate(rows.map((row) => this.toPublicItem(row)), filter.page, filter.limit, total);
+  }
+
+  async getPublicDesaOverview(limit: number): Promise<PublicDesaOverview> {
+    const publishedWhere: Prisma.AnnouncementWhereInput = {
+      status: AnnouncementStatus.PUBLISHED,
+      visibility: AnnouncementVisibility.PUBLIC,
+      deletedAt: null,
+      publishedAt: { not: null },
+    };
+    const [rts, grouped, rows] = await Promise.all([
+      this.prisma.rt.findMany({ where: { isActive: true, deletedAt: null }, select: { id: true, code: true, name: true }, orderBy: { name: 'asc' } }),
+      this.prisma.announcement.groupBy({ by: ['rtId'], where: publishedWhere, _count: { _all: true }, orderBy: { rtId: 'asc' } }),
+      this.prisma.announcement.findMany({
+        where: publishedWhere,
+        include: {
+          attachments: { where: { deletedAt: null, status: AttachmentStatus.UPLOADED, metadata: { path: ['role'], equals: 'cover' } }, take: 1 },
+          rt: { select: { code: true, name: true } },
+        },
+        orderBy: [{ publishedAt: 'desc' }],
+        take: limit,
+      }),
+    ]);
+    const countByRt = new Map(grouped.map((group) => [group.rtId, group._count._all]));
+    return {
+      rts: rts.map((rt) => ({ code: rt.code, name: rt.name, contentCount: countByRt.get(rt.id) ?? 0 })),
+      latest: rows.map((row) => ({ ...this.toPublicItem(row), rtCode: row.rt.code, rtName: row.rt.name })),
+    };
   }
 
   async findPublicPostBySlug(rtCode: string, type: ContentType, slug: string): Promise<PublicContentDetail | null> {
