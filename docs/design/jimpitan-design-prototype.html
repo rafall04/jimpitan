@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RTku — Prototipe Desain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --green-50:#ecfdf3; --green-100:#d1fadf; --green-600:#039855; --green-700:#027a48; --green-800:#05603a; --green-900:#054f31;
+    --amber-50:#fffaeb; --amber-100:#fef0c7; --amber-500:#f79009; --amber-600:#dc6803; --amber-700:#b54708;
+    --bg:#f7f7f4; --surface:#ffffff; --surface-2:#fbfbf9;
+    --text:#1a1d1b; --muted:#6b716d; --faint:#9aa09b;
+    --border:#e7e6e1; --border-strong:#d8d7d0;
+    --primary:var(--green-700); --primary-strong:var(--green-800); --primary-soft:var(--green-50); --primary-soft-text:var(--green-800);
+    --accent:var(--amber-600); --accent-soft:var(--amber-50); --accent-soft-text:var(--amber-700);
+    --radius:14px; --radius-sm:10px; --radius-pill:999px;
+    --shadow-sm:0 1px 2px rgba(16,24,20,.05), 0 1px 3px rgba(16,24,20,.06);
+    --shadow-md:0 4px 12px -2px rgba(16,24,20,.08), 0 2px 6px -2px rgba(16,24,20,.06);
+    --ring:0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+  .dark {
+    --bg:#0b1310; --surface:#111c17; --surface-2:#0e1813;
+    --text:#f3f5f3; --muted:#a3aaa4; --faint:#727a74;
+    --border:#21302a; --border-strong:#2c3e36;
+    --green-50:#0d211a; --amber-50:#241803;
+    --primary:#34d399; --primary-strong:#10b981; --primary-soft:#0e2a20; --primary-soft-text:#6ee7b7;
+    --accent:#fbbf24; --accent-soft:#2a1f06; --accent-soft-text:#fcd34d;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4); --shadow-md:0 6px 20px -6px rgba(0,0,0,.5);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 24px; }
+  h1,h2,h3,h4 { margin:0; font-weight:700; letter-spacing:-.02em; line-height:1.2; }
+  .eyebrow { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--primary); }
+  .muted { color:var(--muted); }
+  a { color:inherit; }
+
+  header.top { position:sticky; top:0; z-index:5; background:color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid var(--border); }
+  .top-row { display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; letter-spacing:-.02em; }
+  .brand .mark { width:30px; height:30px; border-radius:9px; background:var(--primary); color:#fff; display:grid; place-items:center; box-shadow:var(--shadow-sm); }
+  .nav-links { display:flex; gap:4px; }
+  .nav-links a { padding:8px 12px; border-radius:var(--radius-sm); font-size:14px; font-weight:500; color:var(--muted); text-decoration:none; }
+  .nav-links a:hover { background:var(--surface-2); color:var(--text); }
+  .nav-links a.active { color:var(--primary-strong); background:var(--primary-soft); }
+
+  .btn { display:inline-flex; align-items:center; gap:8px; font:inherit; font-weight:600; font-size:14px; padding:10px 16px; border-radius:var(--radius-sm); border:1px solid transparent; cursor:pointer; transition:.15s ease; text-decoration:none; }
+  .btn:focus-visible { outline:none; box-shadow:var(--ring); }
+  .btn-primary { background:var(--primary); color:#fff; box-shadow:var(--shadow-sm); }
+  .btn-primary:hover { background:var(--primary-strong); }
+  .btn-ghost { background:transparent; color:var(--text); border-color:var(--border-strong); }
+  .btn-ghost:hover { background:var(--surface-2); }
+  .btn-soft { background:var(--primary-soft); color:var(--primary-soft-text); }
+  .btn-sm { padding:7px 12px; font-size:13px; }
+  .icon-btn { width:38px; height:38px; padding:0; justify-content:center; border-radius:var(--radius-sm); background:var(--surface-2); border:1px solid var(--border); color:var(--muted); cursor:pointer; }
+  .icon-btn:hover { color:var(--text); }
+
+  .hero { padding:64px 0 40px; }
+  .hero-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; }
+  .hero h1 { font-size:44px; font-weight:800; }
+  .hero p.lead { font-size:18px; color:var(--muted); margin:16px 0 28px; max-width:46ch; }
+  .hero-cta { display:flex; gap:12px; flex-wrap:wrap; }
+  .stats { display:flex; gap:10px; margin-top:28px; flex-wrap:wrap; }
+  .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; box-shadow:var(--shadow-sm); }
+  .stat .n { font-size:22px; font-weight:800; letter-spacing:-.02em; }
+  .stat .l { font-size:12.5px; color:var(--muted); font-weight:500; }
+  .hero-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow-md); overflow:hidden; }
+  .hero-card .cover { height:150px; background:
+      radial-gradient(120% 120% at 15% 10%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 55%),
+      radial-gradient(120% 120% at 90% 90%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 55%),
+      var(--primary-soft); display:flex; align-items:flex-end; padding:14px; }
+  .hero-card .body { padding:16px 18px 18px; }
+
+  section.block { padding:34px 0; }
+  .section-head { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:20px; gap:16px; }
+  .section-head h2 { font-size:24px; }
+
+  .pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+  .pill { padding:8px 14px; border-radius:var(--radius-pill); font-size:13.5px; font-weight:600; border:1px solid var(--border-strong); color:var(--muted); background:var(--surface); cursor:pointer; }
+  .pill.active { background:var(--primary); color:#fff; border-color:var(--primary); box-shadow:var(--shadow-sm); }
+
+  .feed { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm); transition:.18s ease; display:flex; flex-direction:column; }
+  .card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); border-color:var(--border-strong); }
+  .card .cover { height:158px; position:relative; display:flex; align-items:flex-start; padding:12px; }
+  .cover-kegiatan { background:linear-gradient(135deg, #1e6f4e, #2f9d6b); }
+  .cover-galeri { background:linear-gradient(135deg, #b54708, #f79009); }
+  .cover-artikel { background:linear-gradient(135deg, #134e3a, #15803d); }
+  .cover-ic { margin-left:auto; align-self:flex-end; opacity:.9; color:#fff; }
+  .card .body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .card h3 { font-size:17px; font-weight:700; }
+  .card p { font-size:14px; color:var(--muted); margin:0; }
+  .meta { margin-top:auto; padding-top:10px; display:flex; align-items:center; gap:14px; font-size:12.5px; color:var(--faint); font-weight:500; }
+  .meta span { display:inline-flex; align-items:center; gap:5px; }
+
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:var(--radius-pill); font-size:12px; font-weight:600; }
+  .badge-type { background:rgba(255,255,255,.92); color:#0c3b29; }
+  .badge-green { background:var(--primary-soft); color:var(--primary-soft-text); }
+  .badge-amber { background:var(--accent-soft); color:var(--accent-soft-text); }
+  .badge-muted { background:var(--surface-2); color:var(--muted); border:1px solid var(--border); }
+
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow-sm); }
+  .swatches { display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:10px; }
+  .sw { border-radius:var(--radius-sm); height:64px; border:1px solid var(--border); display:flex; align-items:flex-end; padding:8px; font-size:11.5px; font-weight:600; color:#fff; }
+  .type-spec > * { margin:0; }
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .label { font-size:13px; font-weight:600; }
+  input.inp, select.inp { font:inherit; font-size:14px; padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); background:var(--surface); color:var(--text); }
+  input.inp:focus, select.inp:focus { outline:none; border-color:var(--primary); box-shadow:var(--ring); }
+
+  .dash { display:grid; grid-template-columns:200px 1fr; min-height:300px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm); }
+  .side { background:var(--surface-2); border-right:1px solid var(--border); padding:16px 12px; }
+  .side .si { display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:var(--radius-sm); font-size:14px; font-weight:500; color:var(--muted); }
+  .side .si.active { background:var(--primary-soft); color:var(--primary-soft-text); font-weight:600; }
+  .dash-main { background:var(--surface); padding:20px 22px; }
+  .row { display:flex; align-items:center; gap:14px; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; }
+  .row .thumb { width:54px; height:42px; border-radius:8px; flex:none; }
+  .ic { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-3px; }
+  footer { padding:40px 0; color:var(--faint); font-size:13px; border-top:1px solid var(--border); margin-top:24px; }
+  @media (max-width:860px){ .hero-grid{grid-template-columns:1fr} .feed{grid-template-columns:1fr} .dash{grid-template-columns:1fr} .side{display:none} .hero h1{font-size:34px} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <div class="brand">
+      <span class="mark"><svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff"><path d="M12 21c-4-3-7-6-7-10a7 7 0 0 1 14 0c0 4-3 7-7 10z"/><path d="M12 11v6M9 13l3-2 3 2"/></svg></span>
+      RT<span style="color:var(--primary)">ku</span>
+    </div>
+    <nav class="nav-links">
+      <a class="active" href="#">Beranda</a>
+      <a href="#">Kegiatan</a>
+      <a href="#">Pengumuman</a>
+      <a href="#">Galeri</a>
+      <a href="#">Laporan</a>
+    </nav>
+    <div style="display:flex; gap:10px; align-items:center">
+      <button class="icon-btn" id="theme" aria-label="Ganti tema">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M17.7 6.3l1.4-1.4M4.9 19.1l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+      </button>
+      <a class="btn btn-primary btn-sm" href="#">Masuk</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">RT 05 / RW 02 — Desa Makmur</div>
+        <h1 style="margin-top:12px">Kas warga yang <span style="color:var(--primary)">transparan</span>, kabar RT yang hidup.</h1>
+        <p class="lead">Pantau iuran & kas, ikuti kegiatan, dan baca pengumuman terbaru — semua di satu tempat yang terbuka untuk seluruh warga.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#">Lihat laporan kas
+            <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="#">Kegiatan terbaru</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="n">Rp 4,2jt</div><div class="l">Saldo kas bulan ini</div></div>
+          <div class="stat"><div class="n">128</div><div class="l">Warga terdaftar</div></div>
+          <div class="stat"><div class="n">7</div><div class="l">Kegiatan bulan ini</div></div>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="cover"><span class="badge badge-type">Kegiatan</span></div>
+        <div class="body">
+          <h3 style="font-size:18px; font-weight:700">Kerja bakti & senam pagi bersama</h3>
+          <p class="muted" style="font-size:14px; margin:6px 0 12px">Minggu, 29 Juni — pukul 06.30 di Balai RT. Yuk ramaikan!</p>
+          <div class="meta" style="padding-top:0">
+            <span><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg> 29 Jun 2026</span>
+            <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 21c-4-3-7-6-7-10a7 7 0 0 1 14 0c0 4-3 7-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg> Balai RT</span>
+            <span style="color:var(--accent); margin-left:auto"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg> 24</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="section-head">
+      <div><div class="eyebrow">Kabar RT</div><h2 style="margin-top:6px">Yang terbaru di lingkungan kita</h2></div>
+      <a class="btn btn-soft btn-sm" href="#">Lihat semua</a>
+    </div>
+    <div class="pills">
+      <button class="pill active">Semua</button>
+      <button class="pill">Kegiatan</button>
+      <button class="pill">Pengumuman</button>
+      <button class="pill">Artikel</button>
+      <button class="pill">Galeri</button>
+    </div>
+    <div class="feed">
+      <article class="card">
+        <div class="cover cover-kegiatan"><span class="badge badge-type">Kegiatan</span>
+          <svg class="ic cover-ic" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>
+        </div>
+        <div class="body">
+          <h3>Posyandu balita & lansia bulan Juni</h3>
+          <p>Pemeriksaan rutin dan pembagian vitamin untuk warga. Terbuka untuk semua keluarga.</p>
+          <div class="meta">
+            <span><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg> 18 Jun</span>
+            <span style="color:var(--accent); margin-left:auto"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg> 31</span>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="cover cover-artikel"><span class="badge badge-type">Pengumuman</span>
+          <svg class="ic cover-ic" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M3 11l18-5v12L3 14v-3zM11.6 16.8a3 3 0 0 1-5.8-1.6"/></svg>
+        </div>
+        <div class="body">
+          <h3>Iuran keamanan bulan Juli</h3>
+          <p>Mohon iuran disetor ke Pak RT paling lambat tanggal 10. Terima kasih atas kerja samanya.</p>
+          <div class="meta">
+            <span><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg> 15 Jun</span>
+            <span style="color:var(--accent); margin-left:auto"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg> 12</span>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="cover cover-galeri"><span class="badge badge-type">Galeri</span>
+          <svg class="ic cover-ic" viewBox="0 0 24 24" style="width:26px;height:26px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        </div>
+        <div class="body">
+          <h3>Dokumentasi 17 Agustus tahun lalu</h3>
+          <p>Kumpulan foto lomba & malam tirakatan warga. Kenangan seru yang patut diulang.</p>
+          <div class="meta">
+            <span>32 foto</span>
+            <span style="color:var(--accent); margin-left:auto"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg> 58</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="section-head"><div><div class="eyebrow">Sistem desain</div><h2 style="margin-top:6px">Fondasi yang dipakai ulang</h2></div></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+      <div class="panel">
+        <h4 style="font-size:15px; margin-bottom:14px">Warna</h4>
+        <div class="swatches">
+          <div class="sw" style="background:var(--green-700)">Primary</div>
+          <div class="sw" style="background:var(--green-800)">Primary —</div>
+          <div class="sw" style="background:var(--amber-600)">Accent</div>
+          <div class="sw" style="background:#039855">Sukses</div>
+          <div class="sw" style="background:#dc6803">Peringatan</div>
+          <div class="sw" style="background:#d92d20">Bahaya</div>
+        </div>
+        <h4 style="font-size:15px; margin:20px 0 12px">Label & status</h4>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <span class="badge badge-green">Terbit</span>
+          <span class="badge badge-amber">Draf</span>
+          <span class="badge badge-muted">Arsip</span>
+          <span class="badge badge-green">Kegiatan</span>
+          <span class="badge badge-amber">Pengumuman</span>
+        </div>
+        <h4 style="font-size:15px; margin:20px 0 12px">Tombol</h4>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn btn-primary">Terbitkan</button>
+          <button class="btn btn-ghost">Simpan draf</button>
+          <button class="btn btn-soft">Lihat</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h4 style="font-size:15px; margin-bottom:14px">Tipografi — Plus Jakarta Sans</h4>
+        <div class="type-spec" style="display:flex; flex-direction:column; gap:8px">
+          <p style="font-size:30px; font-weight:800; letter-spacing:-.02em">Judul utama</p>
+          <p style="font-size:20px; font-weight:700">Judul bagian</p>
+          <p style="font-size:16px; font-weight:600">Sub-judul / label</p>
+          <p style="font-size:15px; color:var(--muted)">Teks isi yang nyaman dibaca untuk semua umur warga, dengan tinggi baris yang lega.</p>
+        </div>
+        <h4 style="font-size:15px; margin:20px 0 12px">Formulir</h4>
+        <div style="display:flex; gap:12px; flex-wrap:wrap">
+          <div class="field" style="flex:1; min-width:140px"><span class="label">Judul konten</span><input class="inp" value="Kerja bakti bersama" /></div>
+          <div class="field" style="flex:1; min-width:140px"><span class="label">Jenis</span>
+            <select class="inp"><option>Kegiatan</option><option>Pengumuman</option><option>Artikel</option><option>Galeri</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="section-head"><div><div class="eyebrow">Sisi pengurus</div><h2 style="margin-top:6px">Dashboard yang sama rapinya</h2></div></div>
+    <div class="dash">
+      <aside class="side">
+        <div class="si"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> Ringkasan</div>
+        <div class="si"><svg class="ic" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg> Warga</div>
+        <div class="si active"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Konten</div>
+        <div class="si"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Keuangan</div>
+        <div class="si"><svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Persetujuan</div>
+      </aside>
+      <div class="dash-main">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+          <div><h3 style="font-size:19px">Konten RT</h3><p class="muted" style="margin:2px 0 0; font-size:14px">Kelola pengumuman, kegiatan, artikel & galeri.</p></div>
+          <button class="btn btn-primary btn-sm">+ Buat konten</button>
+        </div>
+        <div class="row">
+          <div class="thumb cover-kegiatan"></div>
+          <div style="flex:1"><div style="display:flex; gap:8px; margin-bottom:3px"><span class="badge badge-green">Terbit</span><span class="badge badge-muted">Kegiatan</span></div><div style="font-weight:600; font-size:15px">Posyandu balita & lansia bulan Juni</div></div>
+          <span class="meta" style="padding:0"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg> 31</span>
+          <button class="btn btn-ghost btn-sm">Edit</button>
+        </div>
+        <div class="row">
+          <div class="thumb cover-galeri"></div>
+          <div style="flex:1"><div style="display:flex; gap:8px; margin-bottom:3px"><span class="badge badge-amber">Draf</span><span class="badge badge-muted">Galeri</span></div><div style="font-weight:600; font-size:15px">Dokumentasi 17 Agustus tahun lalu</div></div>
+          <span class="meta" style="padding:0; color:var(--faint)">— foto</span>
+          <button class="btn btn-primary btn-sm">Terbitkan</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Prototipe desain RTku — Plus Jakarta Sans · hijau emerald + aksen emas · light & dark. Klik ikon matahari di kanan atas untuk mencoba mode gelap.</footer>
+</div>
+
+<script>
+  document.getElementById('theme').addEventListener('click', function(){ document.documentElement.classList.toggle('dark'); });
+</script>
+</body>
+</html>

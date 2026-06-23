@@ -21,7 +21,7 @@ type PageProps = {
 
 export async function generateMetadata({ params }: { params: Promise<{ tipe: string }> }): Promise<Metadata> {
   const { tipe } = await params;
-  return { title: `${publicContentTypeLabel(tipe)} — JIMPITAN RT`, description: `Daftar ${publicContentTypeLabel(tipe).toLowerCase()} terbaru dari RT.` };
+  return { title: publicContentTypeLabel(tipe), description: `Daftar ${publicContentTypeLabel(tipe).toLowerCase()} terbaru dari RT.` };
 }
 
 export default async function PublicContentFeedPage({ params, searchParams }: PageProps) {

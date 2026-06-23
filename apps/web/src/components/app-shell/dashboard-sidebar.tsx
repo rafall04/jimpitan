@@ -27,8 +27,8 @@ export function DashboardSidebar({ items, pathname }: { items: ResolvedDashboard
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-64 border-r bg-card md:flex md:flex-col" aria-label="Dashboard navigation">
       <div className="flex h-16 items-center border-b px-5">
-        <Link href="/dashboard" className="text-base font-semibold">
-          JIMPITAN RT
+        <Link href="/dashboard" className="text-lg font-extrabold tracking-tight">
+          RT<span className="text-primary">ku</span>
         </Link>
       </div>
       <nav className="flex-1 space-y-1 p-3" aria-label="Primary">

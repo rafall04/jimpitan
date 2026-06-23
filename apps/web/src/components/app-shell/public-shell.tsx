@@ -15,8 +15,8 @@ export function PublicShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b bg-background/95">
         <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-col items-start gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <Link href="/" className="shrink-0 text-base font-semibold tracking-normal">
-            JIMPITAN RT
+          <Link href="/" className="shrink-0 text-lg font-extrabold tracking-tight">
+            RT<span className="text-primary">ku</span>
           </Link>
           <nav aria-label="Navigasi publik" className="flex max-w-full items-center gap-1 overflow-x-auto">
             <Button variant="ghost" className="px-3" asChild>
@@ -42,7 +42,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
       </header>
       {children}
       <footer className="border-t py-6">
-        <div className="mx-auto w-full max-w-6xl px-4 text-sm text-muted-foreground sm:px-6 lg:px-8">Transparansi publik JIMPITAN RT.</div>
+        <div className="mx-auto w-full max-w-6xl px-4 text-sm text-muted-foreground sm:px-6 lg:px-8">Transparansi publik RTku — kas, kegiatan, dan kabar warga.</div>
       </footer>
     </div>
   );

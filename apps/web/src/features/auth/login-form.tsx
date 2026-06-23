@@ -44,13 +44,13 @@ export function LoginForm() {
   }
 
   return (
-    <section className="w-full max-w-sm rounded-lg border bg-card p-6 shadow-sm" aria-labelledby="login-title">
+    <section className="w-full max-w-sm rounded-xl border bg-card p-7 shadow-sm" aria-labelledby="login-title">
       <div className="mb-6">
-        <p className="text-sm font-medium text-primary">JIMPITAN RT</p>
-        <h1 id="login-title" className="mt-2 text-2xl font-semibold">
-          Staff login
+        <p className="text-xl font-extrabold tracking-tight">RT<span className="text-primary">ku</span></p>
+        <h1 id="login-title" className="mt-3 text-2xl font-bold tracking-tight">
+          Masuk pengurus
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Use your registered RT account to continue.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Gunakan akun RT terdaftar Anda untuk melanjutkan.</p>
       </div>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <div className="space-y-2">

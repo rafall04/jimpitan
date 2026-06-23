@@ -29,7 +29,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     return { title: 'Konten RT' };
   }
   const detail = await getPublicContent(rtCode, tipe, slug).catch(() => null);
-  return { title: detail ? `${detail.title} — JIMPITAN RT` : 'Konten tidak ditemukan', description: detail?.excerpt ?? undefined };
+  return { title: detail ? detail.title : 'Konten tidak ditemukan', description: detail?.excerpt ?? undefined };
 }
 
 export default async function PublicContentDetailPage({ params, searchParams }: PageProps) {

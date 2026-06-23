@@ -37,7 +37,7 @@ export function MobileNav({ items, pathname }: { items: ResolvedDashboardNavItem
       </SheetTrigger>
       <SheetContent side="left" className="w-80">
         <SheetHeader>
-          <SheetTitle>JIMPITAN RT</SheetTitle>
+          <SheetTitle>RT<span className="text-primary">ku</span></SheetTitle>
         </SheetHeader>
         <nav className="mt-6 space-y-1" aria-label="Mobile dashboard navigation">
           {items.map((item) => {
