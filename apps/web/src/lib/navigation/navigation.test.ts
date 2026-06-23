@@ -23,7 +23,7 @@ describe('dashboard navigation', () => {
   });
 
   it('hides role navigation when the active tenant has no matching permission', () => {
-    expect(getAllowedNavigationItems(new Set(['approvals.read']), 'rt-1').map((item) => item.label)).toEqual(['Approvals']);
+    expect(getAllowedNavigationItems(new Set(['approvals.read']), 'rt-1').map((item) => item.label)).toEqual(['Persetujuan']);
     expect(getAllowedNavigationItems(new Set(), 'rt-1')).toEqual([]);
   });
 });

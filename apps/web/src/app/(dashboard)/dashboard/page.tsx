@@ -1,12 +1,12 @@
 /**
- * Purpose: Dashboard overview placeholder route.
+ * Purpose: Dashboard home (RT overview) route.
  * Caller: App Router route at /dashboard.
- * Deps: PlaceholderPage component.
- * MainFuncs: Reserves private dashboard overview without business metrics.
+ * Deps: OverviewPage feature component.
+ * MainFuncs: Mounts the tenant-aware dashboard overview.
  * SideEffects: None.
  */
-import { PlaceholderPage } from '@/components/app-shell/placeholder-page';
+import { OverviewPage } from '@/features/dashboard/overview-page';
 
 export default function DashboardPage() {
-  return <PlaceholderPage title="Dashboard" description="Private RT overview shell is ready for future business widgets." />;
+  return <OverviewPage />;
 }

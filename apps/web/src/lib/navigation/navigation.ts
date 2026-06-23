@@ -20,16 +20,16 @@ export type ResolvedDashboardNavItem = Omit<DashboardNavItem, 'href'> & {
 };
 
 export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
-  { label: 'Overview', href: '/dashboard', icon: 'LayoutDashboard', permissions: [] },
-  { label: 'Residents', href: '/dashboard/residents', icon: 'Users', permissions: ['residents.read'] },
-  { label: 'Houses', href: '/dashboard/houses', icon: 'Home', permissions: ['houses.read'] },
-  { label: 'Areas', href: '/dashboard/areas', icon: 'MapPinned', permissions: ['areas.read'] },
+  { label: 'Ringkasan', href: '/dashboard', icon: 'LayoutDashboard', permissions: [] },
+  { label: 'Warga', href: '/dashboard/residents', icon: 'Users', permissions: ['residents.read'] },
+  { label: 'Rumah', href: '/dashboard/houses', icon: 'Home', permissions: ['houses.read'] },
+  { label: 'Area', href: '/dashboard/areas', icon: 'MapPinned', permissions: ['areas.read'] },
   { label: 'Jimpitan', href: '/dashboard/jimpitan', icon: 'HandCoins', permissions: ['collections.read', 'collections.update_own'] },
-  { label: 'Finance', href: '/dashboard/finance', icon: 'WalletCards', permissions: ['transactions.read'] },
-  { label: 'Approvals', href: '/dashboard/approvals', icon: 'BadgeCheck', permissions: ['approvals.read'] },
+  { label: 'Keuangan', href: '/dashboard/finance', icon: 'WalletCards', permissions: ['transactions.read'] },
+  { label: 'Persetujuan', href: '/dashboard/approvals', icon: 'BadgeCheck', permissions: ['approvals.read'] },
   { label: 'Konten', href: '/dashboard/content', icon: 'Newspaper', permissions: ['content.read'] },
-  { label: 'Reports', href: '/dashboard/reports', icon: 'FileText', permissions: ['reports.private.read'] },
-  { label: 'Settings', href: '/dashboard/settings', icon: 'Settings', permissions: ['settings.read'] },
+  { label: 'Laporan', href: '/dashboard/reports', icon: 'FileText', permissions: ['reports.private.read'] },
+  { label: 'Pengaturan', href: '/dashboard/settings', icon: 'Settings', permissions: ['settings.read'] },
 ];
 
 export function getAllowedNavigationItems(permissions: ReadonlySet<string>, rtId?: string): ResolvedDashboardNavItem[] {
