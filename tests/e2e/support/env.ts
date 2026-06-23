@@ -2,8 +2,8 @@
  * Purpose: Environment loading boundary for safe deterministic E2E runs.
  * Caller: Playwright global setup, critical journey specs, and smoke helpers.
  * Deps: process.env and tests/e2e/types/e2e.types.ts.
- * MainFuncs: Loads E2E runtime config, pushes schema, and rejects production-like targets.
- * SideEffects: May populate process.env from .env.e2e and run Prisma db push.
+ * MainFuncs: Loads E2E runtime config, applies migrations, and rejects production-like targets.
+ * SideEffects: May populate process.env from .env.e2e and run Prisma migrate deploy.
  */
 
 import { existsSync, readFileSync } from "node:fs";
@@ -47,12 +47,14 @@ export function assertSafeE2EEnvironment(config: E2ERuntimeConfig): void {
   }
 }
 
-export async function pushE2EDatabaseSchema(config: E2ERuntimeConfig): Promise<void> {
-  if (process.env.E2E_SKIP_DB_PUSH === "true") {
+export async function migrateE2EDatabase(config: E2ERuntimeConfig): Promise<void> {
+  if (process.env.E2E_SKIP_DB_SETUP === "true") {
     return;
   }
   const executable = process.platform === "win32" ? "npm.cmd" : "npm";
-  const result = spawnSync(executable, ["run", "prisma:push:e2e"], {
+  // Apply real migrations (not `db push`) so the E2E database carries production-only objects the
+  // schema cannot express — e.g. the cash_ledgers append-only trigger and CHECK constraints.
+  const result = spawnSync(executable, ["run", "migrate:deploy"], {
     stdio: "inherit",
     shell: false,
     env: {
@@ -61,7 +63,7 @@ export async function pushE2EDatabaseSchema(config: E2ERuntimeConfig): Promise<v
     },
   });
   if ((result.status ?? 1) !== 0) {
-    throw new Error("Failed to push Prisma schema to E2E database.");
+    throw new Error("Failed to apply Prisma migrations to the E2E database.");
   }
 }
 

@@ -11,7 +11,7 @@ import { hasAnyPermission } from '../permissions/permissions';
 export type DashboardNavItem = {
   label: string;
   href: `/dashboard${string}`;
-  icon: 'LayoutDashboard' | 'Users' | 'Home' | 'MapPinned' | 'HandCoins' | 'WalletCards' | 'BadgeCheck' | 'FileText' | 'Settings';
+  icon: 'LayoutDashboard' | 'Users' | 'Home' | 'MapPinned' | 'HandCoins' | 'WalletCards' | 'BadgeCheck' | 'FileText' | 'Newspaper' | 'Settings';
   permissions: PermissionKey[];
 };
 
@@ -27,6 +27,7 @@ export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
   { label: 'Jimpitan', href: '/dashboard/jimpitan', icon: 'HandCoins', permissions: ['collections.read', 'collections.update_own'] },
   { label: 'Finance', href: '/dashboard/finance', icon: 'WalletCards', permissions: ['transactions.read'] },
   { label: 'Approvals', href: '/dashboard/approvals', icon: 'BadgeCheck', permissions: ['approvals.read'] },
+  { label: 'Konten', href: '/dashboard/content', icon: 'Newspaper', permissions: ['content.read'] },
   { label: 'Reports', href: '/dashboard/reports', icon: 'FileText', permissions: ['reports.private.read'] },
   { label: 'Settings', href: '/dashboard/settings', icon: 'Settings', permissions: ['settings.read'] },
 ];

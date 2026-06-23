@@ -6,7 +6,7 @@
  * SideEffects: None.
  */
 import Link from 'next/link';
-import { BadgeCheck, FileText, HandCoins, Home, LayoutDashboard, MapPinned, Settings, Users, WalletCards, type LucideIcon } from 'lucide-react';
+import { BadgeCheck, FileText, HandCoins, Home, LayoutDashboard, MapPinned, Newspaper, Settings, Users, WalletCards, type LucideIcon } from 'lucide-react';
 import type { DashboardNavItem, ResolvedDashboardNavItem } from '@/lib/navigation/navigation';
 import { cn } from '@/lib/utils/cn';
 
@@ -19,6 +19,7 @@ const ICONS: Record<DashboardNavItem['icon'], LucideIcon> = {
   WalletCards,
   BadgeCheck,
   FileText,
+  Newspaper,
   Settings,
 };
 

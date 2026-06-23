@@ -8,7 +8,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BadgeCheck, FileText, HandCoins, Home, LayoutDashboard, MapPinned, Menu, Settings, Users, WalletCards, type LucideIcon } from 'lucide-react';
+import { BadgeCheck, FileText, HandCoins, Home, LayoutDashboard, MapPinned, Menu, Newspaper, Settings, Users, WalletCards, type LucideIcon } from 'lucide-react';
 import type { DashboardNavItem, ResolvedDashboardNavItem } from '@/lib/navigation/navigation';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ const ICONS: Record<DashboardNavItem['icon'], LucideIcon> = {
   WalletCards,
   BadgeCheck,
   FileText,
+  Newspaper,
   Settings,
 };
 

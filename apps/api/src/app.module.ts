@@ -2,10 +2,11 @@
  * Purpose: Root NestJS module wiring for the JIMPITAN backend.
  * Caller: NestFactory during API bootstrap.
  * Deps: Config, Prisma, common middleware, health, and domain module skeletons.
- * MainFuncs: Imports all backend module boundaries and applies request correlation middleware.
+ * MainFuncs: Imports all backend module boundaries, registers the global authentication/tenant/permission guard chain, and applies request correlation middleware.
  * SideEffects: Registers module providers and middleware in the NestJS container.
  */
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppConfigModule } from './config/app-config.module';
 import { CommonModule } from './common/common.module';
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
@@ -26,6 +27,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AttachmentsModule } from './modules/attachments/attachments.module';
+import { ContentModule } from './modules/content/content.module';
+import { AuthenticationGuard } from './common/guards/authentication.guard';
+import { TenantGuard } from './common/guards/tenant.guard';
+import { PermissionGuard } from './common/guards/permission.guard';
 
 @Module({
   imports: [
@@ -48,6 +53,15 @@ import { AttachmentsModule } from './modules/attachments/attachments.module';
     TelegramModule,
     AuditModule,
     AttachmentsModule,
+    ContentModule,
+  ],
+  providers: [
+    // Global guard chain — runs in this order for every route. Routes opt out of auth with
+    // @PublicRoute(); cross-tenant admin routes opt out of tenant scoping with @SkipTenantGuard().
+    // Registering globally makes auth fail-closed: a new controller is protected by default.
+    { provide: APP_GUARD, useClass: AuthenticationGuard },
+    { provide: APP_GUARD, useClass: TenantGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
   ],
 })
 export class AppModule implements NestModule {

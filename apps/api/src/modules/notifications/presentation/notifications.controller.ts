@@ -5,23 +5,17 @@
  * MainFuncs: Exposes list, unread count, mark-read, mark-all-read, create, delivery status, cancel, retry, and delivery result routes with RBAC metadata.
  * SideEffects: Writes notification, read-state, delivery-state, outbox, and audit changes through NotificationsService on mutating routes.
  */
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { NotificationsService } from '../application/notifications.service';
 import { CancelNotificationDto, CreateNotificationDto, MarkDeliveryResultDto, NotificationDeliveryQueryDto, NotificationListQueryDto } from './dto/notification.dto';
 
 @ApiTags('notifications')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'notifications', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'notifications', version: '1' })
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 

@@ -5,15 +5,11 @@
  * MainFuncs: Exposes area list, detail, create, update, and archive routes with RBAC metadata.
  * SideEffects: Writes area data through AreasService on mutating routes.
  */
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { AreasService } from '../application/areas.service';
 import { AreaQueryDto } from './dto/area-query.dto';
@@ -21,9 +17,7 @@ import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 
 @ApiTags('areas')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'areas', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'areas', version: '1' })
 export class AreasController {
   constructor(private readonly areasService: AreasService) {}
 

@@ -26,7 +26,13 @@ export function PublicShell({ children }: { children: ReactNode }) {
               <Link href="/reports/monthly">Bulanan</Link>
             </Button>
             <Button variant="ghost" className="px-3" asChild>
-              <Link href="/announcements">Pengumuman</Link>
+              <Link href="/kegiatan">Kegiatan</Link>
+            </Button>
+            <Button variant="ghost" className="px-3" asChild>
+              <Link href="/pengumuman">Pengumuman</Link>
+            </Button>
+            <Button variant="ghost" className="px-3" asChild>
+              <Link href="/galeri">Galeri</Link>
             </Button>
             <Button variant="outline" className="px-3" asChild>
               <Link href="/login">Login</Link>

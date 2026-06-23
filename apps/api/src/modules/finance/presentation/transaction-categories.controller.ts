@@ -5,23 +5,17 @@
  * MainFuncs: Exposes category list/detail/create/update/archive routes with RBAC metadata.
  * SideEffects: Writes transaction category data through TransactionCategoriesService on mutating routes.
  */
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { TransactionCategoriesService } from '../application/transaction-categories.service';
 import { ArchiveTransactionCategoryDto, CreateTransactionCategoryDto, TransactionCategoryQueryDto, UpdateTransactionCategoryDto } from './dto/transaction-category.dto';
 
 @ApiTags('finance')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'finance/categories', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'finance/categories', version: '1' })
 export class TransactionCategoriesController {
   constructor(private readonly categoriesService: TransactionCategoriesService) {}
 

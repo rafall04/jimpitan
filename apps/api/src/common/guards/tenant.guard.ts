@@ -7,7 +7,7 @@
  */
 import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_ROUTE_METADATA } from '../constants/metadata.constants';
+import { IS_PUBLIC_ROUTE_METADATA, SKIP_TENANT_GUARD_METADATA } from '../constants/metadata.constants';
 import { TENANT_ID_HEADER } from '../constants/request.constants';
 import type { RequestWithContext } from '../types/request-context.type';
 import { AuthService } from '../../modules/auth/application/auth.service';
@@ -20,7 +20,7 @@ export class TenantGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (this.isPublicRoute(context)) {
+    if (this.isPublicRoute(context) || this.shouldSkipTenantGuard(context)) {
       return true;
     }
 
@@ -46,6 +46,13 @@ export class TenantGuard implements CanActivate {
 
   private isPublicRoute(context: ExecutionContext): boolean {
     return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_ROUTE_METADATA, [
+      context.getHandler(),
+      context.getClass(),
+    ]) === true;
+  }
+
+  private shouldSkipTenantGuard(context: ExecutionContext): boolean {
+    return this.reflector.getAllAndOverride<boolean>(SKIP_TENANT_GUARD_METADATA, [
       context.getHandler(),
       context.getClass(),
     ]) === true;

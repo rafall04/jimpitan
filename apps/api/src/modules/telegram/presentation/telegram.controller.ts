@@ -5,16 +5,12 @@
  * MainFuncs: Exposes public webhook plus protected binding-code and delivery worker endpoints.
  * SideEffects: Writes Telegram update, binding, session, notification delivery, and audit data through TelegramService.
  */
-import { Body, Controller, Headers, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { PublicRoute } from '../../../common/decorators/public-route.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { PublicRoute } from '../../../common/decorators/public-route.decorator';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { TelegramService } from '../application/telegram.service';
 import { CreateTelegramBindCodeDto, ProcessTelegramOutboxDto } from './dto/telegram.dto';
@@ -37,18 +33,14 @@ export class TelegramController {
     return this.telegramService.handleWebhook(payload, { ...this.requestMeta(request), webhookSecret });
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-  @RequireAnyPermission('telegram.bind', 'telegram.manage')
+  @ApiBearerAuth()  @RequireAnyPermission('telegram.bind', 'telegram.manage')
   @ApiOperation({ summary: 'Create a one-time Telegram binding code for an active same-tenant target' })
   @Post('bind-codes')
   async createBindCode(@CurrentUser() principal: AuthPrincipal, @Body() dto: CreateTelegramBindCodeDto, @Req() request: RequestWithContext) {
     return this.telegramService.createBindingCode(principal, dto, this.requestMeta(request));
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-  @RequireAnyPermission('telegram.manage', 'notifications.manage')
+  @ApiBearerAuth()  @RequireAnyPermission('telegram.manage', 'notifications.manage')
   @ApiOperation({ summary: 'Drain pending Telegram notification outbox events' })
   @Post('outbox/drain')
   async drainOutbox(@Body() dto: ProcessTelegramOutboxDto) {

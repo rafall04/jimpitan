@@ -24,6 +24,9 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Bind the Next standalone server to all interfaces so the in-container healthcheck (127.0.0.1) succeeds.
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 ARG NEXT_PUBLIC_API_BASE_URL=http://localhost/api/v1
 ARG NEXT_PUBLIC_APP_URL=http://localhost
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL

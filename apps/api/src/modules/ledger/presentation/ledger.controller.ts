@@ -5,21 +5,15 @@
  * MainFuncs: Exposes ledger listing, detail, and balance routes with RBAC metadata.
  * SideEffects: Reads ledger data through LedgerService.
  */
-import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { AuthPrincipal } from '../../auth/domain/auth.types';
+import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { LedgerService } from '../application/ledger.service';
 import { LedgerEntryQueryDto } from './dto/ledger-query.dto';
 
 @ApiTags('ledger')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'ledger', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'ledger', version: '1' })
 export class LedgerController {
   constructor(private readonly ledgerService: LedgerService) {}
 

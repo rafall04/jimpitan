@@ -2,7 +2,7 @@
  * Purpose: Unit tests for Prisma finance repository financial safety edge cases.
  * Caller: Vitest test runner.
  * Deps: PrismaFinanceRepository, mocked Prisma client, Prisma enums, and Nest exceptions.
- * MainFuncs: Verifies idempotency race recovery, replay rejection, source collection duplicate safety, and mode-aware collection posting.
+ * MainFuncs: Verifies idempotency race recovery, replay rejection, source collection duplicate safety, mode-aware collection posting, Serializable isolation, and write-conflict (P2034) retry.
  * SideEffects: None.
  */
 import { BadRequestException, ConflictException } from '@nestjs/common';
@@ -189,6 +189,49 @@ describe('PrismaFinanceRepository safety edges', () => {
     );
 
     expect(prisma.auditLog.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ action: 'TRANSACTION_POST_BLOCKED_APPROVAL_REQUIRED' }) }));
+  });
+
+  it('wraps posting in a Serializable database transaction', async () => {
+    const posted = transactionDbRow({ status: TransactionStatus.POSTED, idempotencyKey: 'post-1', postedAt: new Date('2030-01-02T00:00:00.000Z'), ledger: ledgerDbRow() });
+    const tx = {
+      transaction: { findFirst: vi.fn(async () => posted) },
+      auditLog: { create: vi.fn(async () => ({})) },
+    };
+    const prisma = {
+      auditLog: { create: vi.fn(async () => ({})) },
+      $transaction: vi.fn(async (callback: (client: typeof tx) => unknown) => callback(tx)),
+    };
+    const repository = new PrismaFinanceRepository(prisma as never);
+
+    const result = await repository.postTransaction('rt-1', 'transaction-1', { idempotencyKey: 'post-1' }, actor, { correlationId: 'corr-iso' });
+
+    expect(result?.id).toBe('transaction-1');
+    expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), expect.objectContaining({ isolationLevel: Prisma.TransactionIsolationLevel.Serializable }));
+  });
+
+  it('retries the posting transaction once on a serialization conflict (P2034)', async () => {
+    const posted = transactionDbRow({ status: TransactionStatus.POSTED, idempotencyKey: 'post-1', postedAt: new Date('2030-01-02T00:00:00.000Z'), ledger: ledgerDbRow() });
+    const tx = {
+      transaction: { findFirst: vi.fn(async () => posted) },
+      auditLog: { create: vi.fn(async () => ({})) },
+    };
+    let attempts = 0;
+    const prisma = {
+      auditLog: { create: vi.fn(async () => ({})) },
+      $transaction: vi.fn(async (callback: (client: typeof tx) => unknown) => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw knownPrismaError('P2034', ['cash_ledgers_cash_account_id_ledger_sequence_key']);
+        }
+        return callback(tx);
+      }),
+    };
+    const repository = new PrismaFinanceRepository(prisma as never);
+
+    const result = await repository.postTransaction('rt-1', 'transaction-1', { idempotencyKey: 'post-1' }, actor, { correlationId: 'corr-retry' });
+
+    expect(result?.id).toBe('transaction-1');
+    expect(prisma.$transaction).toHaveBeenCalledTimes(2);
   });
 });
 

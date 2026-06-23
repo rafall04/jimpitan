@@ -38,6 +38,8 @@ const envSchema = z
   S3_FORCE_PATH_STYLE: z.enum(['true', 'false']).default('true'),
   UPLOAD_STORAGE_PATH: z.string().min(1).default('/var/lib/jimpitan/uploads'),
   EXPORT_STORAGE_PATH: z.string().min(1).default('/var/lib/jimpitan/exports'),
+  UPLOAD_BUCKET: z.string().min(1).default('local-uploads'),
+  MAX_UPLOAD_BYTES: z.coerce.number().int().positive().max(52428800).default(5242880),
   WORKER_QUEUES: z.string().default('notification-outbox,report-exports,telegram-delivery'),
   WORKER_BATCH_SIZE: z.coerce.number().int().min(1).max(50).default(20),
   WORKER_POLL_INTERVAL_MS: z.coerce.number().int().min(1000).default(5000),

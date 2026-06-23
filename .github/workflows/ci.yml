@@ -80,6 +80,11 @@ jobs:
 
       - run: npm run readiness:check
 
+      # Dependency audit: hard-fail only on CRITICAL advisories. Current HIGH/MODERATE advisories
+      # (multer / @nestjs / js-yaml / postcss) are tracked and risk-accepted in docs/security/audit.md
+      # (no non-breaking fix; not reachable in the current surface). Re-review when deps change.
+      - run: npm audit --omit=dev --audit-level=critical
+
       - run: npm run docker:config:prod
 
       - run: npm run test:e2e

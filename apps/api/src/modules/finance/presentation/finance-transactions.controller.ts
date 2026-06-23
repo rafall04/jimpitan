@@ -5,15 +5,11 @@
  * MainFuncs: Exposes transaction list/detail/create/validate/reject/void/post and collection posting routes with RBAC metadata.
  * SideEffects: Writes finance transactions and ledger entries through FinanceTransactionsService on mutating routes.
  */
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { FinanceTransactionsService } from '../application/finance-transactions.service';
 import {
@@ -27,9 +23,7 @@ import {
 } from './dto/finance-transaction.dto';
 
 @ApiTags('finance')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'finance/transactions', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'finance/transactions', version: '1' })
 export class FinanceTransactionsController {
   constructor(private readonly transactionsService: FinanceTransactionsService) {}
 

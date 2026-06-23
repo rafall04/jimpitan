@@ -5,12 +5,11 @@
  * MainFuncs: Exposes current tenant resolver and minimal RT CRUD endpoints.
  * SideEffects: Writes RT tenant data through TenantsService for mutating routes.
  */
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
+import { SkipTenantGuard } from '../../../common/decorators/skip-tenant-guard.decorator';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
@@ -20,7 +19,7 @@ import { UpdateTenantDto } from './dto/update-tenant.dto';
 
 @ApiTags('tenants')
 @ApiBearerAuth()
-@UseGuards(AuthenticationGuard, PermissionGuard)
+@SkipTenantGuard()
 @Controller({ path: 'tenants', version: '1' })
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}

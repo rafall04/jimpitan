@@ -24,6 +24,7 @@
     "test:smoke": "node scripts/smoke-check.mjs",
     "readiness:check": "node scripts/readiness-check.mjs",
     "deploy:verify": "node scripts/deployment-verify.mjs",
+    "verify:ledger": "node scripts/verify-ledger-guards.mjs",
     "typecheck:web": "tsc -p apps/web/tsconfig.json --noEmit",
     "prisma:generate": "node scripts/run-prisma-schema-command.mjs generate",
     "prisma:validate": "node scripts/run-prisma-schema-command.mjs validate",

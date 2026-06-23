@@ -123,7 +123,10 @@ export async function cleanupE2EFixtures(config: E2ERuntimeConfig, fixture?: E2E
 
   if (rt) {
     const rtId = rt.id;
+    // cash_ledgers is append-only via a DB trigger (migration 20260622120000); disable it inside this
+    // owner-scoped cleanup transaction so test data can be removed, then re-enable it before commit.
     await prisma.$transaction([
+      prisma.$executeRawUnsafe('ALTER TABLE "cash_ledgers" DISABLE TRIGGER USER'),
       prisma.outboxEvent.deleteMany({ where: { rtId } }),
       prisma.notification.deleteMany({ where: { rtId } }),
       prisma.reportExport.deleteMany({ where: { rtId } }),
@@ -147,6 +150,7 @@ export async function cleanupE2EFixtures(config: E2ERuntimeConfig, fixture?: E2E
       prisma.rtMembership.deleteMany({ where: { rtId } }),
       prisma.role.deleteMany({ where: { rtId } }),
       prisma.rt.deleteMany({ where: { id: rtId } }),
+      prisma.$executeRawUnsafe('ALTER TABLE "cash_ledgers" ENABLE TRIGGER USER'),
     ]);
   }
 

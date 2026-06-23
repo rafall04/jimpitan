@@ -14,6 +14,7 @@ SideEffects: None.
 - Email provider delivery integration, attachment workflows, payment gateway, and analytics dashboards remain excluded. Finance, cash ledger, expense approval, notification workflow, Telegram bot command handling, Telegram notification delivery logic, reporting engine, public transparency endpoints, and export engine foundation are implemented.
 
 ## Required Local Maps
+- `docs/hot-paths.md`: concern → exact `file:symbol` jump table for hot/high-risk paths — consult before exploring source.
 - `.module_map.md`: planning artifact map and ownership boundaries.
 - `infrastructure/.module_map.md`: Docker Compose, Nginx, storage, and operations script map.
 - `apps/api/src/worker/.module_map.md`: background worker process map.
@@ -70,11 +71,13 @@ SideEffects: None.
 - `apps/api/src/modules/approvals`: tenant-scoped expense approval policy, threshold evaluation, request/decision lifecycle, approval queues, notification hooks, audit logs, RBAC route metadata, DTOs, and Prisma repository.
 - `apps/api/src/modules/notifications`: tenant-scoped in-app notifications, outbox rows, delivery lifecycle, retry, idempotency, recipient validation, audit logs, RBAC route metadata, DTOs, and Telegram/email delivery hook interfaces.
 - `apps/api/src/modules/telegram`: Telegram webhook, update ingestion, binding, role-aware menu, command routing, state machine, `PER_HOUSE` and `BULK_TOTAL` Jimpitan input, finance commands, approval actions, Telegram outbox delivery, audit logs, tenant isolation, and RBAC.
-- `apps/api/src/modules`: email provider delivery integration, audit browsing, and attachment workflows remain skeleton-only.
+- `apps/api/src/modules/attachments`: image upload validation (mime allowlist + magic-byte sniff + size cap), local-volume object storage behind an S3-ready `StoragePort`, attachment metadata persistence, public image serving, and soft deletion. Backs content images. See `apps/api/src/modules/attachments/.module_map.md`.
+- `apps/api/src/modules/content`: tenant-scoped community content on the reused `announcements` table with a `type` discriminator (ANNOUNCEMENT/ACTIVITY/ARTICLE/GALLERY) — authoring CRUD, DRAFT/PUBLISHED/ARCHIVED lifecycle, SEO slugs, cover/gallery images (via attachments), in-transaction audit, the public content feed/detail-by-type+slug, and anonymous deduped reactions with a count mirror. See `apps/api/src/modules/content/.module_map.md`.
+- `apps/api/src/modules`: email provider delivery integration and audit browsing remain skeleton-only.
 
 ## Frontend Foundation
 - `apps/web/.module_map.md`: local frontend shell map.
-- `apps/web/src/app`: Next.js App Router public, auth, dashboard, health, same-origin auth session API, and allowlisted backend proxy route groups with implemented public transparency, structure, Jimpitan, finance, ledger, approval, and report export pages plus remaining private placeholders.
+- `apps/web/src/app`: Next.js App Router public, auth, dashboard, health, same-origin auth session API, and allowlisted backend proxy route groups with implemented public transparency, structure, Jimpitan, finance, ledger, approval, report export, and content management pages, public per-category content (`/[tipe]` kegiatan/pengumuman/artikel/galeri) feeds + `/[tipe]/[slug]` detail with reactions, plus remaining private placeholders.
 - `apps/web/src/proxy.ts`: Next.js proxy guard for dashboard session routing and login redirect behavior.
 - `apps/web/src/components`: shadcn-compatible primitives, app shell, feedback, form, and table foundations.
 - `apps/web/src/features/auth`: safe login form, configured-backend login client, same-origin POST validation, backend Auth adapter, httpOnly cookie helpers, session mapper/loader, refresh/logout hooks, permission UI helper, and server cookie reader.
@@ -83,6 +86,8 @@ SideEffects: None.
 - `apps/web/src/features/jimpitan`: Jimpitan collection API adapter, mode contracts, TanStack hooks, lifecycle helpers, session list/detail pages, per-house and bulk-total mobile collection flow, validation controls, outstanding tracking, and tests.
 - `apps/web/src/features/finance`: Finance/Ledger/Approval/Report Export API adapter, TanStack hooks, lifecycle helpers, forms, transaction/account/category pages, ledger view, mode-aware collection posting, approval queue/detail pages, private export panel, and tests.
 - `apps/web/src/features/public-reports`: unauthenticated public report API adapter, public CSV export links, safe format helpers, public page components, private-field guard, Indonesian copy/formatting, and tests.
+- `apps/web/src/features/content`: dashboard content authoring — API adapter (backend proxy + multipart image upload), types/schema/payload mappers, TanStack hooks, badges, RHF form, cover/gallery image manager, list/create/edit pages, and tests.
+- `apps/web/src/features/public-content`: unauthenticated public content feed/detail API adapter (credentials omitted), category/type maps, image src helper, server-rendered feed + detail views, client reaction bar, and tests.
 - `apps/web/src/lib`: API client, environment validation, permission helpers, navigation registry, query keys, query provider, and utilities.
 - `apps/web/Dockerfile`: frontend standalone Docker build path.
 - `vitest.config.mts`: frontend path alias support for web tests.
@@ -112,6 +117,7 @@ SideEffects: None.
 - `scripts/smoke-check.mjs`: `npm run test:smoke` runtime HTTP smoke gate when smoke URLs are configured.
 - `scripts/readiness-check.mjs`: `npm run readiness:check` production readiness/security static gate.
 - `scripts/deployment-verify.mjs`: deployment verification command for static gates and optional full build/test checks.
+- `scripts/verify-ledger-guards.mjs` (`npm run verify:ledger`): runtime check that the `20260622120000_ledger_integrity_guards` migration's append-only trigger and CHECK constraints reject bad operations; run against a disposable Postgres with migrations applied.
 - `playwright.config.ts`: API/web E2E startup, browser artifact, and global setup/teardown configuration.
 - `.github/workflows/ci.yml`: GitHub Actions CI for build, test, infra, readiness, Docker config, and E2E checks.
 

@@ -66,10 +66,20 @@ export const queryKeys = {
     unread: (rtId: string) => [...rt(rtId), 'notifications', 'unread'] as const,
     list: (rtId: string, params: QueryParams = {}) => [...rt(rtId), 'notifications', 'list', params] as const,
   },
+  content: {
+    scope: (rtId: string) => [...rt(rtId), 'content'] as const,
+    list: (rtId: string, params: QueryParams = {}) => [...rt(rtId), 'content', 'list', params] as const,
+    detail: (rtId: string, postId: string) => [...rt(rtId), 'content', 'detail', postId] as const,
+    images: (rtId: string, postId: string) => [...rt(rtId), 'content', 'images', postId] as const,
+  },
   publicReports: {
     summary: (rtCode: string) => ['public', 'reports', rtCode, 'summary'] as const,
     monthly: (rtCode: string, month: string) => ['public', 'reports', rtCode, 'monthly', month] as const,
     metadata: (rtCode: string, params: QueryParams = {}) => ['public', 'reports', rtCode, 'metadata', params] as const,
     announcements: (rtCode: string, params: QueryParams = {}) => ['public', 'reports', rtCode, 'announcements', params] as const,
+  },
+  publicContent: {
+    list: (rtCode: string, params: QueryParams = {}) => ['public', 'content', rtCode, 'list', params] as const,
+    detail: (rtCode: string, typePath: string, slug: string) => ['public', 'content', rtCode, 'detail', typePath, slug] as const,
   },
 };

@@ -17,7 +17,7 @@ import { ApiError } from '@/lib/api/api-error';
 import { joinApiUrl } from '@/lib/api/url';
 import { getWebEnv } from '@/lib/env/env';
 
-const ALLOWED_RESOURCES = new Set(['residents', 'houses', 'areas', 'jimpitan', 'finance', 'ledger', 'approvals', 'reports']);
+const ALLOWED_RESOURCES = new Set(['residents', 'houses', 'areas', 'jimpitan', 'finance', 'ledger', 'approvals', 'reports', 'content']);
 const STATE_CHANGING_METHODS = new Set(['POST', 'PATCH', 'PUT', 'DELETE']);
 
 type RouteContext = {
@@ -65,10 +65,11 @@ async function proxyBackendRequest(request: NextRequest, context: RouteContext):
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
   const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
-  const bodyText = await request.text();
+  // Read as raw bytes (not text) so binary multipart uploads (content images) are forwarded intact.
+  const bodyBuffer = await request.arrayBuffer();
 
   try {
-    const initial = await forwardToBackend(request, path, tenantId, accessToken, bodyText);
+    const initial = await forwardToBackend(request, path, tenantId, accessToken, bodyBuffer);
     if (initial.status !== 401 || !refreshToken) {
       return initial;
     }
@@ -79,7 +80,7 @@ async function proxyBackendRequest(request: NextRequest, context: RouteContext):
       return NextResponse.json({ message: 'Refreshed tenant context does not match the active RT.' }, { status: 403 });
     }
 
-    const retried = await forwardToBackend(request, path, tenantId, tokens.accessToken, bodyText);
+    const retried = await forwardToBackend(request, path, tenantId, tokens.accessToken, bodyBuffer);
     setSessionCookies(retried, tokens, refreshedSession);
     return retried;
   } catch (error) {
@@ -89,7 +90,7 @@ async function proxyBackendRequest(request: NextRequest, context: RouteContext):
   }
 }
 
-async function forwardToBackend(request: NextRequest, path: string[], tenantId: string, accessToken: string | undefined, bodyText: string): Promise<NextResponse> {
+async function forwardToBackend(request: NextRequest, path: string[], tenantId: string, accessToken: string | undefined, bodyBuffer: ArrayBuffer): Promise<NextResponse> {
   if (!accessToken) {
     return NextResponse.json({ message: 'Authentication is required.' }, { status: 401 });
   }
@@ -113,7 +114,7 @@ async function forwardToBackend(request: NextRequest, path: string[], tenantId: 
   const response = await fetch(url, {
     method: request.method,
     headers,
-    body: bodyText.length > 0 ? bodyText : undefined,
+    body: bodyBuffer.byteLength > 0 ? bodyBuffer : undefined,
     cache: 'no-store',
   });
   const payload = await response.text();

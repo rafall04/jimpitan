@@ -47,4 +47,12 @@ describe('AppModule dependency injection', () => {
 
     expect(source).toContain('@Inject(AUTH_SESSION_ID_FACTORY) private readonly sessionIdFactory');
   });
+
+  it('registers the authentication, tenant, and permission guards globally (auth is fail-closed)', () => {
+    const source = readFileSync('apps/api/src/app.module.ts', 'utf8');
+
+    expect(source).toContain('provide: APP_GUARD, useClass: AuthenticationGuard');
+    expect(source).toContain('provide: APP_GUARD, useClass: TenantGuard');
+    expect(source).toContain('provide: APP_GUARD, useClass: PermissionGuard');
+  });
 });

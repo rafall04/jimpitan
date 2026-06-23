@@ -5,16 +5,12 @@
  * MainFuncs: Exposes collection lifecycle, mode-aware bulk total input, checklist, item batch, validation, summary, outstanding, and mobile routes with RBAC metadata.
  * SideEffects: Writes collection data through JimpitanService on mutating routes.
  */
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { JimpitanService } from '../application/jimpitan.service';
 import { CancelCollectionDto } from './dto/cancel-collection.dto';
@@ -28,9 +24,7 @@ import { UpsertCollectionItemsDto } from './dto/collection-item.dto';
 import { ValidateCollectionDto } from './dto/validate-collection.dto';
 
 @ApiTags('jimpitan')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'jimpitan/collections', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'jimpitan/collections', version: '1' })
 export class JimpitanController {
   constructor(private readonly jimpitanService: JimpitanService) {}
 

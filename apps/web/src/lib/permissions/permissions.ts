@@ -32,6 +32,11 @@ export const PERMISSION_KEYS = [
   'settings.read',
   'settings.update',
   'notifications.read',
+  'content.read',
+  'content.create',
+  'content.update',
+  'content.publish',
+  'content.delete',
 ] as const;
 
 export type PermissionKey = (typeof PERMISSION_KEYS)[number] | string;

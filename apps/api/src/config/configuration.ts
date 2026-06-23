@@ -48,6 +48,8 @@ export const configuration = () => ({
   storage: {
     uploadPath: process.env.UPLOAD_STORAGE_PATH ?? '/var/lib/jimpitan/uploads',
     exportPath: process.env.EXPORT_STORAGE_PATH ?? '/var/lib/jimpitan/exports',
+    uploadBucket: process.env.UPLOAD_BUCKET ?? 'local-uploads',
+    maxUploadBytes: Number(process.env.MAX_UPLOAD_BYTES ?? 5 * 1024 * 1024),
     endpoint: process.env.S3_ENDPOINT,
     region: process.env.S3_REGION,
     bucket: process.env.S3_BUCKET,

@@ -2,7 +2,7 @@
  * Purpose: Same-origin request validation for cookie-authenticated auth route handlers.
  * Caller: Login, refresh, and logout route handlers.
  * Deps: NextRequest type.
- * MainFuncs: Rejects cross-site browser POSTs while allowing same-origin and non-browser server requests.
+ * MainFuncs: Rejects cross-site and unverifiable (metadata-less) POSTs; allows only verified same-origin requests.
  * SideEffects: None.
  */
 import type { NextRequest } from 'next/server';
@@ -32,7 +32,9 @@ export function isSameOriginHeaderSet(headers: SameOriginHeaderSet): boolean {
     return headers.secFetchSite === 'same-origin' || headers.secFetchSite === 'same-site' || headers.secFetchSite === 'none';
   }
 
-  return true;
+  // Default-deny: a state-changing request carrying neither an Origin nor a Sec-Fetch-Site
+  // header is not a verifiable same-origin browser request, so reject it.
+  return false;
 }
 
 function originMatchesHost(origin: string, host: string | null | undefined): boolean {

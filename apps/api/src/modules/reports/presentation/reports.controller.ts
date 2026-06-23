@@ -5,16 +5,12 @@
  * MainFuncs: Exposes ledger-derived reports, collection/outstanding reports, public-safe endpoints, export lifecycle routes, and CSV downloads.
  * SideEffects: Writes report export/audit rows through ReportsService on export creation, retry, and download.
  */
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, Req, StreamableFile, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, Req, StreamableFile } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { isIP } from 'net';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { RequireAnyPermission } from '../../../common/decorators/permissions.decorator';
-import { PublicRoute } from '../../../common/decorators/public-route.decorator';
-import { AuthenticationGuard } from '../../../common/guards/authentication.guard';
-import { PermissionGuard } from '../../../common/guards/permission.guard';
-import { TenantGuard } from '../../../common/guards/tenant.guard';
-import type { RequestWithContext } from '../../../common/types/request-context.type';
+import { PublicRoute } from '../../../common/decorators/public-route.decorator';import type { RequestWithContext } from '../../../common/types/request-context.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { ReportsService } from '../application/reports.service';
 import {
@@ -31,9 +27,7 @@ import {
 } from './dto/report.dto';
 
 @ApiTags('reports')
-@ApiBearerAuth()
-@UseGuards(AuthenticationGuard, TenantGuard, PermissionGuard)
-@Controller({ path: 'reports', version: '1' })
+@ApiBearerAuth()@Controller({ path: 'reports', version: '1' })
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
