@@ -33,8 +33,8 @@ export function PublicHomeView({ summary, latestReport, announcements, rtCode }:
       <section className="border-b bg-secondary/40">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.2fr_0.8fr] md:py-14 lg:px-8">
           <div>
-            <p className="text-sm font-medium uppercase text-primary">Transparansi warga</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-normal text-foreground sm:text-5xl">{sanitizePublicCopy(summary.rt.name)}</h1>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">Transparansi warga</p>
+            <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">{sanitizePublicCopy(summary.rt.name)}</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
               Ringkasan kas dan laporan publik yang dapat dibaca warga tanpa login. Data ditampilkan sebagai agregat aman, tanpa data pribadi warga.
             </p>

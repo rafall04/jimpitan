@@ -6,6 +6,8 @@
  * SideEffects: Performs server-side public backend fetches without auth cookies or tenant headers.
  */
 import type { Metadata } from 'next';
+import { listPublicContent } from '@/features/public-content/api';
+import { PublicLatestContent } from '@/features/public-content/components';
 import { getPublicSummary, listPublicAnnouncements, listPublicReportMetadata } from '@/features/public-reports/api';
 import { PublicHomeView, PublicTenantRequiredView } from '@/features/public-reports/components';
 import { resolvePublicReportParams, type PublicSearchParams } from '@/features/public-reports/format';
@@ -26,11 +28,17 @@ export default async function PublicHomePage({ searchParams }: PageProps) {
   if (!rtCode) {
     return <PublicTenantRequiredView />;
   }
-  const [summary, reportFeed, announcementFeed] = await Promise.all([
+  const [summary, reportFeed, announcementFeed, contentFeed] = await Promise.all([
     getPublicSummary(rtCode),
     listPublicReportMetadata(rtCode, { limit: 1 }),
     listPublicAnnouncements(rtCode, { limit: 3 }),
+    listPublicContent(rtCode, {}).catch(() => null),
   ]);
 
-  return <PublicHomeView summary={summary} latestReport={reportFeed.items[0]} announcements={announcementFeed.items} rtCode={rtCode} />;
+  return (
+    <>
+      <PublicHomeView summary={summary} latestReport={reportFeed.items[0]} announcements={announcementFeed.items} rtCode={rtCode} />
+      {contentFeed ? <PublicLatestContent rtCode={rtCode} items={contentFeed.items} /> : null}
+    </>
+  );
 }

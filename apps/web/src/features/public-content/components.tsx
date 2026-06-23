@@ -1,8 +1,8 @@
 /**
- * Purpose: Server-rendered public content views (category nav, feed grid, post detail).
- * Caller: Public content App Router pages.
+ * Purpose: Server-rendered public content views (category nav, content card, feed grid, home section, post detail).
+ * Caller: Public content + public home App Router pages.
  * Deps: Next Link, Button, cn, public content api maps + image src, reaction bar, public date format.
- * MainFuncs: Renders a category-filtered feed of cards and a full post detail with gallery + reactions.
+ * MainFuncs: Renders reusable content cards, a category-filtered feed, a home "latest" section, and a post detail.
  * SideEffects: None (data is fetched by the calling page).
  */
 import Link from 'next/link';
@@ -81,6 +81,56 @@ function ContentCover({ item, className }: { item: { type: ContentType; coverIma
   );
 }
 
+export function PublicContentCard({ rtCode, item }: { rtCode: string; item: PublicContentItem }) {
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <Link href={rtHref(`/${item.typePath}/${item.slug}`, rtCode)} className="flex h-full flex-col">
+        <div className="relative">
+          <ContentCover item={item} className="aspect-[16/9]" />
+          <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-background/90 px-2.5 py-0.5 text-xs font-semibold text-foreground backdrop-blur-sm">
+            {publicContentTypeLabel(item.typePath)}
+          </span>
+        </div>
+        <div className="flex flex-1 flex-col gap-2 p-5">
+          <h3 className="font-bold leading-snug tracking-tight">{item.title}</h3>
+          {item.excerpt ? <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{item.excerpt}</p> : null}
+          <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-xs font-medium text-muted-foreground">
+            {item.type === 'ACTIVITY' && item.eventStartAt ? (
+              <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{formatEventWindow(item.eventStartAt, null)}</span>
+            ) : item.publishedAt ? (
+              <span>{formatIndonesianDate(item.publishedAt)}</span>
+            ) : null}
+            {item.location ? <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" aria-hidden="true" />{item.location}</span> : null}
+            <span className="ml-auto inline-flex items-center gap-1.5 text-gold"><Heart className="h-3.5 w-3.5" aria-hidden="true" />{item.reactionCount}</span>
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+export function PublicLatestContent({ rtCode, items }: { rtCode: string; items: PublicContentItem[] }) {
+  if (items.length === 0) {
+    return null;
+  }
+  return (
+    <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">Kabar RT</p>
+          <h2 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">Yang terbaru di lingkungan kita</h2>
+        </div>
+        <PublicContentTypeNav rtCode={rtCode} activePath="" />
+      </div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {items.slice(0, 6).map((item) => (
+          <PublicContentCard key={`${item.typePath}-${item.slug}`} rtCode={rtCode} item={item} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function PublicContentFeedView({
   rtCode,
   activePath,
@@ -118,29 +168,7 @@ export function PublicContentFeedView({
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <article key={`${item.typePath}-${item.slug}`} className="group flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <Link href={rtHref(`/${item.typePath}/${item.slug}`, rtCode)} className="flex h-full flex-col">
-                <div className="relative">
-                  <ContentCover item={item} className="aspect-[16/9]" />
-                  <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-background/90 px-2.5 py-0.5 text-xs font-semibold text-foreground backdrop-blur-sm">
-                    {publicContentTypeLabel(item.typePath)}
-                  </span>
-                </div>
-                <div className="flex flex-1 flex-col gap-2 p-5">
-                  <h2 className="font-bold leading-snug tracking-tight">{item.title}</h2>
-                  {item.excerpt ? <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{item.excerpt}</p> : null}
-                  <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-xs font-medium text-muted-foreground">
-                    {item.type === 'ACTIVITY' && item.eventStartAt ? (
-                      <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{formatEventWindow(item.eventStartAt, null)}</span>
-                    ) : item.publishedAt ? (
-                      <span>{formatIndonesianDate(item.publishedAt)}</span>
-                    ) : null}
-                    {item.location ? <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" aria-hidden="true" />{item.location}</span> : null}
-                    <span className="ml-auto inline-flex items-center gap-1.5 text-gold"><Heart className="h-3.5 w-3.5" aria-hidden="true" />{item.reactionCount}</span>
-                  </div>
-                </div>
-              </Link>
-            </article>
+            <PublicContentCard key={`${item.typePath}-${item.slug}`} rtCode={rtCode} item={item} />
           ))}
         </div>
       )}
