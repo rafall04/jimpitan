@@ -7,6 +7,7 @@
  */
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { PublicRoute } from '../common/decorators/public-route.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 
 type HealthResponse = {
@@ -19,6 +20,7 @@ type HealthResponse = {
 };
 
 @ApiTags('health')
+@PublicRoute()
 @Controller({ path: 'health', version: '1' })
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
