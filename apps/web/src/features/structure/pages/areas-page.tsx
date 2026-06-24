@@ -7,7 +7,7 @@
  */
 'use client';
 
-import { Archive, Eye, Pencil, Plus } from 'lucide-react';
+import { Archive, Eye, MapPinned, Pencil, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { DataTable, type DataTableColumn } from '@/components/data-table/data-table';
@@ -91,6 +91,14 @@ export function AreasPage() {
     [permissions],
   );
 
+  const emptyIcon = <MapPinned className="h-7 w-7" aria-hidden="true" />;
+  const emptyAction = canManage ? (
+    <Button type="button" onClick={() => setSheet({ mode: 'create' })}>
+      <Plus className="h-4 w-4" aria-hidden="true" />
+      Tambah area
+    </Button>
+  ) : null;
+
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <StructurePageHeader
@@ -134,10 +142,10 @@ export function AreasPage() {
       {areasQuery.data ? (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <DataTable columns={columns} rows={areasQuery.data.items} getRowKey={(area) => area.id} emptyTitle="Area tidak ditemukan" emptyDescription="Sesuaikan filter atau buat area untuk memulai." />
+            <DataTable columns={columns} rows={areasQuery.data.items} getRowKey={(area) => area.id} emptyTitle="Area tidak ditemukan" emptyDescription="Sesuaikan filter atau buat area untuk memulai." emptyIcon={emptyIcon} emptyAction={emptyAction} />
           </div>
           <div className="space-y-3 md:hidden">
-            {areasQuery.data.items.length === 0 ? <EmptyState title="Area tidak ditemukan" description="Sesuaikan filter atau buat area untuk memulai." /> : null}
+            {areasQuery.data.items.length === 0 ? <EmptyState title="Area tidak ditemukan" description="Sesuaikan filter atau buat area untuk memulai." icon={emptyIcon}>{emptyAction}</EmptyState> : null}
             {areasQuery.data.items.map((area) => (
               <AreaCard key={area.id} area={area} permissions={permissions} onDetail={() => setSheet({ mode: 'detail', area })} onEdit={() => setSheet({ mode: 'edit', area })} onArchive={() => setArchiveTarget(area)} />
             ))}

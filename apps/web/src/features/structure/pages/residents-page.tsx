@@ -7,7 +7,7 @@
  */
 'use client';
 
-import { Archive, Eye, Pencil, Plus, RotateCcw } from 'lucide-react';
+import { Archive, Eye, Pencil, Plus, RotateCcw, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { DataTable, type DataTableColumn } from '@/components/data-table/data-table';
@@ -130,6 +130,13 @@ export function ResidentsPage() {
   );
 
   const detailResident = detailQuery.data ?? toFallbackResident(sheet);
+  const emptyIcon = <Users className="h-7 w-7" aria-hidden="true" />;
+  const emptyAction = canCreate ? (
+    <Button type="button" onClick={() => setSheet({ mode: 'create' })}>
+      <Plus className="h-4 w-4" aria-hidden="true" />
+      Tambah warga
+    </Button>
+  ) : null;
 
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -198,10 +205,10 @@ export function ResidentsPage() {
       {residentsQuery.data ? (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <DataTable columns={columns} rows={residentsQuery.data.items} getRowKey={(resident) => resident.id} emptyTitle="Warga tidak ditemukan" emptyDescription="Sesuaikan filter atau tambah warga setelah ada minimal satu rumah yang bisa ditempati." />
+            <DataTable columns={columns} rows={residentsQuery.data.items} getRowKey={(resident) => resident.id} emptyTitle="Warga tidak ditemukan" emptyDescription="Sesuaikan filter atau tambah warga setelah ada minimal satu rumah yang bisa ditempati." emptyIcon={emptyIcon} emptyAction={emptyAction} />
           </div>
           <div className="space-y-3 md:hidden">
-            {residentsQuery.data.items.length === 0 ? <EmptyState title="Warga tidak ditemukan" description="Sesuaikan filter atau tambah warga setelah ada minimal satu rumah yang bisa ditempati." /> : null}
+            {residentsQuery.data.items.length === 0 ? <EmptyState title="Warga tidak ditemukan" description="Sesuaikan filter atau tambah warga setelah ada minimal satu rumah yang bisa ditempati." icon={emptyIcon}>{emptyAction}</EmptyState> : null}
             {residentsQuery.data.items.map((resident) => (
               <ResidentCard
                 key={resident.id}
@@ -219,7 +226,7 @@ export function ResidentsPage() {
       ) : null}
       <RecordSheet open={Boolean(sheet)} title={sheetTitle(sheet)} description="Perubahan warga dibatasi per-RT dan diaudit oleh sistem." onOpenChange={(open) => !open && setSheet(null)}>
         {sheet?.mode === 'detail' && detailResident ? <ResidentDetail resident={detailResident} /> : null}
-        {sheet?.mode === 'edit' && detailQuery.isPending ? <ListSkeleton label="Memuat detail warga" /> : null}
+        {sheet?.mode === 'edit' && detailQuery.isPending ? <ListSkeleton label="Memuat detail warga" variant="form" /> : null}
         {sheet?.mode === 'edit' && detailQuery.isError ? <DetailLoadError /> : null}
         {sheet?.mode === 'create' ? (
           <ResidentForm

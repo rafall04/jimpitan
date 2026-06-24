@@ -8,7 +8,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { HandCoins, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/feedback/empty-state';
@@ -79,8 +79,8 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
       {dashboard ? (
         <section className="space-y-3">
           <h2 className="text-base font-semibold">Rute aktif saya</h2>
-          {myCollectionsQuery.isPending ? <ListSkeleton label="Memuat sesi yang ditugaskan" /> : null}
-          {myCollectionsQuery.data?.items.length === 0 ? <EmptyState title="Belum ada rute aktif" description="Rute yang sedang berjalan dan ditugaskan kepada Anda akan muncul di sini." /> : null}
+          {myCollectionsQuery.isPending ? <ListSkeleton label="Memuat sesi yang ditugaskan" variant="cards" rows={2} /> : null}
+          {myCollectionsQuery.data?.items.length === 0 ? <EmptyState title="Belum ada rute aktif" description="Rute yang sedang berjalan dan ditugaskan kepada Anda akan muncul di sini." icon={<HandCoins className="h-7 w-7" aria-hidden="true" />} /> : null}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {myCollectionsQuery.data?.items.map((collection) => <SessionCard key={collection.id} collection={collection} />)}
           </div>
@@ -117,11 +117,20 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
           <option value="BULK_TOTAL">Total langsung</option>
         </SelectField>
       </section>
-      {collectionsQuery.isPending ? <ListSkeleton label="Memuat sesi" /> : null}
+      {collectionsQuery.isPending ? <ListSkeleton label="Memuat sesi" variant="cards" /> : null}
       {collectionsQuery.isError ? <QueryError onRetry={() => void collectionsQuery.refetch()} /> : null}
       {collectionsQuery.data ? (
         <div className="space-y-4">
-          {collectionsQuery.data.items.length === 0 ? <EmptyState title="Tidak ada sesi" description="Sesuaikan filter atau buat sesi penarikan baru." /> : null}
+          {collectionsQuery.data.items.length === 0 ? (
+            <EmptyState title="Tidak ada sesi" description="Sesuaikan filter atau buat sesi penarikan baru." icon={<HandCoins className="h-7 w-7" aria-hidden="true" />}>
+              {canCreate ? (
+                <Button type="button" onClick={() => setSheetOpen(true)}>
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  Buat sesi
+                </Button>
+              ) : null}
+            </EmptyState>
+          ) : null}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {collectionsQuery.data.items.map((collection) => <SessionCard key={collection.id} collection={collection} />)}
           </div>

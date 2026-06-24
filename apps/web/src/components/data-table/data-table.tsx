@@ -22,19 +22,27 @@ export function DataTable<T>({
   getRowKey,
   emptyTitle,
   emptyDescription,
+  emptyIcon,
+  emptyAction,
 }: {
   columns: DataTableColumn<T>[];
   rows: T[];
   getRowKey: (row: T) => string;
   emptyTitle: string;
   emptyDescription: string;
+  emptyIcon?: ReactNode;
+  emptyAction?: ReactNode;
 }) {
   if (rows.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />;
+    return (
+      <EmptyState title={emptyTitle} description={emptyDescription} icon={emptyIcon}>
+        {emptyAction}
+      </EmptyState>
+    );
   }
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border bg-card">
+    <div className="w-full overflow-x-auto rounded-xl border bg-card">
       <table className="w-full min-w-[40rem] border-collapse text-sm">
         <thead className="bg-muted/60 text-left">
           <tr>

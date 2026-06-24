@@ -7,7 +7,7 @@
  */
 'use client';
 
-import { Archive, Eye, Pencil, Plus } from 'lucide-react';
+import { Archive, Eye, Home, Pencil, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { DataTable, type DataTableColumn } from '@/components/data-table/data-table';
@@ -95,6 +95,14 @@ export function HousesPage() {
     [permissions],
   );
 
+  const emptyIcon = <Home className="h-7 w-7" aria-hidden="true" />;
+  const emptyAction = canManage ? (
+    <Button type="button" onClick={() => setSheet({ mode: 'create' })}>
+      <Plus className="h-4 w-4" aria-hidden="true" />
+      Tambah rumah
+    </Button>
+  ) : null;
+
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <StructurePageHeader
@@ -150,10 +158,10 @@ export function HousesPage() {
       {housesQuery.data ? (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <DataTable columns={columns} rows={housesQuery.data.items} getRowKey={(house) => house.id} emptyTitle="Rumah tidak ditemukan" emptyDescription="Sesuaikan filter atau buat rumah setelah ada minimal satu area aktif." />
+            <DataTable columns={columns} rows={housesQuery.data.items} getRowKey={(house) => house.id} emptyTitle="Rumah tidak ditemukan" emptyDescription="Sesuaikan filter atau buat rumah setelah ada minimal satu area aktif." emptyIcon={emptyIcon} emptyAction={emptyAction} />
           </div>
           <div className="space-y-3 md:hidden">
-            {housesQuery.data.items.length === 0 ? <EmptyState title="Rumah tidak ditemukan" description="Sesuaikan filter atau buat rumah setelah ada minimal satu area aktif." /> : null}
+            {housesQuery.data.items.length === 0 ? <EmptyState title="Rumah tidak ditemukan" description="Sesuaikan filter atau buat rumah setelah ada minimal satu area aktif." icon={emptyIcon}>{emptyAction}</EmptyState> : null}
             {housesQuery.data.items.map((house) => (
               <HouseCard key={house.id} house={house} permissions={permissions} onDetail={() => setSheet({ mode: 'detail', house })} onEdit={() => setSheet({ mode: 'edit', house })} onArchive={() => setArchiveTarget(house)} />
             ))}
