@@ -13,6 +13,8 @@ export type PublicTransparencySummary = {
     code: string;
     name: string;
   };
+  financeVisibility?: 'PUBLIC' | 'TOKEN';
+  financeAccessible?: boolean;
   cashBalance: {
     totalBalance: string;
     currency: string;

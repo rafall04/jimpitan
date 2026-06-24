@@ -40,9 +40,12 @@ function createHarness() {
     recoverStaleCsvExports: vi.fn(async () => 0),
     claimPendingCsvExports: vi.fn(async (): Promise<ReportExportRecord[]> => []),
   };
+  const settings = {
+    getFinanceVisibilityByRtCode: vi.fn(async () => ({ mode: 'PUBLIC', token: null })),
+  };
   const principal: AuthPrincipal = { userId: 'user-1', membershipId: 'membership-1', rtId: 'rt-1', roles: ['BENDAHARA'], permissions: ['reports.private.read'] };
-  const service = new (ReportsService as any)(repository);
-  return { principal, repository, service };
+  const service = new (ReportsService as any)(repository, settings);
+  return { principal, repository, settings, service };
 }
 
 describe('ReportsService', () => {
@@ -96,11 +99,34 @@ describe('ReportsService', () => {
 
     expect(result).toEqual({
       rt: { code: 'RT001', name: 'RT 001' },
+      financeVisibility: 'PUBLIC',
+      financeAccessible: true,
       cashBalance: { totalBalance: '100000', currency: 'IDR', accountCount: 1 },
       totals: { income: '150000', expense: '50000', netCashFlow: '100000' },
       currentMonth: '2030-01',
       lastUpdatedAt: new Date('2030-01-31T00:00:00.000Z'),
     });
+  });
+
+  it('redacts kas when finance visibility is TOKEN without a valid token', async () => {
+    const { settings, service } = createHarness();
+    settings.getFinanceVisibilityByRtCode.mockResolvedValue({ mode: 'TOKEN', token: 'secret' });
+
+    const result = await service.getPublicSummary('RT001');
+
+    expect(result.financeAccessible).toBe(false);
+    expect(result.cashBalance.totalBalance).toBe('0');
+    expect(result.totals.income).toBe('0');
+  });
+
+  it('reveals kas with a valid finance token', async () => {
+    const { settings, service } = createHarness();
+    settings.getFinanceVisibilityByRtCode.mockResolvedValue({ mode: 'TOKEN', token: 'secret' });
+
+    const result = await service.getPublicSummary('RT001', 'secret');
+
+    expect(result.financeAccessible).toBe(true);
+    expect(result.cashBalance.totalBalance).toBe('100000');
   });
 
   it('validates export requests and preserves idempotency keys', async () => {

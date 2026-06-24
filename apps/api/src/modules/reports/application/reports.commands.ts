@@ -60,6 +60,7 @@ export type AuditActivityReportQuery = ReportDateRangeQuery & {
 
 export type PublicMonthlyFinanceQuery = {
   month: string;
+  token?: string;
 };
 
 export type PublicFeedQuery = PaginationInput & {

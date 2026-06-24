@@ -5,7 +5,7 @@
  * MainFuncs: Renders home, reports, monthly, collections, announcements, loading, tables, charts, and empty states.
  * SideEffects: None.
  */
-import { ArrowRight, CalendarDays, Download, FileText, Megaphone, WalletCards } from 'lucide-react';
+import { ArrowRight, CalendarDays, Download, FileText, Lock, Megaphone, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { EmptyState } from '@/components/feedback/empty-state';
@@ -205,7 +205,32 @@ function PublicPageShell({ eyebrow, title, description, children }: PageShellPro
 }
 
 function MetricStack({ summary, compact = false }: { summary: PublicTransparencySummary; compact?: boolean }) {
+  if (summary.financeAccessible === false) {
+    return (
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="flex items-center gap-2 text-primary">
+          <Lock className="h-4 w-4" aria-hidden="true" />
+          <span className="text-sm font-semibold">Kas privat</span>
+        </div>
+        <p className="mt-1.5 text-sm text-muted-foreground">Laporan kas RT ini hanya untuk warga ber-token. Minta tautannya ke pengurus RT.</p>
+      </div>
+    );
+  }
   return <MetricGrid compact={compact} items={[['Saldo kas saat ini', summary.cashBalance.totalBalance], ['Pemasukan bulan ini', summary.totals.income], ['Pengeluaran bulan ini', summary.totals.expense]]} />;
+}
+
+export function PublicFinancePrivateView({ summary }: { summary: PublicTransparencySummary }) {
+  return (
+    <main id="main-content" className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="rounded-xl border bg-card p-8 text-center shadow-sm">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Lock className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight">Laporan kas {sanitizePublicCopy(summary.rt.name)} bersifat privat</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Pengurus RT membatasi akses laporan kas hanya untuk warga yang memiliki tautan ber-token. Silakan minta tautannya ke pengurus RT.</p>
+      </div>
+    </main>
+  );
 }
 
 function MetricGrid({ items, compact = false }: { items: Array<[string, string]>; compact?: boolean }) {

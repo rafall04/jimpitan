@@ -141,6 +141,12 @@ export class PublicMonthlyFinanceQueryDto {
   @ApiProperty({ example: '2030-01' })
   @Matches(/^\d{4}-\d{2}$/)
   month!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  token?: string;
 }
 
 export class PublicFeedQueryDto extends PaginationQueryDto {

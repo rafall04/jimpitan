@@ -8,13 +8,14 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { RbacModule } from '../rbac/rbac.module';
+import { SettingsModule } from '../settings/settings.module';
 import { REPORTS_REPOSITORY } from './reports.tokens';
 import { ReportsService } from './application/reports.service';
 import { PrismaReportsRepository } from './infrastructure/prisma-reports.repository';
 import { ReportsController } from './presentation/reports.controller';
 
 @Module({
-  imports: [AuthModule, RbacModule],
+  imports: [AuthModule, RbacModule, SettingsModule],
   controllers: [ReportsController],
   providers: [ReportsService, PrismaReportsRepository, { provide: REPORTS_REPOSITORY, useExisting: PrismaReportsRepository }],
   exports: [ReportsService],

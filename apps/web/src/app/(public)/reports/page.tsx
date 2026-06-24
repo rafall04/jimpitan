@@ -7,7 +7,7 @@
  */
 import type { Metadata } from 'next';
 import { getPublicMonthlyFinance, getPublicMonthlyTrend, getPublicSummary, listPublicReportMetadata, publicMonthlyFinanceCsvHref, publicSummaryCsvHref } from '@/features/public-reports/api';
-import { PublicReportsView, PublicTenantRequiredView } from '@/features/public-reports/components';
+import { PublicFinancePrivateView, PublicReportsView, PublicTenantRequiredView } from '@/features/public-reports/components';
 import { buildRecentMonths, resolvePublicReportParams, type PublicSearchParams } from '@/features/public-reports/format';
 
 export const metadata: Metadata = {
@@ -22,17 +22,22 @@ type PageProps = {
 };
 
 export default async function PublicReportsPage({ searchParams }: PageProps) {
-  const { rtCode, month } = resolvePublicReportParams(await searchParams);
+  const raw = await searchParams;
+  const { rtCode, month } = resolvePublicReportParams(raw);
   if (!rtCode) {
     return <PublicTenantRequiredView />;
   }
+  const token = Array.isArray(raw?.token) ? raw.token[0] : raw?.token;
+  const summary = await getPublicSummary(rtCode, { token });
+  if (summary.financeAccessible === false) {
+    return <PublicFinancePrivateView summary={summary} />;
+  }
   const trendMonths = buildRecentMonths(month, 6);
-  const [summary, monthly, trend, reportFeed] = await Promise.all([
-    getPublicSummary(rtCode),
-    getPublicMonthlyFinance(rtCode, month),
-    getPublicMonthlyTrend(rtCode, trendMonths),
+  const [monthly, trend, reportFeed] = await Promise.all([
+    getPublicMonthlyFinance(rtCode, month, { token }),
+    getPublicMonthlyTrend(rtCode, trendMonths, { token }),
     listPublicReportMetadata(rtCode, { limit: 5 }),
   ]);
 
-  return <PublicReportsView summary={summary} monthly={monthly} trend={trend} latestReports={reportFeed.items} rtCode={rtCode} exportLinks={{ summary: publicSummaryCsvHref(rtCode), monthly: publicMonthlyFinanceCsvHref(rtCode, month) }} />;
+  return <PublicReportsView summary={summary} monthly={monthly} trend={trend} latestReports={reportFeed.items} rtCode={rtCode} exportLinks={{ summary: publicSummaryCsvHref(rtCode, { token }), monthly: publicMonthlyFinanceCsvHref(rtCode, month, { token }) }} />;
 }

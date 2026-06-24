@@ -5,8 +5,9 @@
  * MainFuncs: Validates date ranges, enforces tenant delegation, strips public unsafe fields, creates exports, generates CSV, and serves downloads.
  * SideEffects: Writes report export/audit rows through repository on export creation, status changes, retries, and downloads.
  */
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ReportExportFormat } from '@prisma/client';
+import { SettingsService } from '../../settings/application/settings.service';
 import type { PaginatedResult } from '../../../common/types/paginated-result.type';
 import type { AuthPrincipal } from '../../auth/domain/auth.types';
 import { REPORTS_REPOSITORY } from '../reports.tokens';
@@ -63,7 +64,10 @@ export class ReportsService {
   private readonly exportEngine = new ReportExportEngine();
   private readonly csvSerializer = new CsvReportSerializer();
 
-  constructor(@Inject(REPORTS_REPOSITORY) private readonly repository: ReportsRepositoryPort) {}
+  constructor(
+    @Inject(REPORTS_REPOSITORY) private readonly repository: ReportsRepositoryPort,
+    @Inject(SettingsService) private readonly settings: SettingsService,
+  ) {}
 
   async getFinanceSummary(actor: AuthPrincipal, query: FinanceReportQuery): Promise<FinanceSummaryReport> {
     return this.repository.getFinanceSummary(actor.rtId, this.normalizeDateRange(query));
@@ -184,8 +188,9 @@ export class ReportsService {
     return { processed: records.length, completed, failed };
   }
 
-  async downloadPublicSummaryCsv(rtCode: string): Promise<ReportExportDownload> {
-    const summary = await this.getPublicSummary(rtCode);
+  async downloadPublicSummaryCsv(rtCode: string, token?: string): Promise<ReportExportDownload> {
+    await this.assertFinanceToken(rtCode, token);
+    const summary = await this.getPublicSummary(rtCode, token);
     return {
       fileName: `public-transparency-${summary.rt.code}-${summary.currentMonth}.csv`,
       contentType: 'text/csv; charset=utf-8',
@@ -211,23 +216,25 @@ export class ReportsService {
     };
   }
 
-  async getPublicSummary(rtCode: string): Promise<PublicTransparencySummary> {
-    const record = await this.repository.getPublicSummaryByRtCode(this.normalizeRtCode(rtCode));
+  async getPublicSummary(rtCode: string, token?: string): Promise<PublicTransparencySummary> {
+    const normalized = this.normalizeRtCode(rtCode);
+    const record = await this.repository.getPublicSummaryByRtCode(normalized);
     if (!record) {
       throw new NotFoundException('Public report was not found.');
     }
+    const visibility = await this.settings.getFinanceVisibilityByRtCode(normalized);
+    const mode = visibility?.mode ?? 'PUBLIC';
+    const accessible = mode === 'PUBLIC' || (!!token && token === visibility?.token);
     return {
       rt: { code: record.rt.code, name: record.rt.name },
-      cashBalance: {
-        totalBalance: record.cashBalance.totalBalance,
-        currency: record.cashBalance.currency,
-        accountCount: record.cashBalance.accountCount,
-      },
-      totals: {
-        income: record.totals.income,
-        expense: record.totals.expense,
-        netCashFlow: record.totals.netCashFlow,
-      },
+      financeVisibility: mode,
+      financeAccessible: accessible,
+      cashBalance: accessible
+        ? { totalBalance: record.cashBalance.totalBalance, currency: record.cashBalance.currency, accountCount: record.cashBalance.accountCount }
+        : { totalBalance: '0', currency: record.cashBalance.currency, accountCount: 0 },
+      totals: accessible
+        ? { income: record.totals.income, expense: record.totals.expense, netCashFlow: record.totals.netCashFlow }
+        : { income: '0', expense: '0', netCashFlow: '0' },
       currentMonth: record.currentMonth,
       lastUpdatedAt: record.lastUpdatedAt,
     };
@@ -235,6 +242,7 @@ export class ReportsService {
 
   async getPublicMonthlyFinance(rtCode: string, query: PublicMonthlyFinanceQuery): Promise<PublicMonthlyFinanceReport> {
     this.assertMonth(query.month);
+    await this.assertFinanceToken(rtCode, query.token);
     const record = await this.repository.getPublicMonthlyFinanceByRtCode(this.normalizeRtCode(rtCode), query);
     if (!record) {
       throw new NotFoundException('Public monthly report was not found.');
@@ -438,6 +446,13 @@ export class ReportsService {
     }
 
     return { ...query, dateFrom, dateTo };
+  }
+
+  private async assertFinanceToken(rtCode: string, token?: string): Promise<void> {
+    const visibility = await this.settings.getFinanceVisibilityByRtCode(this.normalizeRtCode(rtCode));
+    if (visibility?.mode === 'TOKEN' && (!token || token !== visibility.token)) {
+      throw new ForbiddenException('Laporan kas RT ini bersifat privat. Token akses diperlukan.');
+    }
   }
 
   private normalizeRtCode(rtCode: string): string {

@@ -14,6 +14,7 @@ import type { PublicAnnouncement, PublicFeedParams, PublicMonthlyFinanceReport, 
 type PublicApiOptions = {
   baseUrl?: string;
   fetcher?: typeof fetch;
+  token?: string;
 };
 
 const PRIVATE_FIELD_PATTERNS = [
@@ -44,11 +45,13 @@ const PRIVATE_FIELD_PATTERNS = [
 ];
 
 export async function getPublicSummary(rtCode: string, options: PublicApiOptions = {}): Promise<PublicTransparencySummary> {
-  return publicApiJson<PublicTransparencySummary>(`reports/public/${encodeURIComponent(rtCode)}/summary`, options);
+  const suffix = options.token ? `?token=${encodeURIComponent(options.token)}` : '';
+  return publicApiJson<PublicTransparencySummary>(`reports/public/${encodeURIComponent(rtCode)}/summary${suffix}`, options);
 }
 
 export async function getPublicMonthlyFinance(rtCode: string, month: string, options: PublicApiOptions = {}): Promise<PublicMonthlyFinanceReport> {
   const query = new URLSearchParams({ month });
+  if (options.token) query.set('token', options.token);
   return publicApiJson<PublicMonthlyFinanceReport>(`reports/public/${encodeURIComponent(rtCode)}/monthly-finance?${query.toString()}`, options);
 }
 
@@ -64,16 +67,20 @@ export async function getPublicMonthlyTrend(rtCode: string, months: string[], op
   return Promise.all(months.map((month) => getPublicMonthlyFinance(rtCode, month, options)));
 }
 
-export function publicSummaryCsvHref(rtCode: string, options: Pick<PublicApiOptions, 'baseUrl'> = {}): string {
-  return publicExportHref(`reports/public/${encodeURIComponent(rtCode)}/exports/summary.csv`, undefined, options);
+export function publicSummaryCsvHref(rtCode: string, options: Pick<PublicApiOptions, 'baseUrl' | 'token'> = {}): string {
+  return publicExportHref(`reports/public/${encodeURIComponent(rtCode)}/exports/summary.csv`, options.token ? new URLSearchParams({ token: options.token }) : undefined, options);
 }
 
-export function publicMonthlyFinanceCsvHref(rtCode: string, month: string, options: Pick<PublicApiOptions, 'baseUrl'> = {}): string {
-  return publicExportHref(`reports/public/${encodeURIComponent(rtCode)}/exports/monthly-finance.csv`, new URLSearchParams({ month }), options);
+export function publicMonthlyFinanceCsvHref(rtCode: string, month: string, options: Pick<PublicApiOptions, 'baseUrl' | 'token'> = {}): string {
+  const params = new URLSearchParams({ month });
+  if (options.token) params.set('token', options.token);
+  return publicExportHref(`reports/public/${encodeURIComponent(rtCode)}/exports/monthly-finance.csv`, params, options);
 }
 
-export function publicCollectionsCsvHref(rtCode: string, month: string, options: Pick<PublicApiOptions, 'baseUrl'> = {}): string {
-  return publicExportHref(`reports/public/${encodeURIComponent(rtCode)}/exports/collections.csv`, new URLSearchParams({ month }), options);
+export function publicCollectionsCsvHref(rtCode: string, month: string, options: Pick<PublicApiOptions, 'baseUrl' | 'token'> = {}): string {
+  const params = new URLSearchParams({ month });
+  if (options.token) params.set('token', options.token);
+  return publicExportHref(`reports/public/${encodeURIComponent(rtCode)}/exports/collections.csv`, params, options);
 }
 
 export function assertPublicPayloadSafety(payload: unknown): void {

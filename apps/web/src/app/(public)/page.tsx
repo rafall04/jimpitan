@@ -24,7 +24,8 @@ type PageProps = {
 };
 
 export default async function PublicHomePage({ searchParams }: PageProps) {
-  const { rtCode } = resolvePublicReportParams(await searchParams);
+  const raw = await searchParams;
+  const { rtCode } = resolvePublicReportParams(raw);
   if (!rtCode) {
     const overview = await getPublicDesaOverview().catch(() => null);
     if (!overview || overview.rts.length === 0) {
@@ -32,8 +33,9 @@ export default async function PublicHomePage({ searchParams }: PageProps) {
     }
     return <PublicDesaLanding overview={overview} />;
   }
+  const token = Array.isArray(raw?.token) ? raw.token[0] : raw?.token;
   const [summary, reportFeed, announcementFeed, contentFeed] = await Promise.all([
-    getPublicSummary(rtCode),
+    getPublicSummary(rtCode, { token }),
     listPublicReportMetadata(rtCode, { limit: 1 }),
     listPublicAnnouncements(rtCode, { limit: 3 }),
     listPublicContent(rtCode, {}).catch(() => null),

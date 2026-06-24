@@ -125,8 +125,8 @@ export class ReportsController {
   @PublicRoute()
   @ApiOperation({ summary: 'Get public-safe cash balance and income/expense transparency summary' })
   @Get('public/:rtCode/summary')
-  async publicSummary(@Param('rtCode') rtCode: string) {
-    return this.reportsService.getPublicSummary(rtCode);
+  async publicSummary(@Param('rtCode') rtCode: string, @Query('token') token?: string) {
+    return this.reportsService.getPublicSummary(rtCode, token);
   }
 
   @PublicRoute()
@@ -153,8 +153,8 @@ export class ReportsController {
   @PublicRoute()
   @ApiOperation({ summary: 'Download public-safe transparency summary CSV' })
   @Get('public/:rtCode/exports/summary.csv')
-  async publicSummaryCsv(@Param('rtCode') rtCode: string) {
-    return this.streamDownload(await this.reportsService.downloadPublicSummaryCsv(rtCode));
+  async publicSummaryCsv(@Param('rtCode') rtCode: string, @Query('token') token?: string) {
+    return this.streamDownload(await this.reportsService.downloadPublicSummaryCsv(rtCode, token));
   }
 
   @PublicRoute()

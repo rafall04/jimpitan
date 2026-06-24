@@ -28,6 +28,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AttachmentsModule } from './modules/attachments/attachments.module';
 import { ContentModule } from './modules/content/content.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { AuthenticationGuard } from './common/guards/authentication.guard';
 import { TenantGuard } from './common/guards/tenant.guard';
 import { PermissionGuard } from './common/guards/permission.guard';
@@ -54,6 +55,7 @@ import { PermissionGuard } from './common/guards/permission.guard';
     AuditModule,
     AttachmentsModule,
     ContentModule,
+    SettingsModule,
   ],
   providers: [
     // Global guard chain — runs in this order for every route. Routes opt out of auth with

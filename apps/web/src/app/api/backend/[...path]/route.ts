@@ -17,7 +17,7 @@ import { ApiError } from '@/lib/api/api-error';
 import { joinApiUrl } from '@/lib/api/url';
 import { getWebEnv } from '@/lib/env/env';
 
-const ALLOWED_RESOURCES = new Set(['residents', 'houses', 'areas', 'jimpitan', 'finance', 'ledger', 'approvals', 'reports', 'content']);
+const ALLOWED_RESOURCES = new Set(['residents', 'houses', 'areas', 'jimpitan', 'finance', 'ledger', 'approvals', 'reports', 'content', 'settings']);
 const STATE_CHANGING_METHODS = new Set(['POST', 'PATCH', 'PUT', 'DELETE']);
 
 type RouteContext = {
