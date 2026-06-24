@@ -11,7 +11,7 @@ import { formatCurrencyAmount, getProgressPercent } from '../workflow';
 export function ProgressBar({ completed, total, className }: { completed: number; total: number; className?: string }) {
   const percent = getProgressPercent({ completedHouses: completed, totalHouses: total });
   return (
-    <div className={cn('h-2 w-full overflow-hidden rounded-full bg-muted', className)} aria-label={`${percent}% complete`} role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+    <div className={cn('h-2 w-full overflow-hidden rounded-full bg-muted', className)} aria-label={`${percent}% selesai`} role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
       <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${percent}%` }} />
     </div>
   );

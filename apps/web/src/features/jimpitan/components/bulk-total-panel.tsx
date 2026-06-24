@@ -35,12 +35,12 @@ export function BulkTotalPanel({
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit((values) => onSubmit(toBulkTotalPayload(values)))} noValidate>
       <div className="space-y-2">
-        <Label htmlFor="bulk-total-amount">Total collected</Label>
+        <Label htmlFor="bulk-total-amount">Total terkumpul</Label>
         <Input id="bulk-total-amount" inputMode="numeric" placeholder="75000" {...form.register('totalAmount')} aria-invalid={Boolean(form.formState.errors.totalAmount)} />
         {form.formState.errors.totalAmount ? <p className="text-sm text-destructive">{form.formState.errors.totalAmount.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="bulk-total-note">Note</Label>
+        <Label htmlFor="bulk-total-note">Catatan</Label>
         <textarea
           id="bulk-total-note"
           {...form.register('note')}
@@ -49,7 +49,7 @@ export function BulkTotalPanel({
         {form.formState.errors.note ? <p className="text-sm text-destructive">{form.formState.errors.note.message}</p> : null}
       </div>
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? 'Saving' : 'Save total'}
+        {isPending ? 'Menyimpan' : 'Simpan total'}
       </Button>
     </form>
   );

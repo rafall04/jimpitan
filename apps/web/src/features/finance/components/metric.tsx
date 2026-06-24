@@ -9,7 +9,7 @@ import { formatCurrencyAmount } from '../workflow';
 
 export function Metric({ label, value, detail }: { label: string; value: string | number; detail?: string }) {
   return (
-    <div className="rounded-lg border bg-card p-3">
+    <div className="rounded-xl border bg-card p-3">
       <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
       {detail ? <p className="mt-1 text-xs text-muted-foreground">{detail}</p> : null}

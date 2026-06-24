@@ -51,37 +51,37 @@ export function TransactionsPage() {
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <Header
-        title="Transactions"
-        description="Draft, validate, approve when required, and post transactions to the append-only ledger."
+        title="Transaksi"
+        description="Buat draf, validasi, setujui bila diperlukan, dan posting transaksi ke buku besar yang bersifat append-only."
         action={canCreate ? (
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={() => setDraftType('income')}><Plus className="h-4 w-4" aria-hidden="true" />Income</Button>
-            <Button type="button" onClick={() => setDraftType('expense')}><Plus className="h-4 w-4" aria-hidden="true" />Expense</Button>
+            <Button type="button" variant="outline" onClick={() => setDraftType('income')}><Plus className="h-4 w-4" aria-hidden="true" />Pemasukan</Button>
+            <Button type="button" onClick={() => setDraftType('expense')}><Plus className="h-4 w-4" aria-hidden="true" />Pengeluaran</Button>
           </div>
         ) : null}
       />
-      <section className="grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[minmax(0,1fr)_12rem_12rem]">
-        <SearchField label="Search transactions" placeholder="Search description or reference" value={search} onChange={(value) => { setSearch(value); setPage(1); }} />
+      <section className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-[minmax(0,1fr)_12rem_12rem]">
+        <SearchField label="Cari transaksi" placeholder="Cari keterangan atau referensi" value={search} onChange={(value) => { setSearch(value); setPage(1); }} />
         <SelectField id="transaction-status-filter" label="Status" value={status} onChange={(value) => { setStatus(value as TransactionStatus | ''); setPage(1); }}>
-          <option value="">All</option>
-          <option value="DRAFT">Draft</option>
-          <option value="VALIDATED">Validated</option>
-          <option value="PENDING_APPROVAL">Pending approval</option>
-          <option value="APPROVED">Approved</option>
-          <option value="POSTED">Posted</option>
-          <option value="REJECTED">Rejected</option>
-          <option value="VOIDED">Voided</option>
+          <option value="">Semua</option>
+          <option value="DRAFT">Draf</option>
+          <option value="VALIDATED">Tervalidasi</option>
+          <option value="PENDING_APPROVAL">Menunggu persetujuan</option>
+          <option value="APPROVED">Disetujui</option>
+          <option value="POSTED">Terposting</option>
+          <option value="REJECTED">Ditolak</option>
+          <option value="VOIDED">Dibatalkan</option>
         </SelectField>
-        <SelectField id="transaction-type-filter" label="Type" value={type} onChange={(value) => { setType(value as never); setPage(1); }}>
-          <option value="">All</option>
-          <option value="INCOME">Income</option>
-          <option value="EXPENSE">Expense</option>
-          <option value="ADJUSTMENT">Adjustment</option>
+        <SelectField id="transaction-type-filter" label="Jenis" value={type} onChange={(value) => { setType(value as never); setPage(1); }}>
+          <option value="">Semua</option>
+          <option value="INCOME">Pemasukan</option>
+          <option value="EXPENSE">Pengeluaran</option>
+          <option value="ADJUSTMENT">Penyesuaian</option>
         </SelectField>
       </section>
-      {query.isPending ? <ListSkeleton label="Loading transactions" /> : null}
-      {query.data?.items.length === 0 ? <EmptyState title="No transactions" description="Create an income or expense draft to start the finance workflow." /> : null}
-      <div className="rounded-lg border bg-card">
+      {query.isPending ? <ListSkeleton label="Memuat transaksi" /> : null}
+      {query.data?.items.length === 0 ? <EmptyState title="Belum ada transaksi" description="Buat draf pemasukan atau pengeluaran untuk memulai alur keuangan." /> : null}
+      <div className="rounded-xl border bg-card">
         <div className="divide-y">
           {query.data?.items.map((transaction) => (
             <div key={transaction.id} className="grid gap-3 p-4 xl:grid-cols-[8rem_8rem_minmax(0,1fr)_9rem_18rem] xl:items-center">
@@ -110,8 +110,8 @@ export function TransactionsPage() {
       <Sheet open={Boolean(draftType)} onOpenChange={(open) => !open && setDraftType(null)}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:w-[34rem]">
           <SheetHeader>
-            <SheetTitle>{draftType === 'income' ? 'Income draft' : 'Expense draft'}</SheetTitle>
-            <SheetDescription>Drafts require backend validation before posting. Approval gates apply to expenses when policy requires them.</SheetDescription>
+            <SheetTitle>{draftType === 'income' ? 'Draf pemasukan' : 'Draf pengeluaran'}</SheetTitle>
+            <SheetDescription>Draf memerlukan validasi backend sebelum diposting. Gerbang persetujuan berlaku untuk pengeluaran bila kebijakan mensyaratkannya.</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             <TransactionForm
@@ -134,8 +134,8 @@ function Header({ title, description, action }: { title: string; description: st
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-sm font-medium text-primary">Finance workflow</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-normal">{title}</h1>
+        <p className="text-xs font-bold uppercase tracking-wider text-primary">Keuangan</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight">{title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
       {action}

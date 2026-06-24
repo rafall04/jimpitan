@@ -57,19 +57,20 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <StructurePageHeader
-        title={dashboard ? 'Jimpitan operations' : 'Collection sessions'}
-        description="Track field progress, run validation, and open the fast mobile collection flow."
+        eyebrow="Jimpitan"
+        title={dashboard ? 'Operasional Jimpitan' : 'Sesi penarikan'}
+        description="Pantau progres di lapangan, jalankan validasi, dan buka alur penarikan cepat versi mobile."
         action={
           <div className="flex gap-2">
             {dashboard ? (
               <Button asChild variant="outline">
-                <Link href="/dashboard/jimpitan/sessions">All sessions</Link>
+                <Link href="/dashboard/jimpitan/sessions">Semua sesi</Link>
               </Button>
             ) : null}
             {canCreate ? (
               <Button type="button" onClick={() => setSheetOpen(true)}>
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                New session
+                Sesi baru
               </Button>
             ) : null}
           </div>
@@ -77,18 +78,18 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
       />
       {dashboard ? (
         <section className="space-y-3">
-          <h2 className="text-base font-semibold">My active routes</h2>
-          {myCollectionsQuery.isPending ? <ListSkeleton label="Loading assigned sessions" /> : null}
-          {myCollectionsQuery.data?.items.length === 0 ? <EmptyState title="No active routes" description="Assigned in-progress routes will appear here." /> : null}
+          <h2 className="text-base font-semibold">Rute aktif saya</h2>
+          {myCollectionsQuery.isPending ? <ListSkeleton label="Memuat sesi yang ditugaskan" /> : null}
+          {myCollectionsQuery.data?.items.length === 0 ? <EmptyState title="Belum ada rute aktif" description="Rute yang sedang berjalan dan ditugaskan kepada Anda akan muncul di sini." /> : null}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {myCollectionsQuery.data?.items.map((collection) => <SessionCard key={collection.id} collection={collection} />)}
           </div>
         </section>
       ) : null}
-      <section className="grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[minmax(0,1fr)_13rem_13rem]">
+      <section className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-[minmax(0,1fr)_13rem_13rem]">
         <SearchField
-          label="Search sessions"
-          placeholder="Search officer or route"
+          label="Cari sesi"
+          placeholder="Cari petugas atau rute"
           value={search}
           onChange={(value) => {
             setSearch(value);
@@ -99,28 +100,28 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
           setStatus(value as CollectionStatus | '');
           setPage(1);
         }}>
-          <option value="">All statuses</option>
-          <option value="DRAFT">Draft</option>
-          <option value="IN_PROGRESS">In progress</option>
-          <option value="SUBMITTED">Submitted</option>
-          <option value="VALIDATED">Validated</option>
-          <option value="REJECTED">Rejected</option>
-          <option value="CANCELLED">Cancelled</option>
+          <option value="">Semua status</option>
+          <option value="DRAFT">Draf</option>
+          <option value="IN_PROGRESS">Berlangsung</option>
+          <option value="SUBMITTED">Diajukan</option>
+          <option value="VALIDATED">Tervalidasi</option>
+          <option value="REJECTED">Ditolak</option>
+          <option value="CANCELLED">Dibatalkan</option>
         </SelectField>
         <SelectField id="collection-mode-filter" label="Mode" value={collectionMode} onChange={(value) => {
           setCollectionMode(value as CollectionMode | '');
           setPage(1);
         }}>
-          <option value="">All modes</option>
-          <option value="PER_HOUSE">Per house</option>
-          <option value="BULK_TOTAL">Bulk total</option>
+          <option value="">Semua mode</option>
+          <option value="PER_HOUSE">Per rumah</option>
+          <option value="BULK_TOTAL">Total langsung</option>
         </SelectField>
       </section>
-      {collectionsQuery.isPending ? <ListSkeleton label="Loading sessions" /> : null}
+      {collectionsQuery.isPending ? <ListSkeleton label="Memuat sesi" /> : null}
       {collectionsQuery.isError ? <QueryError onRetry={() => void collectionsQuery.refetch()} /> : null}
       {collectionsQuery.data ? (
         <div className="space-y-4">
-          {collectionsQuery.data.items.length === 0 ? <EmptyState title="No sessions found" description="Adjust filters or create a collection session." /> : null}
+          {collectionsQuery.data.items.length === 0 ? <EmptyState title="Tidak ada sesi" description="Sesuaikan filter atau buat sesi penarikan baru." /> : null}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {collectionsQuery.data.items.map((collection) => <SessionCard key={collection.id} collection={collection} />)}
           </div>
@@ -130,8 +131,8 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:w-[32rem]">
           <SheetHeader>
-            <SheetTitle>New collection session</SheetTitle>
-            <SheetDescription>Create a tenant-scoped route session for field collection.</SheetDescription>
+            <SheetTitle>Sesi penarikan baru</SheetTitle>
+            <SheetDescription>Buat sesi rute untuk penarikan jimpitan di lapangan.</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             <SessionForm defaultOfficerMembershipId={activeTenant?.id ?? ''} officers={officers} areas={areasQuery.data?.items ?? []} isPending={mutations.create.isPending} onSubmit={submitCreate} onCancel={() => setSheetOpen(false)} />
@@ -144,10 +145,10 @@ export function SessionsPage({ dashboard = false }: { dashboard?: boolean }) {
 
 function QueryError({ onRetry }: { onRetry: () => void }) {
   return (
-    <section className="rounded-lg border bg-card p-4" role="alert">
-      <p className="text-sm font-medium">Collection sessions could not be loaded.</p>
+    <section className="rounded-xl border bg-card p-4" role="alert">
+      <p className="text-sm font-medium">Sesi penarikan gagal dimuat.</p>
       <Button type="button" variant="outline" size="sm" className="mt-3" onClick={onRetry}>
-        Retry
+        Coba lagi
       </Button>
     </section>
   );

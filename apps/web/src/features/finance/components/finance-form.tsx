@@ -19,13 +19,13 @@ export function AccountForm({ isPending, onSubmit, onCancel }: { isPending: bool
   const form = useForm<AccountValues>({ resolver: zodResolver(accountSchema), defaultValues: { key: '', name: '', currency: 'IDR' } });
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-      <Field id="account-key" label="Key" error={form.formState.errors.key?.message}>
-        <Input id="account-key" {...form.register('key')} placeholder="main_cash" />
+      <Field id="account-key" label="Kunci" error={form.formState.errors.key?.message}>
+        <Input id="account-key" {...form.register('key')} placeholder="kas_utama" />
       </Field>
-      <Field id="account-name" label="Name" error={form.formState.errors.name?.message}>
-        <Input id="account-name" {...form.register('name')} placeholder="Main Cash" />
+      <Field id="account-name" label="Nama" error={form.formState.errors.name?.message}>
+        <Input id="account-name" {...form.register('name')} placeholder="Kas Utama" />
       </Field>
-      <Field id="account-currency" label="Currency" error={form.formState.errors.currency?.message}>
+      <Field id="account-currency" label="Mata uang" error={form.formState.errors.currency?.message}>
         <Input id="account-currency" {...form.register('currency')} placeholder="IDR" />
       </Field>
       <FormActions isPending={isPending} onCancel={onCancel} />
@@ -37,17 +37,17 @@ export function CategoryForm({ isPending, onSubmit, onCancel }: { isPending: boo
   const form = useForm<CategoryValues>({ resolver: zodResolver(categorySchema), defaultValues: { type: 'EXPENSE', key: '', name: '' } });
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-      <Field id="category-type" label="Type" error={form.formState.errors.type?.message}>
+      <Field id="category-type" label="Jenis" error={form.formState.errors.type?.message}>
         <select id="category-type" {...form.register('type')} className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          <option value="EXPENSE">Expense</option>
-          <option value="INCOME">Income</option>
+          <option value="EXPENSE">Pengeluaran</option>
+          <option value="INCOME">Pemasukan</option>
         </select>
       </Field>
-      <Field id="category-key" label="Key" error={form.formState.errors.key?.message}>
-        <Input id="category-key" {...form.register('key')} placeholder="operational" />
+      <Field id="category-key" label="Kunci" error={form.formState.errors.key?.message}>
+        <Input id="category-key" {...form.register('key')} placeholder="operasional" />
       </Field>
-      <Field id="category-name" label="Name" error={form.formState.errors.name?.message}>
-        <Input id="category-name" {...form.register('name')} placeholder="Operational" />
+      <Field id="category-name" label="Nama" error={form.formState.errors.name?.message}>
+        <Input id="category-name" {...form.register('name')} placeholder="Operasional" />
       </Field>
       <FormActions isPending={isPending} onCancel={onCancel} />
     </form>
@@ -75,7 +75,7 @@ export function TransactionForm({
   });
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-      <Field id={`${type}-account`} label="Cash account" error={form.formState.errors.cashAccountId?.message}>
+      <Field id={`${type}-account`} label="Akun kas" error={form.formState.errors.cashAccountId?.message}>
         <select id={`${type}-account`} {...form.register('cashAccountId')} className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {accounts.map((account) => (
             <option key={account.id} value={account.id}>
@@ -84,7 +84,7 @@ export function TransactionForm({
           ))}
         </select>
       </Field>
-      <Field id={`${type}-category`} label="Category" error={form.formState.errors.categoryId?.message}>
+      <Field id={`${type}-category`} label="Kategori" error={form.formState.errors.categoryId?.message}>
         <select id={`${type}-category`} {...form.register('categoryId')} className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
@@ -93,16 +93,16 @@ export function TransactionForm({
           ))}
         </select>
       </Field>
-      <Field id={`${type}-amount`} label="Amount" error={form.formState.errors.amount?.message}>
+      <Field id={`${type}-amount`} label="Nominal" error={form.formState.errors.amount?.message}>
         <Input id={`${type}-amount`} inputMode="decimal" {...form.register('amount')} />
       </Field>
-      <Field id={`${type}-date`} label="Transaction date" error={form.formState.errors.transactionDate?.message}>
+      <Field id={`${type}-date`} label="Tanggal transaksi" error={form.formState.errors.transactionDate?.message}>
         <Input id={`${type}-date`} type="date" {...form.register('transactionDate')} />
       </Field>
-      <Field id={`${type}-description`} label="Description" error={form.formState.errors.description?.message}>
+      <Field id={`${type}-description`} label="Keterangan" error={form.formState.errors.description?.message}>
         <textarea id={`${type}-description`} {...form.register('description')} className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" />
       </Field>
-      <Field id={`${type}-reference`} label="Reference" error={form.formState.errors.referenceNumber?.message}>
+      <Field id={`${type}-reference`} label="Referensi" error={form.formState.errors.referenceNumber?.message}>
         <Input id={`${type}-reference`} {...form.register('referenceNumber')} />
       </Field>
       <FormActions isPending={isPending} onCancel={onCancel} />
@@ -124,10 +124,10 @@ function FormActions({ isPending, onCancel }: { isPending: boolean; onCancel: ()
   return (
     <div className="flex justify-end gap-2">
       <Button type="button" variant="outline" onClick={onCancel}>
-        Cancel
+        Batal
       </Button>
       <Button type="submit" disabled={isPending}>
-        {isPending ? 'Saving' : 'Save draft'}
+        {isPending ? 'Menyimpan…' : 'Simpan draf'}
       </Button>
     </div>
   );

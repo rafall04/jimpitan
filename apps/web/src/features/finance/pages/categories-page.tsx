@@ -65,30 +65,30 @@ export function CategoriesPage() {
 
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <Header title="Transaction categories" description="Manage income and expense categories. Archived categories cannot be used for new drafts." action={canCreate ? <Button onClick={() => setSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />New category</Button> : null} />
-      <section className="grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[minmax(0,1fr)_12rem]">
-        <SearchField label="Search categories" placeholder="Search category" value={search} onChange={(value) => { setSearch(value); setPage(1); }} />
-        <SelectField id="category-type-filter" label="Type" value={type} onChange={(value) => { setType(value); setPage(1); }}>
-          <option value="">All</option>
-          <option value="INCOME">Income</option>
-          <option value="EXPENSE">Expense</option>
+      <Header title="Kategori transaksi" description="Kelola kategori pemasukan dan pengeluaran. Kategori yang diarsipkan tidak dapat dipakai untuk draf baru." action={canCreate ? <Button onClick={() => setSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" />Tambah kategori</Button> : null} />
+      <section className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-[minmax(0,1fr)_12rem]">
+        <SearchField label="Cari kategori" placeholder="Cari kategori" value={search} onChange={(value) => { setSearch(value); setPage(1); }} />
+        <SelectField id="category-type-filter" label="Jenis" value={type} onChange={(value) => { setType(value); setPage(1); }}>
+          <option value="">Semua</option>
+          <option value="INCOME">Pemasukan</option>
+          <option value="EXPENSE">Pengeluaran</option>
         </SelectField>
       </section>
-      {query.isPending ? <ListSkeleton label="Loading categories" /> : null}
-      {query.data?.items.length === 0 ? <EmptyState title="No categories" description="Create income and expense categories before drafting transactions." /> : null}
-      <div className="rounded-lg border bg-card">
+      {query.isPending ? <ListSkeleton label="Memuat kategori" /> : null}
+      {query.data?.items.length === 0 ? <EmptyState title="Belum ada kategori" description="Buat kategori pemasukan dan pengeluaran sebelum membuat draf transaksi." /> : null}
+      <div className="rounded-xl border bg-card">
         <div className="divide-y">
           {query.data?.items.map((category) => (
             <div key={category.id} className="grid gap-3 p-4 md:grid-cols-[8rem_minmax(0,1fr)_8rem_14rem] md:items-center">
               <TransactionTypeBadge type={category.type} />
               <div>
                 <p className="font-medium">{category.name}</p>
-                <p className="text-sm text-muted-foreground">{category.key}{category.isSystem ? ' - system' : ''}</p>
+                <p className="text-sm text-muted-foreground">{category.key}{category.isSystem ? ' - sistem' : ''}</p>
               </div>
-              <span className="text-sm text-muted-foreground">{category.isActive ? 'Active' : 'Inactive'}</span>
+              <span className="text-sm text-muted-foreground">{category.isActive ? 'Aktif' : 'Nonaktif'}</span>
               <div className="flex flex-wrap gap-2 md:justify-end">
-                {canUpdate && !category.isSystem ? <Button type="button" size="sm" variant="outline" onClick={() => void toggle(category)}>{category.isActive ? 'Deactivate' : 'Reactivate'}</Button> : null}
-                {canArchive && !category.isSystem ? <Button type="button" size="sm" variant="destructive" onClick={() => setArchiveTarget(category)}>Archive</Button> : null}
+                {canUpdate && !category.isSystem ? <Button type="button" size="sm" variant="outline" onClick={() => void toggle(category)}>{category.isActive ? 'Nonaktifkan' : 'Aktifkan kembali'}</Button> : null}
+                {canArchive && !category.isSystem ? <Button type="button" size="sm" variant="destructive" onClick={() => setArchiveTarget(category)}>Arsipkan</Button> : null}
               </div>
             </div>
           ))}
@@ -98,15 +98,15 @@ export function CategoriesPage() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:w-[32rem]">
           <SheetHeader>
-            <SheetTitle>New category</SheetTitle>
-            <SheetDescription>Create a tenant-scoped income or expense category.</SheetDescription>
+            <SheetTitle>Tambah kategori</SheetTitle>
+            <SheetDescription>Buat kategori pemasukan atau pengeluaran khusus RT.</SheetDescription>
           </SheetHeader>
           <div className="mt-6">
             <CategoryForm isPending={mutations.createCategory.isPending} onSubmit={create} onCancel={() => setSheetOpen(false)} />
           </div>
         </SheetContent>
       </Sheet>
-      <ConfirmDialog open={Boolean(archiveTarget)} title="Archive category" description="Archived categories cannot be used in new transactions. Existing posted ledger history remains readable." destructive reasonRequired onOpenChange={(open) => !open && setArchiveTarget(null)} onConfirm={(reason) => void archive(reason)} />
+      <ConfirmDialog open={Boolean(archiveTarget)} title="Arsipkan kategori" description="Kategori yang diarsipkan tidak dapat dipakai pada transaksi baru. Riwayat buku besar yang sudah diposting tetap dapat dibaca." destructive reasonRequired onOpenChange={(open) => !open && setArchiveTarget(null)} onConfirm={(reason) => void archive(reason)} />
     </main>
   );
 }
@@ -115,8 +115,8 @@ function Header({ title, description, action }: { title: string; description: st
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-sm font-medium text-primary">Finance setup</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-normal">{title}</h1>
+        <p className="text-xs font-bold uppercase tracking-wider text-primary">Keuangan</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight">{title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
       {action}

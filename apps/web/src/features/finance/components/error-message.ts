@@ -7,7 +7,7 @@
  */
 import { ApiError } from '@/lib/api/api-error';
 
-export function toUserMessage(error: unknown, fallback = 'Action failed. Try again.'): string {
+export function toUserMessage(error: unknown, fallback = 'Tindakan gagal. Silakan coba lagi.'): string {
   if (!(error instanceof ApiError)) {
     return fallback;
   }

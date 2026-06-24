@@ -36,29 +36,29 @@ export function TransactionLifecycleActions({
     <div className="flex flex-wrap gap-2">
       {actions.includes('validate') ? (
         <Button type="button" size="sm" onClick={() => setDialog('validate')} disabled={isPending}>
-          Validate
+          Validasi
         </Button>
       ) : null}
       {actions.includes('post') ? (
         <Button type="button" size="sm" onClick={() => setDialog('post')} disabled={isPending}>
-          Post
+          Posting
         </Button>
       ) : null}
       {actions.includes('reject') ? (
         <Button type="button" size="sm" variant="destructive" onClick={() => setDialog('reject')} disabled={isPending}>
-          Reject
+          Tolak
         </Button>
       ) : null}
       {actions.includes('void') ? (
         <Button type="button" size="sm" variant="outline" onClick={() => setDialog('void')} disabled={isPending}>
-          Void draft
+          Batalkan draf
         </Button>
       ) : null}
       <ConfirmDialog
         open={dialog === 'validate'}
-        title="Validate transaction"
-        description="Validate this draft for posting or approval evaluation. Backend rules remain authoritative."
-        inputLabel="Validation note"
+        title="Validasi transaksi"
+        description="Validasi draf ini untuk posting atau evaluasi persetujuan. Aturan backend tetap menjadi acuan utama."
+        inputLabel="Catatan validasi"
         onOpenChange={(open) => !open && setDialog(null)}
         onConfirm={(note) => {
           onValidate(note);
@@ -67,10 +67,10 @@ export function TransactionLifecycleActions({
       />
       <ConfirmDialog
         open={dialog === 'post'}
-        title="Post transaction"
-        description="Posting writes append-only ledger entries. Posted transactions are immutable and corrections require adjustments."
-        confirmLabel="Post transaction"
-        inputLabel="Optional posting note"
+        title="Posting transaksi"
+        description="Posting menulis entri buku besar yang bersifat append-only. Transaksi yang telah diposting tidak dapat diubah dan koreksi memerlukan penyesuaian."
+        confirmLabel="Posting transaksi"
+        inputLabel="Catatan posting (opsional)"
         onOpenChange={(open) => !open && setDialog(null)}
         onConfirm={() => {
           onPost();
@@ -79,9 +79,9 @@ export function TransactionLifecycleActions({
       />
       <ConfirmDialog
         open={dialog === 'reject'}
-        title="Reject transaction"
-        description="Rejected transactions cannot be posted. Provide an audit-friendly reason."
-        confirmLabel="Reject"
+        title="Tolak transaksi"
+        description="Transaksi yang ditolak tidak dapat diposting. Berikan alasan yang jelas untuk jejak audit."
+        confirmLabel="Tolak"
         destructive
         reasonRequired
         onOpenChange={(open) => !open && setDialog(null)}
@@ -92,9 +92,9 @@ export function TransactionLifecycleActions({
       />
       <ConfirmDialog
         open={dialog === 'void'}
-        title="Void draft"
-        description="Only draft transactions can be voided. Provide a reason for the audit trail."
-        confirmLabel="Void draft"
+        title="Batalkan draf"
+        description="Hanya transaksi berstatus draf yang dapat dibatalkan. Berikan alasan untuk jejak audit."
+        confirmLabel="Batalkan draf"
         destructive
         reasonRequired
         onOpenChange={(open) => !open && setDialog(null)}
@@ -126,19 +126,19 @@ export function ApprovalLifecycleActions({
     <div className="flex flex-wrap gap-2">
       {actions.includes('approve') ? (
         <Button type="button" size="sm" onClick={() => setDialog('approve')} disabled={isPending}>
-          Approve
+          Setujui
         </Button>
       ) : null}
       {actions.includes('reject') ? (
         <Button type="button" size="sm" variant="destructive" onClick={() => setDialog('reject')} disabled={isPending}>
-          Reject
+          Tolak
         </Button>
       ) : null}
       <ConfirmDialog
         open={dialog === 'approve'}
-        title="Approve expense"
-        description="Record your approval for this expense request. Posting still depends on backend finance gates."
-        inputLabel="Decision note"
+        title="Setujui pengeluaran"
+        description="Catat persetujuan Anda untuk permintaan pengeluaran ini. Posting tetap bergantung pada gerbang finansial backend."
+        inputLabel="Catatan keputusan"
         onOpenChange={(open) => !open && setDialog(null)}
         onConfirm={(note) => {
           onApprove(note);
@@ -147,12 +147,12 @@ export function ApprovalLifecycleActions({
       />
       <ConfirmDialog
         open={dialog === 'reject'}
-        title="Reject expense"
-        description="Rejected approvals move the related expense through backend-controlled rejection rules."
-        confirmLabel="Reject approval"
+        title="Tolak pengeluaran"
+        description="Penolakan akan memproses pengeluaran terkait melalui aturan penolakan yang dikendalikan backend."
+        confirmLabel="Tolak persetujuan"
         destructive
         reasonRequired
-        inputLabel="Rejection reason"
+        inputLabel="Alasan penolakan"
         onOpenChange={(open) => !open && setDialog(null)}
         onConfirm={(reason) => {
           onReject(reason ?? '');

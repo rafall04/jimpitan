@@ -47,7 +47,7 @@ export function SessionForm({
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>
       <div className="space-y-2">
-        <Label htmlFor="collection-officer">Officer</Label>
+        <Label htmlFor="collection-officer">Petugas</Label>
         <select id="collection-officer" {...form.register('officerMembershipId')} className="flex h-11 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {officers.map((officer) => (
             <option key={officer.id} value={officer.id}>
@@ -58,16 +58,16 @@ export function SessionForm({
         {form.formState.errors.officerMembershipId ? <p className="text-sm text-destructive">{form.formState.errors.officerMembershipId.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="collection-date">Collection date</Label>
+        <Label htmlFor="collection-date">Tanggal penarikan</Label>
         <Input id="collection-date" type="date" {...form.register('collectionDate')} aria-invalid={Boolean(form.formState.errors.collectionDate)} />
         {form.formState.errors.collectionDate ? <p className="text-sm text-destructive">{form.formState.errors.collectionDate.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="collection-mode">Collection mode</Label>
+        <Label htmlFor="collection-mode">Mode penarikan</Label>
         <select id="collection-mode" {...form.register('collectionMode')} className="flex h-11 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           {selectableCollectionModes.map((mode) => (
             <option key={mode} value={mode}>
-              {mode === 'PER_HOUSE' ? 'Per house' : 'Bulk total'}
+              {mode === 'PER_HOUSE' ? 'Per rumah' : 'Total langsung'}
             </option>
           ))}
         </select>
@@ -75,15 +75,15 @@ export function SessionForm({
       </div>
       {collectionMode === 'BULK_TOTAL' ? (
         <div className="space-y-2">
-          <Label htmlFor="collection-total-amount">Initial total amount</Label>
+          <Label htmlFor="collection-total-amount">Total awal</Label>
           <Input id="collection-total-amount" inputMode="numeric" {...form.register('totalAmount')} aria-invalid={Boolean(form.formState.errors.totalAmount)} />
           {form.formState.errors.totalAmount ? <p className="text-sm text-destructive">{form.formState.errors.totalAmount.message}</p> : null}
         </div>
       ) : null}
       <div className="space-y-2">
-        <Label htmlFor="collection-area">Route area</Label>
+        <Label htmlFor="collection-area">Wilayah rute</Label>
         <select id="collection-area" {...form.register('areaId')} className="flex h-11 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          <option value="">All areas</option>
+          <option value="">Semua wilayah</option>
           {areas.map((area) => (
             <option key={area.id} value={area.id}>
               {area.code} - {area.name}
@@ -92,16 +92,16 @@ export function SessionForm({
         </select>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="collection-note">Note</Label>
+        <Label htmlFor="collection-note">Catatan</Label>
         <textarea id="collection-note" {...form.register('note')} className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" />
         {form.formState.errors.note ? <p className="text-sm text-destructive">{form.formState.errors.note.message}</p> : null}
       </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
+          Batal
         </Button>
         <Button type="submit" disabled={isPending || officers.length === 0}>
-          {isPending ? 'Creating' : 'Create session'}
+          {isPending ? 'Membuat' : 'Buat sesi'}
         </Button>
       </div>
     </form>

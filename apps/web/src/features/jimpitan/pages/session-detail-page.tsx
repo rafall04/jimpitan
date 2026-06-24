@@ -19,11 +19,11 @@ import { useTenantContext } from '@/features/tenants/tenant-provider';
 import { LifecycleActions } from '../components/lifecycle-actions';
 import { BulkTotalPanel } from '../components/bulk-total-panel';
 import { AmountMetric, Metric, ProgressBar } from '../components/progress';
-import { CollectionStatusBadge, ItemStatusBadge, formatStatus } from '../components/status-badge';
+import { CollectionStatusBadge, ItemStatusBadge, formatCollectionModeLabel } from '../components/status-badge';
 import { toUserMessage } from '../components/error-message';
 import { useChecklistQuery, useCollectionQuery, useJimpitanMutations, useOutstandingQuery, useSummaryQuery } from '../hooks';
 import { getCollectionModeWorkflow } from '../collection-mode-workflow';
-import { formatCollectionMode, formatCurrencyAmount, getProgressPercent, isEditableCollection } from '../workflow';
+import { formatCurrencyAmount, getProgressPercent, isEditableCollection } from '../workflow';
 import type { CollectionChecklistHouse, CollectionSessionRecord, SetBulkCollectionTotalPayload } from '../types';
 
 export function SessionDetailPage({ collectionId }: { collectionId: string }) {
@@ -65,10 +65,10 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
   if (collectionQuery.isError || !collection) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <section className="rounded-lg border bg-card p-4" role="alert">
-          <p className="text-sm font-medium">Collection session could not be loaded.</p>
+        <section className="rounded-xl border bg-card p-4" role="alert">
+          <p className="text-sm font-medium">Sesi penarikan gagal dimuat.</p>
           <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void collectionQuery.refetch()}>
-            Retry
+            Coba lagi
           </Button>
         </section>
       </main>
@@ -82,17 +82,18 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
           <Button asChild variant="ghost" size="sm" className="w-fit px-0">
             <Link href="/dashboard/jimpitan/sessions">
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Sessions
+              Sesi
             </Link>
           </Button>
           <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">Jimpitan</p>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-normal">Collection session</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Sesi penarikan</h1>
               <CollectionStatusBadge status={collection.status} />
-              <span className="rounded-full border px-2 py-1 text-xs font-medium">{formatCollectionMode(collection.collectionMode)}</span>
+              <span className="rounded-full border px-2 py-1 text-xs font-medium">{formatCollectionModeLabel(collection.collectionMode)}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {collection.route.areaName ?? 'All areas'} - {new Date(collection.collectionDate).toLocaleDateString('id-ID')} - {collection.officer.fullName}
+              {collection.route.areaName ?? 'Semua wilayah'} - {new Date(collection.collectionDate).toLocaleDateString('id-ID')} - {collection.officer.fullName}
             </p>
           </div>
         </div>
@@ -100,7 +101,7 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
           <Button asChild variant="outline">
             <Link href={`/dashboard/jimpitan/mobile/${collection.id}`}>
               <Smartphone className="h-4 w-4" aria-hidden="true" />
-              Mobile flow
+              Alur mobile
             </Link>
           </Button>
           <LifecycleActions
@@ -119,26 +120,26 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
       </div>
 
       <section className="grid gap-3 md:grid-cols-4">
-        <AmountMetric label="Collected" amount={summary?.totalCollected ?? collection.totalAmount} />
-        <Metric label="Mode" value={formatCollectionMode(collection.collectionMode)} />
-        <Metric label={modeWorkflow?.showsHouseChecklist ? 'Completed houses' : 'Total source'} value={modeWorkflow?.showsHouseChecklist ? `${summary?.completedHouses ?? collection.itemCount}/${summary?.totalHouses ?? checklistQuery.data?.houses.length ?? '-'}` : 'Session total'} />
-        <Metric label={modeWorkflow?.showsOutstandingHouses ? 'Outstanding' : 'Outstanding'} value={modeWorkflow?.showsOutstandingHouses ? String(summary?.outstandingHouses ?? '-') : '-'} />
+        <AmountMetric label="Terkumpul" amount={summary?.totalCollected ?? collection.totalAmount} />
+        <Metric label="Mode" value={formatCollectionModeLabel(collection.collectionMode)} />
+        <Metric label={modeWorkflow?.showsHouseChecklist ? 'Rumah selesai' : 'Sumber total'} value={modeWorkflow?.showsHouseChecklist ? `${summary?.completedHouses ?? collection.itemCount}/${summary?.totalHouses ?? checklistQuery.data?.houses.length ?? '-'}` : 'Total sesi'} />
+        <Metric label="Belum disetor" value={modeWorkflow?.showsOutstandingHouses ? String(summary?.outstandingHouses ?? '-') : '-'} />
       </section>
 
       {modeWorkflow?.showsBulkTotalInput ? (
-        <section className="rounded-lg border bg-card p-4">
-          <h2 className="text-base font-semibold">Bulk total input</h2>
-          <p className="mb-4 text-sm text-muted-foreground">This session records only the total collected amount.</p>
+        <section className="rounded-xl border bg-card p-4">
+          <h2 className="text-base font-semibold">Input total langsung</h2>
+          <p className="mb-4 text-sm text-muted-foreground">Sesi ini hanya mencatat total nominal yang terkumpul.</p>
           <BulkTotalPanel collection={collection} isPending={mutations.setBulkTotal.isPending || !isEditableCollection(collection)} onSubmit={saveBulkTotal} />
         </section>
       ) : null}
 
       {modeWorkflow?.showsHouseChecklist ? (
-        <section className="rounded-lg border bg-card p-4">
+        <section className="rounded-xl border bg-card p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-base font-semibold">Route progress</h2>
-            <p className="text-sm text-muted-foreground">{completion}% complete across the assigned checklist.</p>
+            <h2 className="text-base font-semibold">Progres rute</h2>
+            <p className="text-sm text-muted-foreground">{completion}% selesai dari daftar rumah yang ditugaskan.</p>
           </div>
           <div className="w-full max-w-xs">
             <ProgressBar completed={completion} total={100} />
@@ -147,7 +148,7 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {summary?.perArea.length ? (
             summary.perArea.map((area) => (
-              <div key={area.areaId} className="rounded-md border p-3">
+              <div key={area.areaId} className="rounded-lg border p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium">{area.areaName}</p>
@@ -157,12 +158,12 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
                 </div>
                 <ProgressBar className="mt-3" completed={area.completedHouses} total={area.totalHouses} />
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {area.completedHouses}/{area.totalHouses} completed - {area.outstandingHouses} outstanding
+                  {area.completedHouses}/{area.totalHouses} selesai - {area.outstandingHouses} belum disetor
                 </p>
               </div>
             ))
           ) : (
-            <EmptyState title="No area progress yet" description="Generate a checklist or save collection items to populate progress." />
+            <EmptyState title="Belum ada progres wilayah" description="Buat daftar rumah atau simpan setoran untuk mengisi progres." />
           )}
         </div>
         </section>
@@ -170,52 +171,52 @@ export function SessionDetailPage({ collectionId }: { collectionId: string }) {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         {modeWorkflow?.showsHouseChecklist ? (
-          <section className="rounded-lg border bg-card">
+          <section className="rounded-xl border bg-card">
           <div className="flex items-center justify-between gap-3 p-4">
             <div>
-              <h2 className="text-base font-semibold">House checklist</h2>
-              <p className="text-sm text-muted-foreground">Latest item status by house.</p>
+              <h2 className="text-base font-semibold">Daftar rumah</h2>
+              <p className="text-sm text-muted-foreground">Status setoran terbaru per rumah.</p>
             </div>
             {isEditableCollection(collection) && canMutateOwn ? (
               <Button asChild size="sm">
-                <Link href={`/dashboard/jimpitan/mobile/${collection.id}`}>Continue</Link>
+                <Link href={`/dashboard/jimpitan/mobile/${collection.id}`}>Lanjutkan</Link>
               </Button>
             ) : null}
           </div>
           <Separator />
           {checklistQuery.isPending ? <ChecklistSkeleton /> : null}
-          {checklistQuery.data?.houses.length === 0 ? <EmptyState title="Checklist is empty" description="Generate the route checklist before officers collect." /> : null}
+          {checklistQuery.data?.houses.length === 0 ? <EmptyState title="Daftar rumah masih kosong" description="Buat daftar rumah rute sebelum petugas mulai menarik." /> : null}
           {checklistQuery.data?.houses.length ? <ChecklistRows houses={checklistQuery.data.houses} /> : null}
           </section>
         ) : (
-          <section className="rounded-lg border bg-card p-4">
-            <h2 className="text-base font-semibold">Collection input</h2>
-            <p className="mt-1 text-sm text-muted-foreground">This session does not create per-house collection rows.</p>
+          <section className="rounded-xl border bg-card p-4">
+            <h2 className="text-base font-semibold">Input setoran</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Sesi ini tidak membuat baris setoran per rumah.</p>
           </section>
         )}
 
         <aside className="space-y-5">
           {modeWorkflow?.showsOutstandingHouses ? (
-            <section className="rounded-lg border bg-card p-4">
-            <h2 className="text-base font-semibold">Outstanding</h2>
-            <p className="mb-3 text-sm text-muted-foreground">Houses still requiring follow-up.</p>
+            <section className="rounded-xl border bg-card p-4">
+            <h2 className="text-base font-semibold">Belum disetor</h2>
+            <p className="mb-3 text-sm text-muted-foreground">Rumah yang masih perlu ditindaklanjuti.</p>
             {outstandingQuery.isPending ? <Skeleton className="h-20 w-full" /> : null}
-            {outstandingQuery.data?.items.length === 0 ? <EmptyState title="No outstanding houses" description="All checklist houses are complete." /> : null}
+            {outstandingQuery.data?.items.length === 0 ? <EmptyState title="Semua rumah sudah disetor" description="Seluruh rumah pada daftar telah selesai." /> : null}
             <div className="space-y-2">
               {outstandingQuery.data?.items.map((house) => (
-                <div key={house.houseId} className="rounded-md border p-3">
+                <div key={house.houseId} className="rounded-lg border p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">House {house.houseNumber}</p>
-                    {house.outstandingStatus === 'NO_INPUT' ? <span className="rounded-full border px-2 py-1 text-xs font-medium">No input</span> : <ItemStatusBadge status={house.outstandingStatus} />}
+                    <p className="font-medium">Rumah {house.houseNumber}</p>
+                    {house.outstandingStatus === 'NO_INPUT' ? <span className="rounded-full border px-2 py-1 text-xs font-medium">Belum diisi</span> : <ItemStatusBadge status={house.outstandingStatus} />}
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{house.primaryResident?.fullName ?? 'No active resident'}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{house.primaryResident?.fullName ?? 'Tidak ada warga aktif'}</p>
                 </div>
               ))}
             </div>
             </section>
           ) : null}
-          <section className="rounded-lg border bg-card p-4">
-            <h2 className="text-base font-semibold">Activity timeline</h2>
+          <section className="rounded-xl border bg-card p-4">
+            <h2 className="text-base font-semibold">Linimasa aktivitas</h2>
             <ol className="mt-3 space-y-3">
               {timeline.map((item) => (
                 <li key={`${item.label}-${item.date}`} className="border-l-2 border-muted pl-3">
@@ -237,12 +238,12 @@ function ChecklistRows({ houses }: { houses: CollectionChecklistHouse[] }) {
       {houses.map((house) => (
         <div key={house.houseId} className="grid gap-2 p-4 sm:grid-cols-[8rem_minmax(0,1fr)_8rem_7rem] sm:items-center">
           <div>
-            <p className="font-medium">House {house.houseNumber}</p>
+            <p className="font-medium">Rumah {house.houseNumber}</p>
             <p className="text-xs text-muted-foreground">{house.area.name}</p>
           </div>
-          <p className="text-sm text-muted-foreground">{house.primaryResident?.fullName ?? 'No active resident'}</p>
+          <p className="text-sm text-muted-foreground">{house.primaryResident?.fullName ?? 'Tidak ada warga aktif'}</p>
           <p className="text-sm font-medium">{house.item ? formatCurrencyAmount(house.item.amount) : '-'}</p>
-          {house.item ? <ItemStatusBadge status={house.item.status} /> : <span className="text-xs text-muted-foreground">No input</span>}
+          {house.item ? <ItemStatusBadge status={house.item.status} /> : <span className="text-xs text-muted-foreground">Belum diisi</span>}
         </div>
       ))}
     </div>
@@ -251,12 +252,12 @@ function ChecklistRows({ houses }: { houses: CollectionChecklistHouse[] }) {
 
 function buildTimeline(collection: CollectionSessionRecord) {
   return [
-    { label: 'Created for collection date', date: collection.collectionDate },
-    collection.submittedAt ? { label: 'Submitted', date: collection.submittedAt } : null,
-    collection.validatedAt ? { label: 'Validated', date: collection.validatedAt } : null,
-    collection.rejectedAt ? { label: `Rejected - ${formatStatus(collection.status)}`, date: collection.rejectedAt } : null,
-    collection.cancelledAt ? { label: 'Cancelled', date: collection.cancelledAt } : null,
-    { label: 'Last updated', date: collection.updatedAt },
+    { label: 'Dibuat untuk tanggal penarikan', date: collection.collectionDate },
+    collection.submittedAt ? { label: 'Diajukan', date: collection.submittedAt } : null,
+    collection.validatedAt ? { label: 'Tervalidasi', date: collection.validatedAt } : null,
+    collection.rejectedAt ? { label: 'Ditolak', date: collection.rejectedAt } : null,
+    collection.cancelledAt ? { label: 'Dibatalkan', date: collection.cancelledAt } : null,
+    { label: 'Terakhir diperbarui', date: collection.updatedAt },
   ].filter(Boolean) as Array<{ label: string; date: string }>;
 }
 

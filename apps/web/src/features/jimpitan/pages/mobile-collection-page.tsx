@@ -18,7 +18,7 @@ import { useTenantContext } from '@/features/tenants/tenant-provider';
 import { MobileItemPanel } from '../components/mobile-item-panel';
 import { BulkTotalPanel } from '../components/bulk-total-panel';
 import { ProgressBar } from '../components/progress';
-import { CollectionStatusBadge, ItemStatusBadge } from '../components/status-badge';
+import { CollectionStatusBadge, ItemStatusBadge, formatItemStatus } from '../components/status-badge';
 import { toUserMessage } from '../components/error-message';
 import { useChecklistQuery, useJimpitanMutations, useSummaryQuery } from '../hooks';
 import { getCollectionModeWorkflow } from '../collection-mode-workflow';
@@ -103,13 +103,13 @@ export function MobileCollectionPage({ collectionId }: { collectionId: string })
         <Button asChild variant="ghost" size="sm" className="w-fit px-0">
           <Link href={`/dashboard/jimpitan/sessions/${collectionId}`}>
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Session
+            Sesi
           </Link>
         </Button>
-        <section className="rounded-lg border bg-card p-4" role="alert">
-          <p className="text-sm font-medium">Collection checklist could not be loaded.</p>
+        <section className="rounded-xl border bg-card p-4" role="alert">
+          <p className="text-sm font-medium">Daftar rumah gagal dimuat.</p>
           <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void checklistQuery.refetch()}>
-            Retry
+            Coba lagi
           </Button>
         </section>
       </main>
@@ -123,25 +123,25 @@ export function MobileCollectionPage({ collectionId }: { collectionId: string })
         <section className="sticky top-0 z-10 -mx-4 border-b bg-background/95 px-4 py-3 backdrop-blur">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold">{collection.route.areaName ?? 'All areas'}</p>
-              <p className="text-xs text-muted-foreground">Bulk total session</p>
+              <p className="text-sm font-semibold">{collection.route.areaName ?? 'Semua wilayah'}</p>
+              <p className="text-xs text-muted-foreground">Sesi total langsung</p>
             </div>
             <p className="text-lg font-semibold">Rp{Number(collection.totalAmount).toLocaleString('id-ID')}</p>
           </div>
         </section>
         {!canInput ? (
-          <section className="flex items-start gap-3 rounded-lg border bg-card p-4">
+          <section className="flex items-start gap-3 rounded-xl border bg-card p-4">
             <Lock className="mt-0.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <div>
-              <p className="text-sm font-medium">Input is locked</p>
-              <p className="text-sm text-muted-foreground">This session is not editable for your role or current lifecycle status.</p>
+              <p className="text-sm font-medium">Input terkunci</p>
+              <p className="text-sm text-muted-foreground">Sesi ini tidak dapat diubah untuk peran Anda atau status saat ini.</p>
             </div>
           </section>
         ) : null}
         <BulkTotalPanel collection={collection} isPending={!canInput || mutations.setBulkTotal.isPending} onSubmit={saveBulkTotal} />
         {actions.includes('submit') ? (
           <Button type="button" className="mt-auto min-h-12 w-full" disabled={mutations.submit.isPending} onClick={() => void submit()}>
-            Submit for validation
+            Ajukan untuk validasi
           </Button>
         ) : null}
       </main>
@@ -152,7 +152,7 @@ export function MobileCollectionPage({ collectionId }: { collectionId: string })
     return (
       <main id="main-content" className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 py-5">
         <Header collectionId={collection.id} status={collection.status} />
-        <EmptyState title="Checklist is empty" description="Generate the session checklist before opening field input." />
+        <EmptyState title="Daftar rumah masih kosong" description="Buat daftar rumah sesi sebelum membuka input lapangan." />
       </main>
     );
   }
@@ -163,8 +163,8 @@ export function MobileCollectionPage({ collectionId }: { collectionId: string })
       <section className="sticky top-0 z-10 -mx-4 border-b bg-background/95 px-4 py-3 backdrop-blur">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold">{collection.route.areaName ?? 'All areas'}</p>
-            <p className="text-xs text-muted-foreground">{completed}/{total} houses complete</p>
+            <p className="text-sm font-semibold">{collection.route.areaName ?? 'Semua wilayah'}</p>
+            <p className="text-xs text-muted-foreground">{completed}/{total} rumah selesai</p>
           </div>
           <p className="text-lg font-semibold">{progress}%</p>
         </div>
@@ -172,11 +172,11 @@ export function MobileCollectionPage({ collectionId }: { collectionId: string })
       </section>
 
       {!canInput ? (
-        <section className="flex items-start gap-3 rounded-lg border bg-card p-4">
+        <section className="flex items-start gap-3 rounded-xl border bg-card p-4">
           <Lock className="mt-0.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <div>
-            <p className="text-sm font-medium">Input is locked</p>
-            <p className="text-sm text-muted-foreground">This session is not editable for your role or current lifecycle status.</p>
+            <p className="text-sm font-medium">Input terkunci</p>
+            <p className="text-sm text-muted-foreground">Sesi ini tidak dapat diubah untuk peran Anda atau status saat ini.</p>
           </div>
         </section>
       ) : null}
@@ -189,16 +189,16 @@ export function MobileCollectionPage({ collectionId }: { collectionId: string })
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" variant="outline" className="min-h-12" disabled={currentIndex <= 0} onClick={() => setCurrentHouseId(houses[Math.max(0, currentIndex - 1)]?.houseId ?? currentHouseId)}>
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            Previous
+            Sebelumnya
           </Button>
           <Button type="button" variant="outline" className="min-h-12" disabled={currentIndex < 0 || currentIndex >= houses.length - 1} onClick={() => setCurrentHouseId(houses[Math.min(houses.length - 1, currentIndex + 1)]?.houseId ?? currentHouseId)}>
-            Next
+            Berikutnya
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
         {actions.includes('submit') ? (
           <Button type="button" className="mt-2 min-h-12 w-full" disabled={mutations.submit.isPending} onClick={() => void submit()}>
-            Submit for validation
+            Ajukan untuk validasi
           </Button>
         ) : null}
       </div>
@@ -222,7 +222,7 @@ function Header({ collectionId, status }: { collectionId: string; status: Collec
 
 function HouseNavigator({ houses, currentHouse, onSelect }: { houses: CollectionChecklistHouse[]; currentHouse: CollectionChecklistHouse | undefined; onSelect: (houseId: string) => void }) {
   return (
-    <section aria-label="House selector" className="-mx-4 overflow-x-auto px-4">
+    <section aria-label="Pemilih rumah" className="-mx-4 overflow-x-auto px-4">
       <div className="flex gap-2 pb-1">
         {houses.map((house, index) => {
           const active = house.houseId === currentHouse?.houseId;
@@ -236,7 +236,7 @@ function HouseNavigator({ houses, currentHouse, onSelect }: { houses: Collection
             >
               <span className="block text-xs opacity-80">#{index + 1}</span>
               <span className="block font-semibold">{house.houseNumber}</span>
-              {house.item ? <span className="mt-1 block text-xs">{house.item.status}</span> : null}
+              {house.item ? <span className="mt-1 block text-xs">{formatItemStatus(house.item.status)}</span> : null}
             </button>
           );
         })}

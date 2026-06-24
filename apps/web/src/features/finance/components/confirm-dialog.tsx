@@ -15,10 +15,10 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = 'Confirm',
+  confirmLabel = 'Konfirmasi',
   destructive = false,
   reasonRequired = false,
-  inputLabel = 'Reason or note',
+  inputLabel = 'Alasan atau catatan',
   onOpenChange,
   onConfirm,
 }: {
@@ -57,7 +57,7 @@ export function ConfirmDialog({
         </label>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Back
+            Batal
           </Button>
           <Button type="button" variant={destructive ? 'destructive' : 'default'} disabled={reasonRequired && text.trim().length < 2} onClick={() => onConfirm(text.trim() || undefined)}>
             {confirmLabel}

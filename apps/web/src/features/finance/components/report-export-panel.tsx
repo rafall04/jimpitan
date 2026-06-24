@@ -69,7 +69,7 @@ export function ReportExportPanel({ title = 'Ekspor laporan', includeLedger = fa
 
   if (!canExport) {
     return (
-      <section className="rounded-lg border bg-card p-4">
+      <section className="rounded-xl border bg-card p-4">
         <h2 className="text-base font-semibold">{title}</h2>
         <p className="mt-2 text-sm text-muted-foreground">Akses ekspor membutuhkan izin laporan.</p>
       </section>
@@ -77,7 +77,7 @@ export function ReportExportPanel({ title = 'Ekspor laporan', includeLedger = fa
   }
 
   return (
-    <section className="rounded-lg border bg-card p-4">
+    <section className="rounded-xl border bg-card p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-base font-semibold">{title}</h2>
@@ -133,11 +133,24 @@ export function ReportExportPanel({ title = 'Ekspor laporan', includeLedger = fa
 }
 
 function exportLabel(reportType: string): string {
-  return reportType
-    .toLowerCase()
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
+  const labels: Record<string, string> = {
+    MONTHLY_FINANCE_SUMMARY: 'Ringkasan keuangan bulanan',
+    FINANCE_SUMMARY: 'Ringkasan keuangan',
+    COLLECTION_SUMMARY: 'Ringkasan jimpitan',
+    COLLECTION_PERFORMANCE: 'Performa jimpitan',
+    LEDGER_EXPORT: 'Ekspor buku besar',
+    TRANSACTION_EXPORT: 'Ekspor transaksi',
+    PUBLIC_TRANSPARENCY_SUMMARY: 'Ringkasan transparansi publik',
+    PUBLIC_MONTHLY_FINANCE: 'Keuangan bulanan publik',
+  };
+  return (
+    labels[reportType] ??
+    reportType
+      .toLowerCase()
+      .split('_')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+  );
 }
 
 function statusLabel(status: ReportExportRecord['status']): string {

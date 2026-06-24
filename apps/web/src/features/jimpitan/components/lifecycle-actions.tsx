@@ -45,36 +45,36 @@ export function LifecycleActions({
       {actions.includes('start') ? (
         <Button type="button" size="sm" onClick={onStart} disabled={isPending}>
           <Play className="h-4 w-4" aria-hidden="true" />
-          Start
+          Mulai
         </Button>
       ) : null}
       {actions.includes('generate-checklist') ? (
         <Button type="button" size="sm" variant="outline" onClick={onGenerate} disabled={isPending}>
           <ClipboardList className="h-4 w-4" aria-hidden="true" />
-          Checklist
+          Daftar rumah
         </Button>
       ) : null}
       {actions.includes('submit') ? (
         <Button type="button" size="sm" variant="outline" onClick={() => setDialog('submit')} disabled={isPending}>
           <Send className="h-4 w-4" aria-hidden="true" />
-          Submit
+          Ajukan
         </Button>
       ) : null}
       {actions.includes('validate') ? (
         <Button type="button" size="sm" onClick={() => setDialog('validate')} disabled={isPending}>
           <Check className="h-4 w-4" aria-hidden="true" />
-          Validate
+          Validasi
         </Button>
       ) : null}
       {actions.includes('reject') ? (
         <Button type="button" size="sm" variant="destructive" onClick={() => setDialog('reject')} disabled={isPending}>
           <XCircle className="h-4 w-4" aria-hidden="true" />
-          Reject
+          Tolak
         </Button>
       ) : null}
       {actions.includes('cancel') ? (
         <Button type="button" size="sm" variant="outline" onClick={() => setDialog('cancel')} disabled={isPending}>
-          Cancel
+          Batalkan
         </Button>
       ) : null}
       <LifecycleDialog
@@ -118,7 +118,7 @@ function LifecycleDialog({
 }) {
   const [text, setText] = useState('');
   const requiresReason = action === 'reject' || action === 'cancel';
-  const title = action === 'submit' ? 'Submit collection' : action === 'validate' ? 'Validate collection' : action === 'reject' ? 'Reject collection' : 'Cancel collection';
+  const title = action === 'submit' ? 'Ajukan sesi' : action === 'validate' ? 'Validasi sesi' : action === 'reject' ? 'Tolak sesi' : 'Batalkan sesi';
 
   return (
     <Dialog open={Boolean(action)} onOpenChange={onOpenChange}>
@@ -131,13 +131,13 @@ function LifecycleDialog({
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder={requiresReason ? 'Required reason' : 'Optional validation note'}
+            placeholder={requiresReason ? 'Alasan wajib diisi' : 'Catatan validasi (opsional)'}
             className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         ) : null}
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Back
+            Kembali
           </Button>
           <Button
             type="button"
@@ -150,7 +150,7 @@ function LifecycleDialog({
               if (action === 'cancel') onCancelCollection(text.trim());
             }}
           >
-            Confirm
+            Konfirmasi
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -159,9 +159,9 @@ function LifecycleDialog({
 }
 
 function dialogDescription(action: CollectionAction | null): string {
-  if (action === 'submit') return 'Submit this session for treasurer validation. Officers cannot keep editing while it is submitted.';
-  if (action === 'validate') return 'Validate this submitted session. Finance posting remains a separate backend action.';
-  if (action === 'reject') return 'Reject this submitted session and send it back with a reason.';
-  if (action === 'cancel') return 'Cancel this session. Validated sessions cannot be cancelled.';
+  if (action === 'submit') return 'Ajukan sesi ini untuk divalidasi bendahara. Petugas tidak dapat mengubahnya selama menunggu validasi.';
+  if (action === 'validate') return 'Validasi sesi yang telah diajukan ini. Pencatatan ke kas tetap dilakukan terpisah di sistem.';
+  if (action === 'reject') return 'Tolak sesi yang diajukan ini dan kembalikan disertai alasan.';
+  if (action === 'cancel') return 'Batalkan sesi ini. Sesi yang sudah tervalidasi tidak dapat dibatalkan.';
   return '';
 }

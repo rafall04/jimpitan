@@ -35,7 +35,7 @@ export function TransactionDetailPage({ transactionId }: { transactionId: string
   if (query.isError || !transaction) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <EmptyState title="Transaction unavailable" description="The transaction could not be loaded for this tenant." />
+        <EmptyState title="Transaksi tidak tersedia" description="Transaksi tidak dapat dimuat untuk RT ini." />
       </main>
     );
   }
@@ -45,10 +45,10 @@ export function TransactionDetailPage({ transactionId }: { transactionId: string
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <Button asChild variant="ghost" size="sm" className="mb-3 px-0">
-            <Link href="/dashboard/finance/transactions"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Transactions</Link>
+            <Link href="/dashboard/finance/transactions"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Kembali ke transaksi</Link>
           </Button>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-normal">{transaction.description}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{transaction.description}</h1>
             <TransactionStatusBadge status={transaction.status} />
             <TransactionTypeBadge type={transaction.type} />
           </div>
@@ -66,45 +66,45 @@ export function TransactionDetailPage({ transactionId }: { transactionId: string
       </div>
 
       {isPostedTransactionImmutable(transaction) ? (
-        <section className="flex items-start gap-3 rounded-lg border bg-card p-4">
+        <section className="flex items-start gap-3 rounded-xl border bg-card p-4">
           <Lock className="mt-0.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <div>
-            <p className="text-sm font-medium">Posted transaction is immutable</p>
-            <p className="text-sm text-muted-foreground">Corrections must be made through backend-controlled adjustment transactions.</p>
+            <p className="text-sm font-medium">Transaksi terposting tidak dapat diubah</p>
+            <p className="text-sm text-muted-foreground">Koreksi harus dilakukan melalui transaksi penyesuaian yang dikendalikan backend.</p>
           </div>
         </section>
       ) : null}
 
       <section className="grid gap-3 md:grid-cols-4">
-        <AmountMetric label="Amount" amount={transaction.amount} />
-        <Metric label="Date" value={new Date(transaction.transactionDate).toLocaleDateString('id-ID')} />
-        <Metric label="Account" value={transaction.cashAccount.name} />
-        <Metric label="Category" value={transaction.category.name} />
+        <AmountMetric label="Nominal" amount={transaction.amount} />
+        <Metric label="Tanggal" value={new Date(transaction.transactionDate).toLocaleDateString('id-ID')} />
+        <Metric label="Akun" value={transaction.cashAccount.name} />
+        <Metric label="Kategori" value={transaction.category.name} />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <section className="rounded-lg border bg-card p-4">
-          <h2 className="text-base font-semibold">Lifecycle details</h2>
+        <section className="rounded-xl border bg-card p-4">
+          <h2 className="text-base font-semibold">Detail siklus hidup</h2>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
-            <DetailTerm label="Created" value={new Date(transaction.createdAt).toLocaleString('id-ID')} />
-            <DetailTerm label="Updated" value={new Date(transaction.updatedAt).toLocaleString('id-ID')} />
-            <DetailTerm label="Validated" value={transaction.validatedAt ? new Date(transaction.validatedAt).toLocaleString('id-ID') : '-'} />
-            <DetailTerm label="Posted" value={transaction.postedAt ? new Date(transaction.postedAt).toLocaleString('id-ID') : '-'} />
-            <DetailTerm label="Reference" value={transaction.referenceNumber ?? '-'} />
-            <DetailTerm label="Source collection" value={transaction.sourceCollectionId ?? '-'} />
+            <DetailTerm label="Dibuat" value={new Date(transaction.createdAt).toLocaleString('id-ID')} />
+            <DetailTerm label="Diperbarui" value={new Date(transaction.updatedAt).toLocaleString('id-ID')} />
+            <DetailTerm label="Tervalidasi" value={transaction.validatedAt ? new Date(transaction.validatedAt).toLocaleString('id-ID') : '-'} />
+            <DetailTerm label="Terposting" value={transaction.postedAt ? new Date(transaction.postedAt).toLocaleString('id-ID') : '-'} />
+            <DetailTerm label="Referensi" value={transaction.referenceNumber ?? '-'} />
+            <DetailTerm label="Jimpitan sumber" value={transaction.sourceCollectionId ?? '-'} />
           </dl>
           {transaction.validationNote ? <p className="mt-4 rounded-md border p-3 text-sm">{transaction.validationNote}</p> : null}
           {transaction.rejectionReason ? <p className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{transaction.rejectionReason}</p> : null}
         </section>
 
         <aside className="space-y-6">
-          <section className="rounded-lg border bg-card p-4">
-            <h2 className="text-base font-semibold">Approval state</h2>
+          <section className="rounded-xl border bg-card p-4">
+            <h2 className="text-base font-semibold">Status persetujuan</h2>
             {approvalQuery.isPending && isApprovalBlockingStatus(transaction.status) ? <Skeleton className="mt-3 h-20 w-full" /> : null}
             {approvalQuery.data ? (
               <div className="mt-3 space-y-3 text-sm">
-                <p>Status: {approvalQuery.data.status}</p>
-                <p>{approvalQuery.data.approvedCount}/{approvalQuery.data.requiredApprovals} approved</p>
+                <p className="flex items-center gap-2">Status: <ApprovalStatusBadge status={approvalQuery.data.status} /></p>
+                <p>{approvalQuery.data.approvedCount}/{approvalQuery.data.requiredApprovals} disetujui</p>
                 {approvalQuery.data.approvals.map((approval) => (
                   <Link key={approval.id} href={`/dashboard/approvals/${approval.id}`} className="flex items-center justify-between rounded-md border p-3 hover:bg-muted">
                     <span>{approval.approver.fullName}</span>
@@ -112,24 +112,24 @@ export function TransactionDetailPage({ transactionId }: { transactionId: string
                   </Link>
                 ))}
               </div>
-            ) : <p className="mt-3 text-sm text-muted-foreground">No approval status is available for this transaction.</p>}
+            ) : <p className="mt-3 text-sm text-muted-foreground">Tidak ada status persetujuan untuk transaksi ini.</p>}
             {transaction.type === 'EXPENSE' && transaction.status === 'VALIDATED' && permissions.has('transactions.validate') ? (
               <Button type="button" variant="outline" className="mt-3 w-full" disabled={mutations.requestApproval.isPending} onClick={() => void mutations.requestApproval.mutateAsync({ transactionId: transaction.id }).catch((error) => toast.error(toUserMessage(error)))}>
-                Request approval
+                Ajukan persetujuan
               </Button>
             ) : null}
           </section>
 
-          <section className="rounded-lg border bg-card p-4">
-            <h2 className="text-base font-semibold">Ledger entry</h2>
+          <section className="rounded-xl border bg-card p-4">
+            <h2 className="text-base font-semibold">Entri buku besar</h2>
             {transaction.ledger ? (
               <div className="mt-3 space-y-3 text-sm">
                 <LedgerDirectionBadge direction={transaction.ledger.entryType} />
-                <p>Sequence #{transaction.ledger.ledgerSequence}</p>
-                <p>Amount {formatCurrencyAmount(transaction.ledger.amount)}</p>
-                <p>Balance after {formatCurrencyAmount(transaction.ledger.balanceAfter)}</p>
+                <p>Urutan #{transaction.ledger.ledgerSequence}</p>
+                <p>Nominal {formatCurrencyAmount(transaction.ledger.amount)}</p>
+                <p>Saldo setelahnya {formatCurrencyAmount(transaction.ledger.balanceAfter)}</p>
               </div>
-            ) : <p className="mt-3 text-sm text-muted-foreground">Ledger entry is created only after posting.</p>}
+            ) : <p className="mt-3 text-sm text-muted-foreground">Entri buku besar hanya dibuat setelah posting.</p>}
           </section>
         </aside>
       </div>

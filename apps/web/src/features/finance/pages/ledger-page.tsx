@@ -23,23 +23,23 @@ export function LedgerPage() {
 
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <Header title="Cash ledger" description="Read-only append ledger. Rows are created only by backend posting transactions." />
-      <section className="grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[20rem]">
-        <SelectField id="ledger-account-filter" label="Cash account" value={accountId} onChange={(value) => { setAccountId(value); setPage(1); }}>
-          <option value="">All accounts</option>
+      <Header title="Buku besar kas" description="Buku besar append-only, hanya-baca. Baris hanya dibuat oleh transaksi posting backend." />
+      <section className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-[20rem]">
+        <SelectField id="ledger-account-filter" label="Akun kas" value={accountId} onChange={(value) => { setAccountId(value); setPage(1); }}>
+          <option value="">Semua akun</option>
           {accountsQuery.data?.items.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
         </SelectField>
       </section>
-      {ledgerQuery.isPending ? <ListSkeleton label="Loading ledger entries" /> : null}
-      {ledgerQuery.data?.items.length === 0 ? <EmptyState title="No ledger entries" description="Validated transactions appear here after posting." /> : null}
-      <section className="overflow-hidden rounded-lg border bg-card">
+      {ledgerQuery.isPending ? <ListSkeleton label="Memuat entri buku besar" /> : null}
+      {ledgerQuery.data?.items.length === 0 ? <EmptyState title="Belum ada entri buku besar" description="Transaksi tervalidasi muncul di sini setelah diposting." /> : null}
+      <section className="overflow-hidden rounded-xl border bg-card">
         <div className="hidden grid-cols-[6rem_7rem_minmax(0,1fr)_9rem_9rem_10rem] gap-3 border-b p-4 text-xs font-medium uppercase tracking-normal text-muted-foreground md:grid">
-          <span>Sequence</span>
-          <span>Direction</span>
-          <span>Transaction</span>
-          <span>Amount</span>
-          <span>Balance</span>
-          <span>Posted</span>
+          <span>Urutan</span>
+          <span>Arah</span>
+          <span>Transaksi</span>
+          <span>Nominal</span>
+          <span>Saldo</span>
+          <span>Terposting</span>
         </div>
         <div className="divide-y">
           {ledgerQuery.data?.items.map((entry) => (
@@ -62,8 +62,8 @@ export function LedgerPage() {
 function Header({ title, description }: { title: string; description: string }) {
   return (
     <div>
-      <p className="text-sm font-medium text-primary">Ledger</p>
-      <h1 className="mt-1 text-2xl font-semibold tracking-normal">{title}</h1>
+      <p className="text-xs font-bold uppercase tracking-wider text-primary">Keuangan</p>
+      <h1 className="mt-1 text-2xl font-bold tracking-tight">{title}</h1>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );

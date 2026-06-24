@@ -33,7 +33,7 @@ export function ApprovalDetailPage({ approvalId }: { approvalId: string }) {
   if (query.isError || !approval) {
     return (
       <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <EmptyState title="Approval unavailable" description="The approval request could not be loaded for this tenant." />
+        <EmptyState title="Persetujuan tidak tersedia" description="Permintaan persetujuan tidak dapat dimuat untuk RT ini." />
       </main>
     );
   }
@@ -43,13 +43,13 @@ export function ApprovalDetailPage({ approvalId }: { approvalId: string }) {
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <Button asChild variant="ghost" size="sm" className="mb-3 px-0">
-            <Link href="/dashboard/approvals"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Approvals</Link>
+            <Link href="/dashboard/approvals"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Kembali ke persetujuan</Link>
           </Button>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-normal">Expense approval</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Persetujuan pengeluaran</h1>
             <ApprovalStatusBadge status={approval.status} />
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">Assigned to {approval.approver.fullName}</p>
+          <p className="mt-2 text-sm text-muted-foreground">Ditugaskan kepada {approval.approver.fullName}</p>
         </div>
         <ApprovalLifecycleActions
           approval={approval}
@@ -61,39 +61,49 @@ export function ApprovalDetailPage({ approvalId }: { approvalId: string }) {
       </div>
 
       <section className="grid gap-3 md:grid-cols-4">
-        <AmountMetric label="Amount" amount={approval.transaction.amount} />
-        <Metric label="Requested" value={new Date(approval.createdAt).toLocaleDateString('id-ID')} />
-        <Metric label="Decided" value={approval.decidedAt ? new Date(approval.decidedAt).toLocaleDateString('id-ID') : '-'} />
-        <Metric label="Expires" value={approval.expiresAt ? new Date(approval.expiresAt).toLocaleDateString('id-ID') : '-'} />
+        <AmountMetric label="Nominal" amount={approval.transaction.amount} />
+        <Metric label="Diajukan" value={new Date(approval.createdAt).toLocaleDateString('id-ID')} />
+        <Metric label="Diputuskan" value={approval.decidedAt ? new Date(approval.decidedAt).toLocaleDateString('id-ID') : '-'} />
+        <Metric label="Kedaluwarsa" value={approval.expiresAt ? new Date(approval.expiresAt).toLocaleDateString('id-ID') : '-'} />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <section className="rounded-lg border bg-card p-4">
-          <h2 className="text-base font-semibold">Decision context</h2>
+        <section className="rounded-xl border bg-card p-4">
+          <h2 className="text-base font-semibold">Konteks keputusan</h2>
           <div className="mt-4 space-y-3 text-sm">
-            {approval.reason ? <p className="rounded-md border p-3">{approval.reason}</p> : <p className="text-muted-foreground">No request reason was provided.</p>}
+            {approval.reason ? <p className="rounded-md border p-3">{approval.reason}</p> : <p className="text-muted-foreground">Tidak ada alasan permintaan yang diberikan.</p>}
             {approval.decisionNote ? <p className="rounded-md border p-3">{approval.decisionNote}</p> : null}
           </div>
           <ol className="mt-5 space-y-3">
-            <TimelineItem label="Approval requested" date={approval.createdAt} />
-            {approval.decidedAt ? <TimelineItem label={`Decision ${approval.status.toLowerCase()}`} date={approval.decidedAt} /> : null}
-            <TimelineItem label="Last updated" date={approval.updatedAt} />
+            <TimelineItem label="Persetujuan diajukan" date={approval.createdAt} />
+            {approval.decidedAt ? <TimelineItem label={`Keputusan: ${decisionLabel(approval.status)}`} date={approval.decidedAt} /> : null}
+            <TimelineItem label="Terakhir diperbarui" date={approval.updatedAt} />
           </ol>
         </section>
 
-        <aside className="rounded-lg border bg-card p-4">
-          <h2 className="text-base font-semibold">Source transaction</h2>
+        <aside className="rounded-xl border bg-card p-4">
+          <h2 className="text-base font-semibold">Transaksi sumber</h2>
           <div className="mt-3 space-y-3 text-sm">
             <TransactionTypeBadge type={approval.transaction.type} />
             <TransactionStatusBadge status={approval.transaction.status} />
             <Button asChild variant="outline" className="w-full">
-              <Link href={`/dashboard/finance/transactions/${approval.transactionId}`}>Open transaction</Link>
+              <Link href={`/dashboard/finance/transactions/${approval.transactionId}`}>Buka transaksi</Link>
             </Button>
           </div>
         </aside>
       </div>
     </main>
   );
+}
+
+function decisionLabel(status: string): string {
+  const labels: Record<string, string> = {
+    PENDING: 'menunggu',
+    APPROVED: 'disetujui',
+    REJECTED: 'ditolak',
+    CANCELLED: 'dibatalkan',
+  };
+  return labels[status] ?? status.toLowerCase();
 }
 
 function TimelineItem({ label, date }: { label: string; date: string }) {
