@@ -41,7 +41,7 @@ function createHarness() {
     claimPendingCsvExports: vi.fn(async (): Promise<ReportExportRecord[]> => []),
   };
   const settings = {
-    getFinanceVisibilityByRtCode: vi.fn(async () => ({ mode: 'PUBLIC', token: null })),
+    getFinanceVisibilityByRtCode: vi.fn(async (): Promise<{ mode: 'PUBLIC' | 'TOKEN'; token: string | null }> => ({ mode: 'PUBLIC', token: null })),
   };
   const principal: AuthPrincipal = { userId: 'user-1', membershipId: 'membership-1', rtId: 'rt-1', roles: ['BENDAHARA'], permissions: ['reports.private.read'] };
   const service = new (ReportsService as any)(repository, settings);
