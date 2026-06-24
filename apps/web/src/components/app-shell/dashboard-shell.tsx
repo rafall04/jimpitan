@@ -16,6 +16,7 @@ import { useSessionQuery } from '@/features/auth/use-session';
 import { TenantProvider, useTenantContext } from '@/features/tenants/tenant-provider';
 import { DASHBOARD_NAV_ITEMS, getAllowedNavigationItems, isRouteAllowed, type ResolvedDashboardNavItem } from '@/lib/navigation/navigation';
 import { DashboardSidebar } from './dashboard-sidebar';
+import { MobileBottomNav } from './mobile-bottom-nav';
 import { MobileNav } from './mobile-nav';
 import { Topbar } from './topbar';
 
@@ -52,8 +53,9 @@ function DashboardShellContent({ children }: { children: ReactNode }) {
         <Topbar>
           <MobileNav items={navItems} pathname={pathname} />
         </Topbar>
-        <div className="flex-1">{isRouteAllowed(pathname, permissions) ? children : <ForbiddenPanel />}</div>
+        <div className="flex-1 pb-16 md:pb-0">{isRouteAllowed(pathname, permissions) ? children : <ForbiddenPanel />}</div>
       </div>
+      <MobileBottomNav items={navItems} pathname={pathname} />
     </div>
   );
 }

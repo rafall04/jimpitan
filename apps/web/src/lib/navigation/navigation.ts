@@ -13,6 +13,7 @@ export type DashboardNavItem = {
   href: `/dashboard${string}`;
   icon: 'LayoutDashboard' | 'Users' | 'Home' | 'MapPinned' | 'HandCoins' | 'WalletCards' | 'BadgeCheck' | 'FileText' | 'Newspaper' | 'Settings';
   permissions: PermissionKey[];
+  section?: string;
 };
 
 export type ResolvedDashboardNavItem = Omit<DashboardNavItem, 'href'> & {
@@ -21,15 +22,15 @@ export type ResolvedDashboardNavItem = Omit<DashboardNavItem, 'href'> & {
 
 export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
   { label: 'Ringkasan', href: '/dashboard', icon: 'LayoutDashboard', permissions: [] },
-  { label: 'Warga', href: '/dashboard/residents', icon: 'Users', permissions: ['residents.read'] },
-  { label: 'Rumah', href: '/dashboard/houses', icon: 'Home', permissions: ['houses.read'] },
-  { label: 'Area', href: '/dashboard/areas', icon: 'MapPinned', permissions: ['areas.read'] },
-  { label: 'Jimpitan', href: '/dashboard/jimpitan', icon: 'HandCoins', permissions: ['collections.read', 'collections.update_own'] },
-  { label: 'Keuangan', href: '/dashboard/finance', icon: 'WalletCards', permissions: ['transactions.read'] },
-  { label: 'Persetujuan', href: '/dashboard/approvals', icon: 'BadgeCheck', permissions: ['approvals.read'] },
-  { label: 'Konten', href: '/dashboard/content', icon: 'Newspaper', permissions: ['content.read'] },
-  { label: 'Laporan', href: '/dashboard/reports', icon: 'FileText', permissions: ['reports.private.read'] },
-  { label: 'Pengaturan', href: '/dashboard/settings', icon: 'Settings', permissions: ['settings.read'] },
+  { label: 'Warga', href: '/dashboard/residents', icon: 'Users', permissions: ['residents.read'], section: 'Data warga' },
+  { label: 'Rumah', href: '/dashboard/houses', icon: 'Home', permissions: ['houses.read'], section: 'Data warga' },
+  { label: 'Area', href: '/dashboard/areas', icon: 'MapPinned', permissions: ['areas.read'], section: 'Data warga' },
+  { label: 'Jimpitan', href: '/dashboard/jimpitan', icon: 'HandCoins', permissions: ['collections.read', 'collections.update_own'], section: 'Keuangan' },
+  { label: 'Keuangan', href: '/dashboard/finance', icon: 'WalletCards', permissions: ['transactions.read'], section: 'Keuangan' },
+  { label: 'Persetujuan', href: '/dashboard/approvals', icon: 'BadgeCheck', permissions: ['approvals.read'], section: 'Keuangan' },
+  { label: 'Laporan', href: '/dashboard/reports', icon: 'FileText', permissions: ['reports.private.read'], section: 'Keuangan' },
+  { label: 'Konten', href: '/dashboard/content', icon: 'Newspaper', permissions: ['content.read'], section: 'Komunitas' },
+  { label: 'Pengaturan', href: '/dashboard/settings', icon: 'Settings', permissions: ['settings.read'], section: 'Sistem' },
 ];
 
 export function getAllowedNavigationItems(permissions: ReadonlySet<string>, rtId?: string): ResolvedDashboardNavItem[] {
