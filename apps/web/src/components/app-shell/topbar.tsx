@@ -8,6 +8,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ReactNode } from 'react';
 import { NotificationBell } from '@/components/feedback/notification-bell';
@@ -50,6 +51,16 @@ export function Topbar({ children }: { children: ReactNode }) {
             </select>
           </>
         ) : null}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('rtku:command-open'))}
+          aria-label="Buka palet perintah (Ctrl K)"
+          className="flex h-10 items-center gap-2 rounded-md text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground sm:border sm:bg-background sm:px-2.5 sm:pr-1.5 max-sm:w-10 max-sm:justify-center"
+        >
+          <Search className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Cari…</span>
+          <kbd className="ml-3 hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium sm:inline-block">⌘K</kbd>
+        </button>
         <ThemeToggle />
         <NotificationBell />
         <UserMenu />

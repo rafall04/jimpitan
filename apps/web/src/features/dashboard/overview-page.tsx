@@ -19,6 +19,7 @@ import { useContentListQuery } from '@/features/content/hooks';
 import { formatIdr } from '@/features/public-reports/format';
 import { ContentStatusBadge, ContentTypeBadge } from '@/features/content/components/content-badges';
 import { formatDateTime } from '@/features/content/format';
+import { OnboardingChecklist } from './onboarding-checklist';
 
 export function OverviewPage() {
   const { permissions, activeTenant, session } = useTenantContext();
@@ -40,6 +41,8 @@ export function OverviewPage() {
         <h1 className="mt-1 text-2xl font-bold tracking-tight">Halo, {firstName} 👋</h1>
         <p className="mt-1 text-sm text-muted-foreground">Ringkasan kondisi RT hari ini.</p>
       </header>
+
+      <OnboardingChecklist />
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {can('transactions.read') ? (
