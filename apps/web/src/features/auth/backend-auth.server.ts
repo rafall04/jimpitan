@@ -9,7 +9,7 @@ import 'server-only';
 
 import { ApiError } from '@/lib/api/api-error';
 import { joinApiUrl } from '@/lib/api/url';
-import { getWebEnv } from '@/lib/env/env';
+import { getServerApiBaseUrl } from '@/lib/env/env';
 import type { IssuedAuthTokens } from './session-cookies.server';
 import type { BackendMembership, BackendPrincipal, BackendSafeUser, BackendTenant } from './session-mapper';
 
@@ -86,7 +86,7 @@ async function backendJson<T>(
   },
 ): Promise<T> {
   const { accessToken, rtId, ...fetchOptions } = init;
-  const url = joinApiUrl(getWebEnv().NEXT_PUBLIC_API_BASE_URL, path);
+  const url = joinApiUrl(getServerApiBaseUrl(), path);
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
 

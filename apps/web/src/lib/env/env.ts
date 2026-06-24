@@ -24,3 +24,15 @@ export function getWebEnv(): WebEnv {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   });
 }
+
+/**
+ * Server-side API origin for SSR/BFF/auth fetches. Prefers a private internal address
+ * (`API_INTERNAL_BASE_URL`) so server-to-server calls never hair-pin out through the public
+ * edge (e.g. a Cloudflare tunnel). In the browser bundle `process.env.API_INTERNAL_BASE_URL`
+ * is inlined as `undefined`, so this transparently falls back to the public base URL.
+ * Use this for fetches only — image `src` values must stay on the public URL the browser loads.
+ */
+export function getServerApiBaseUrl(): string {
+  const internal = process.env.API_INTERNAL_BASE_URL?.trim();
+  return internal && internal.length > 0 ? internal : getWebEnv().NEXT_PUBLIC_API_BASE_URL;
+}

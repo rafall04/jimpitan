@@ -7,7 +7,7 @@
  */
 import { ApiError } from '@/lib/api/api-error';
 import { joinApiUrl } from '@/lib/api/url';
-import { getWebEnv } from '@/lib/env/env';
+import { getServerApiBaseUrl, getWebEnv } from '@/lib/env/env';
 import type {
   ContentType,
   PublicContentDetail,
@@ -65,7 +65,7 @@ function buildQuery(params: PublicContentListParams): string {
 }
 
 async function publicGet<T>(path: string): Promise<T> {
-  const response = await fetch(joinApiUrl(getWebEnv().NEXT_PUBLIC_API_BASE_URL, path), {
+  const response = await fetch(joinApiUrl(getServerApiBaseUrl(), path), {
     method: 'GET',
     headers: { Accept: 'application/json' },
     credentials: 'omit',
@@ -75,7 +75,7 @@ async function publicGet<T>(path: string): Promise<T> {
 }
 
 async function publicSend<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(joinApiUrl(getWebEnv().NEXT_PUBLIC_API_BASE_URL, path), {
+  const response = await fetch(joinApiUrl(getServerApiBaseUrl(), path), {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     credentials: 'omit',

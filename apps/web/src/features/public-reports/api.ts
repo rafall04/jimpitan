@@ -7,7 +7,7 @@
  */
 import { ApiError } from '@/lib/api/api-error';
 import { joinApiUrl } from '@/lib/api/url';
-import { getWebEnv } from '@/lib/env/env';
+import { getServerApiBaseUrl, getWebEnv } from '@/lib/env/env';
 import { sanitizePublicCopy } from './format';
 import type { PublicAnnouncement, PublicFeedParams, PublicMonthlyFinanceReport, PublicPaginatedResult, PublicReportMetadata, PublicTransparencySummary } from './types';
 
@@ -104,7 +104,7 @@ function buildFeedQuery(params: PublicFeedParams): string {
 
 async function publicApiJson<T>(path: string, options: PublicApiOptions): Promise<T> {
   const fetcher = options.fetcher ?? fetch;
-  const baseUrl = options.baseUrl ?? getWebEnv().NEXT_PUBLIC_API_BASE_URL;
+  const baseUrl = options.baseUrl ?? getServerApiBaseUrl();
   const headers = new Headers();
   headers.set('Accept', 'application/json');
 
