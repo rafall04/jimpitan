@@ -12,8 +12,7 @@ import { ApiError } from '@/lib/api/api-error';
 import { backendLogin } from '@/features/auth/backend-auth.server';
 import { isSameOriginRequest } from '@/features/auth/csrf.server';
 import { setSessionCookies } from '@/features/auth/session-cookies.server';
-import { loadSessionWithRefresh } from '@/features/auth/session-loader.server';
-import { createSessionSnapshot } from '@/features/auth/session-mapper';
+import { loadSessionFromAccessToken, loadSessionWithRefresh } from '@/features/auth/session-loader.server';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from '@/features/auth/session-types';
 
 const loginCredentialsSchema = z.object({
@@ -56,10 +55,9 @@ export async function POST(request: NextRequest) {
       password: parsed.data.password,
       rtId: parsed.data.rtId,
     });
-    const session = createSessionSnapshot({
-      user: loginResult.user,
-      principal: loginResult.principal,
-    });
+    // Build the COMPLETE session (profile + memberships + current tenant) so rtName/rtCode resolve
+    // to the real RT — not the `RT <uuid>` fallback that a principal-only snapshot produces.
+    const session = await loadSessionFromAccessToken(loginResult.tokens.accessToken);
     const response = NextResponse.json({ session });
     setSessionCookies(response, loginResult.tokens, session);
     return response;

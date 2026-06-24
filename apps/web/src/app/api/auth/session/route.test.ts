@@ -21,7 +21,7 @@ const fixtures = vi.hoisted(() => ({
 vi.mock('@/features/auth/backend-auth.server', () => ({ backendLogin: vi.fn() }));
 vi.mock('@/features/auth/session-cookies.server', () => ({ setSessionCookies: vi.fn() }));
 vi.mock('@/features/auth/csrf.server', () => ({ isSameOriginRequest: vi.fn(() => true) }));
-vi.mock('@/features/auth/session-loader.server', () => ({ loadSessionWithRefresh: vi.fn() }));
+vi.mock('@/features/auth/session-loader.server', () => ({ loadSessionWithRefresh: vi.fn(), loadSessionFromAccessToken: vi.fn(async () => fixtures.session) }));
 vi.mock('@/features/auth/session-mapper', () => ({ createSessionSnapshot: vi.fn(() => fixtures.session) }));
 vi.mock('next/headers', () => ({ cookies: vi.fn(async () => ({ get: () => undefined })) }));
 
