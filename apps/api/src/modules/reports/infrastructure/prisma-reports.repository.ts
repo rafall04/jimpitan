@@ -722,7 +722,7 @@ export class PrismaReportsRepository implements ReportsRepositoryPort {
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.announcement.findMany({
         where,
-        select: { id: true, title: true, body: true, publishedAt: true },
+        select: { id: true, title: true, body: true, publishedAt: true, slug: true, type: true },
         orderBy: { publishedAt: 'desc' },
         skip: (query.page - 1) * query.limit,
         take: query.limit,
@@ -731,7 +731,7 @@ export class PrismaReportsRepository implements ReportsRepositoryPort {
     ]);
 
     return {
-      items: rows.map((row) => ({ id: row.id, title: row.title, body: row.body, publishedAt: row.publishedAt ?? new Date(0) })),
+      items: rows.map((row) => ({ id: row.id, title: row.title, body: row.body, publishedAt: row.publishedAt ?? new Date(0), slug: row.slug, type: row.type })),
       page: query.page,
       limit: query.limit,
       total,

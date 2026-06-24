@@ -197,6 +197,8 @@ export type PublicAnnouncement = {
   title: string;
   body: string;
   publishedAt: Date;
+  slug: string | null;
+  type: 'ANNOUNCEMENT' | 'ACTIVITY' | 'ARTICLE' | 'GALLERY';
 };
 
 export type ReportExportStatusView = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'EXPIRED';

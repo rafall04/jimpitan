@@ -41,6 +41,8 @@ const announcement: PublicAnnouncement = {
   title: 'Pengumuman Kas Mei',
   body: 'Saldo sudah diperbarui. Hubungi 081234567890 untuk pertanyaan.',
   publishedAt: '2026-05-26T08:00:00.000Z',
+  slug: 'pengumuman-kas-mei',
+  type: 'ANNOUNCEMENT',
 };
 
 describe('public report components', () => {

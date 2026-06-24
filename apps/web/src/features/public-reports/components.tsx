@@ -66,7 +66,7 @@ export function PublicHomeView({ summary, latestReport, announcements, rtCode }:
           )}
         </InfoPanel>
         <InfoPanel title="Pengumuman terbaru" icon={<Megaphone className="h-5 w-5" aria-hidden="true" />}>
-          <AnnouncementList announcements={announcements.slice(0, 3)} />
+          <AnnouncementList announcements={announcements.slice(0, 3)} rtCode={rtCode} />
         </InfoPanel>
       </section>
     </main>
@@ -154,7 +154,7 @@ export function PublicAnnouncementsView({ summary, announcements, pagination, rt
         <input name="search" defaultValue={search} placeholder="Cari pengumuman" className="h-10 flex-1 rounded-md border bg-background px-3 text-sm" />
         <Button type="submit">Cari</Button>
       </form>
-      {announcements.length > 0 ? <AnnouncementList announcements={announcements} /> : <EmptyState title="Belum ada pengumuman publik" description="Pengumuman publik akan muncul setelah dipublikasikan pengurus." />}
+      {announcements.length > 0 ? <AnnouncementList announcements={announcements} rtCode={rtCode} /> : <EmptyState title="Belum ada pengumuman publik" description="Pengumuman publik akan muncul setelah dipublikasikan pengurus." />}
       {pagination.totalPages > 1 ? (
         <nav aria-label="Halaman pengumuman" className="flex items-center justify-between text-sm">
           <Link href={publicReportHref('/announcements', rtCode, { search, page: Math.max(1, pagination.page - 1) })}>Sebelumnya</Link>
@@ -349,19 +349,40 @@ function announcementPreview(body: string): string {
   return text.length > 200 ? `${text.slice(0, 200).trimEnd()}…` : text;
 }
 
-function AnnouncementList({ announcements }: { announcements: PublicAnnouncement[] }) {
+const ANNOUNCEMENT_TYPE_PATH: Record<PublicAnnouncement['type'], string> = {
+  ANNOUNCEMENT: 'pengumuman',
+  ACTIVITY: 'kegiatan',
+  ARTICLE: 'artikel',
+  GALLERY: 'galeri',
+};
+
+function AnnouncementList({ announcements, rtCode }: { announcements: PublicAnnouncement[]; rtCode: string }) {
   if (announcements.length === 0) {
     return <EmptyInline title="Belum ada pengumuman publik" description="Tidak ada pengumuman publik pada daftar ini." />;
   }
   return (
     <ul className="space-y-3">
-      {announcements.map((item) => (
-        <li key={item.id} className="rounded-xl border bg-card p-4">
-          <time className="text-xs text-muted-foreground" dateTime={item.publishedAt}>{formatIndonesianDate(item.publishedAt)}</time>
-          <h2 className="mt-1 line-clamp-2 text-base font-semibold">{sanitizePublicCopy(item.title)}</h2>
-          <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-muted-foreground">{announcementPreview(item.body)}</p>
-        </li>
-      ))}
+      {announcements.map((item) => {
+        const inner = (
+          <>
+            <time className="text-xs text-muted-foreground" dateTime={item.publishedAt}>{formatIndonesianDate(item.publishedAt)}</time>
+            <h2 className="mt-1 line-clamp-2 text-base font-semibold">{sanitizePublicCopy(item.title)}</h2>
+            <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-muted-foreground">{announcementPreview(item.body)}</p>
+          </>
+        );
+        return item.slug ? (
+          <li key={item.id} className="rounded-xl border bg-card">
+            <Link
+              href={`/${ANNOUNCEMENT_TYPE_PATH[item.type]}/${encodeURIComponent(item.slug)}?rt=${encodeURIComponent(rtCode)}`}
+              className="block rounded-xl p-4 transition-colors hover:bg-secondary/60"
+            >
+              {inner}
+            </Link>
+          </li>
+        ) : (
+          <li key={item.id} className="rounded-xl border bg-card p-4">{inner}</li>
+        );
+      })}
     </ul>
   );
 }

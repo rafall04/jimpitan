@@ -60,6 +60,8 @@ export type PublicAnnouncement = {
   title: string;
   body: string;
   publishedAt: string;
+  slug: string | null;
+  type: 'ANNOUNCEMENT' | 'ACTIVITY' | 'ARTICLE' | 'GALLERY';
 };
 
 export type PublicFeedParams = {
