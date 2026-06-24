@@ -344,17 +344,22 @@ function CategoryTable({ categories, caption = 'Rincian kategori pemasukan dan p
   );
 }
 
+function announcementPreview(body: string): string {
+  const text = sanitizePublicCopy(body).replace(/\s+/g, ' ').trim();
+  return text.length > 200 ? `${text.slice(0, 200).trimEnd()}…` : text;
+}
+
 function AnnouncementList({ announcements }: { announcements: PublicAnnouncement[] }) {
   if (announcements.length === 0) {
     return <EmptyInline title="Belum ada pengumuman publik" description="Tidak ada pengumuman publik pada daftar ini." />;
   }
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-3">
       {announcements.map((item) => (
-        <li key={item.id} className="rounded-md border p-4">
+        <li key={item.id} className="rounded-xl border bg-card p-4">
           <time className="text-xs text-muted-foreground" dateTime={item.publishedAt}>{formatIndonesianDate(item.publishedAt)}</time>
-          <h2 className="mt-1 text-base font-semibold">{sanitizePublicCopy(item.title)}</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">{sanitizePublicCopy(item.body)}</p>
+          <h2 className="mt-1 line-clamp-2 text-base font-semibold">{sanitizePublicCopy(item.title)}</h2>
+          <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-muted-foreground">{announcementPreview(item.body)}</p>
         </li>
       ))}
     </ul>
