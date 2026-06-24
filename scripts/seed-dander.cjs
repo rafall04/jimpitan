@@ -55,7 +55,11 @@ function htmlToText(html) {
   t = t.replace(/<[^>]+>/g, '');
   t = decodeEntities(t);
   t = t.replace(/\r/g, '').replace(/ /g, ' ');
-  t = t.replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n').replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  t = t.replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]+/g, '\n');
+  // The blog uses <br> for SOFT wraps, so single newlines land mid-sentence. Join those into spaces
+  // while preserving blank-line paragraph breaks (double newlines) so prose reads naturally.
+  t = t.replace(/\n{2,}/g, '\u0000').replace(/\n/g, ' ').replace(/\u0000/g, '\n\n');
+  t = t.replace(/[ \t]{2,}/g, ' ').trim();
   return t;
 }
 
