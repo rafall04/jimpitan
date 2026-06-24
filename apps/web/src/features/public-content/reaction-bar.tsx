@@ -71,7 +71,7 @@ export function ReactionBar({
           </Button>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">{total} reaksi · satu reaksi per pengunjung</p>
+      <p className="text-xs text-muted-foreground">{total} reaksi · satu reaksi per pengunjung · ketuk lagi untuk batal</p>
     </div>
   );
 }

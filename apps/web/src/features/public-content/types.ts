@@ -59,7 +59,7 @@ export interface PublicDesaOverview {
 }
 
 export interface ReactionResult {
-  reactionType: ReactionType;
+  reactionType: ReactionType | null;
   reactionCount: number;
   reactionBreakdown: Record<ReactionType, number>;
 }

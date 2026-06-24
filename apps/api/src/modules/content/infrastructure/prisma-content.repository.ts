@@ -297,18 +297,29 @@ export class PrismaContentRepository implements ContentRepositoryPort {
     if (!post) {
       return null;
     }
-    const total = await this.prisma.$transaction(async (tx) => {
-      await tx.postReaction.upsert({
+    const outcome = await this.prisma.$transaction(async (tx) => {
+      const existing = await tx.postReaction.findUnique({
         where: { announcementId_visitorHash: { announcementId: post.id, visitorHash: input.visitorHash } },
-        update: { reactionType: input.reactionType, ipHash: input.ipHash },
-        create: { rtId: post.rtId, announcementId: post.id, reactionType: input.reactionType, visitorHash: input.visitorHash, ipHash: input.ipHash },
+        select: { reactionType: true },
       });
+      let activeType: ReactionType | null = input.reactionType;
+      if (existing && existing.reactionType === input.reactionType) {
+        // Same reaction tapped again -> remove it (toggle off).
+        await tx.postReaction.delete({ where: { announcementId_visitorHash: { announcementId: post.id, visitorHash: input.visitorHash } } });
+        activeType = null;
+      } else {
+        await tx.postReaction.upsert({
+          where: { announcementId_visitorHash: { announcementId: post.id, visitorHash: input.visitorHash } },
+          update: { reactionType: input.reactionType, ipHash: input.ipHash },
+          create: { rtId: post.rtId, announcementId: post.id, reactionType: input.reactionType, visitorHash: input.visitorHash, ipHash: input.ipHash },
+        });
+      }
       const count = await tx.postReaction.count({ where: { announcementId: post.id } });
       await tx.announcement.update({ where: { id: post.id }, data: { reactionCount: count } });
-      return count;
+      return { count, activeType };
     });
     const breakdown = await this.reactionBreakdown(post.id);
-    return { reactionType: input.reactionType, reactionCount: total, reactionBreakdown: breakdown };
+    return { reactionType: outcome.activeType, reactionCount: outcome.count, reactionBreakdown: breakdown };
   }
 
   private postInclude() {
