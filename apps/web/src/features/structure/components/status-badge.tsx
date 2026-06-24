@@ -1,47 +1,54 @@
 /**
  * Purpose: Compact status badge renderers for Residents/Houses/Areas records.
  * Caller: Structure tables, mobile cards, detail sheets, and tests.
- * Deps: Structure status types and class name utility.
- * MainFuncs: Converts backend status enums into accessible visual labels.
+ * Deps: Shared Badge component, structure status types.
+ * MainFuncs: Converts backend status enums into accessible Indonesian visual labels.
  * SideEffects: None.
  */
-import { cn } from '@/lib/utils/cn';
 import React from 'react';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import type { HouseStatus, ResidentStatus } from '../types';
 
-type StatusTone = 'success' | 'warning' | 'muted' | 'danger';
+type BadgeVariant = NonNullable<BadgeProps['variant']>;
 
-const toneClasses: Record<StatusTone, string> = {
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200',
-  warning: 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200',
-  muted: 'border-border bg-muted text-muted-foreground',
-  danger: 'border-destructive/30 bg-destructive/10 text-destructive',
+export function StatusBadge({ label, variant }: { label: string; variant: BadgeVariant }) {
+  return <Badge variant={variant}>{label}</Badge>;
+}
+
+const residentStatusLabels: Record<ResidentStatus, string> = {
+  ACTIVE: 'Aktif',
+  INACTIVE: 'Diarsipkan',
+  MOVED: 'Pindah',
 };
 
-export function StatusBadge({ label, tone }: { label: string; tone: StatusTone }) {
-  return <span className={cn('inline-flex min-h-7 items-center rounded-md border px-2 text-xs font-medium', toneClasses[tone])}>{label}</span>;
-}
+const residentStatusVariants: Record<ResidentStatus, BadgeVariant> = {
+  ACTIVE: 'success',
+  INACTIVE: 'secondary',
+  MOVED: 'gold',
+};
 
 export function ResidentStatusBadge({ status }: { status: ResidentStatus }) {
-  const tone: Record<ResidentStatus, StatusTone> = {
-    ACTIVE: 'success',
-    INACTIVE: 'muted',
-    MOVED: 'warning',
-  };
-  return <StatusBadge label={formatStatus(status)} tone={tone[status]} />;
+  return <StatusBadge label={residentStatusLabels[status]} variant={residentStatusVariants[status]} />;
 }
 
+const houseStatusLabels: Record<HouseStatus, string> = {
+  EMPTY: 'Kosong',
+  OCCUPIED: 'Terisi',
+  INACTIVE: 'Diarsipkan',
+};
+
+const houseStatusVariants: Record<HouseStatus, BadgeVariant> = {
+  EMPTY: 'secondary',
+  OCCUPIED: 'success',
+  INACTIVE: 'destructive',
+};
+
 export function HouseStatusBadge({ status }: { status: HouseStatus }) {
-  const tone: Record<HouseStatus, StatusTone> = {
-    EMPTY: 'muted',
-    OCCUPIED: 'success',
-    INACTIVE: 'danger',
-  };
-  return <StatusBadge label={formatStatus(status)} tone={tone[status]} />;
+  return <StatusBadge label={houseStatusLabels[status]} variant={houseStatusVariants[status]} />;
 }
 
 export function AreaStatusBadge({ isActive }: { isActive: boolean }) {
-  return <StatusBadge label={isActive ? 'Active' : 'Archived'} tone={isActive ? 'success' : 'danger'} />;
+  return <StatusBadge label={isActive ? 'Aktif' : 'Diarsipkan'} variant={isActive ? 'success' : 'secondary'} />;
 }
 
 export function formatStatus(status: string): string {

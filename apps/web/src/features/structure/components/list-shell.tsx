@@ -15,12 +15,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils/cn';
 
-export function StructurePageHeader({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
+export function StructurePageHeader({
+  title,
+  description,
+  eyebrow = 'Struktur RT',
+  action,
+}: {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-sm font-medium text-primary">RT structure</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-normal">{title}</h1>
+        <p className="text-xs font-bold uppercase tracking-wider text-primary">{eyebrow}</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight">{title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
       {action ? <div className="flex shrink-0">{action}</div> : null}
@@ -82,16 +92,16 @@ export function PaginationControls({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border bg-card px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-xl border bg-card px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
       <p className="text-muted-foreground">
-        Page {page} of {Math.max(totalPages, 1)} - {total} records
+        Halaman {page} dari {Math.max(totalPages, 1)} - {total} data
       </p>
       <div className="flex gap-2">
         <Button type="button" variant="outline" size="sm" onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
-          Previous
+          Sebelumnya
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={() => onPageChange(page + 1)} disabled={page >= totalPages}>
-          Next
+          Berikutnya
         </Button>
       </div>
     </div>

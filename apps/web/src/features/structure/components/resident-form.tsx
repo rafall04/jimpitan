@@ -45,7 +45,7 @@ export function ResidentForm({
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>
       <div className="space-y-2">
-        <Label htmlFor="resident-house">House assignment</Label>
+        <Label htmlFor="resident-house">Penugasan rumah</Label>
         <select
           id="resident-house"
           {...form.register('houseId')}
@@ -61,22 +61,22 @@ export function ResidentForm({
         {form.formState.errors.houseId ? <p className="text-sm text-destructive">{form.formState.errors.houseId.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="resident-name">Full name</Label>
+        <Label htmlFor="resident-name">Nama lengkap</Label>
         <Input id="resident-name" {...form.register('fullName')} aria-invalid={Boolean(form.formState.errors.fullName)} />
         {form.formState.errors.fullName ? <p className="text-sm text-destructive">{form.formState.errors.fullName.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="resident-phone">Phone</Label>
+        <Label htmlFor="resident-phone">Telepon</Label>
         <Input id="resident-phone" inputMode="tel" {...form.register('phone')} aria-invalid={Boolean(form.formState.errors.phone)} />
         {form.formState.errors.phone ? <p className="text-sm text-destructive">{form.formState.errors.phone.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="resident-amount">Default jimpitan amount</Label>
+        <Label htmlFor="resident-amount">Nominal jimpitan default</Label>
         <Input id="resident-amount" inputMode="decimal" {...form.register('defaultJimpitanAmount')} aria-invalid={Boolean(form.formState.errors.defaultJimpitanAmount)} />
         {form.formState.errors.defaultJimpitanAmount ? <p className="text-sm text-destructive">{form.formState.errors.defaultJimpitanAmount.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="resident-notes">Notes</Label>
+        <Label htmlFor="resident-notes">Catatan</Label>
         <textarea
           id="resident-notes"
           {...form.register('notes')}
@@ -87,10 +87,10 @@ export function ResidentForm({
       </div>
       <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
+          Batal
         </Button>
         <Button type="submit" disabled={isPending || houses.length === 0}>
-          {isPending ? 'Saving' : submitLabel}
+          {isPending ? 'Menyimpan…' : submitLabel}
         </Button>
       </div>
     </form>

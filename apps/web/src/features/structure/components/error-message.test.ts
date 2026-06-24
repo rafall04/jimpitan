@@ -15,6 +15,6 @@ describe('toUserMessage', () => {
   });
 
   it('hides unexpected server error details', () => {
-    expect(toUserMessage(new ApiError('SQL timeout in internal host.', 500, null))).toBe('Action failed. Try again.');
+    expect(toUserMessage(new ApiError('SQL timeout in internal host.', 500, null))).toBe('Tindakan gagal. Coba lagi.');
   });
 });

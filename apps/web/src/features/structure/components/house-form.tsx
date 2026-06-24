@@ -60,23 +60,23 @@ export function HouseForm({
         {form.formState.errors.areaId ? <p className="text-sm text-destructive">{form.formState.errors.areaId.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="house-number">House number</Label>
+        <Label htmlFor="house-number">Nomor rumah</Label>
         <Input id="house-number" {...form.register('houseNumber')} aria-invalid={Boolean(form.formState.errors.houseNumber)} />
         {form.formState.errors.houseNumber ? <p className="text-sm text-destructive">{form.formState.errors.houseNumber.message}</p> : null}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="house-status">Occupancy status</Label>
+        <Label htmlFor="house-status">Status hunian</Label>
         <select
           id="house-status"
           {...form.register('status')}
           className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <option value="EMPTY">Empty</option>
-          <option value="OCCUPIED">Occupied</option>
+          <option value="EMPTY">Kosong</option>
+          <option value="OCCUPIED">Terisi</option>
         </select>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="house-note">Address note</Label>
+        <Label htmlFor="house-note">Catatan alamat</Label>
         <textarea
           id="house-note"
           {...form.register('addressNote')}
@@ -87,10 +87,10 @@ export function HouseForm({
       </div>
       <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
-          Cancel
+          Batal
         </Button>
         <Button type="submit" disabled={isPending || areas.length === 0}>
-          {isPending ? 'Saving' : submitLabel}
+          {isPending ? 'Menyimpan…' : submitLabel}
         </Button>
       </div>
     </form>

@@ -105,14 +105,14 @@ export function ResidentsPage() {
 
   const columns = useMemo<DataTableColumn<ResidentListRow>[]>(
     () => [
-      { key: 'name', header: 'Resident', cell: (resident) => <span className="font-medium">{resident.fullName}</span> },
-      { key: 'house', header: 'House', cell: (resident) => `${resident.house.area.code} - ${resident.house.houseNumber}` },
-      { key: 'phone', header: 'Phone', cell: (resident) => resident.phone ?? <span className="text-muted-foreground">None</span> },
-      { key: 'telegram', header: 'Telegram', cell: (resident) => (resident.telegramAccountId ? <span className="text-primary">Bound</span> : <span className="text-muted-foreground">Not bound</span>) },
+      { key: 'name', header: 'Warga', cell: (resident) => <span className="font-medium">{resident.fullName}</span> },
+      { key: 'house', header: 'Rumah', cell: (resident) => `${resident.house.area.code} - ${resident.house.houseNumber}` },
+      { key: 'phone', header: 'Telepon', cell: (resident) => resident.phone ?? <span className="text-muted-foreground">Tidak ada</span> },
+      { key: 'telegram', header: 'Telegram', cell: (resident) => (resident.telegramAccountId ? <span className="text-primary">Tertaut</span> : <span className="text-muted-foreground">Belum tertaut</span>) },
       { key: 'status', header: 'Status', cell: (resident) => <ResidentStatusBadge status={resident.status} /> },
       {
         key: 'actions',
-        header: <span className="sr-only">Actions</span>,
+        header: <span className="sr-only">Aksi</span>,
         className: 'text-right',
         cell: (resident) => (
           <ResidentActions
@@ -134,21 +134,22 @@ export function ResidentsPage() {
   return (
     <main id="main-content" className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <StructurePageHeader
-        title="Residents"
-        description="Manage residents, house assignments, occupancy status, collection defaults, and Telegram binding visibility."
+        eyebrow="Data warga"
+        title="Warga"
+        description="Kelola data warga, penugasan rumah, status hunian, nominal jimpitan default, dan keterhubungan Telegram."
         action={
           canCreate ? (
             <Button type="button" onClick={() => setSheet({ mode: 'create' })}>
               <Plus className="h-4 w-4" aria-hidden="true" />
-              New resident
+              Tambah warga
             </Button>
           ) : null
         }
       />
-      <section className="grid gap-3 rounded-lg border bg-card p-4 xl:grid-cols-[minmax(0,1fr)_14rem_14rem_12rem_10rem]">
+      <section className="grid gap-3 rounded-xl border bg-card p-4 xl:grid-cols-[minmax(0,1fr)_14rem_14rem_12rem_10rem]">
         <SearchField
-          label="Search residents"
-          placeholder="Search name, phone, or house"
+          label="Cari warga"
+          placeholder="Cari nama, telepon, atau rumah"
           value={search}
           onChange={(value) => {
             setSearch(value);
@@ -160,18 +161,18 @@ export function ResidentsPage() {
           setHouseId('');
           setPage(1);
         }}>
-          <option value="">All areas</option>
+          <option value="">Semua area</option>
           {activeAreas.map((area) => (
             <option key={area.id} value={area.id}>
               {area.code} - {area.name}
             </option>
           ))}
         </SelectField>
-        <SelectField id="resident-house-filter" label="House" value={houseId} onChange={(value) => {
+        <SelectField id="resident-house-filter" label="Rumah" value={houseId} onChange={(value) => {
           setHouseId(value);
           setPage(1);
         }}>
-          <option value="">All houses</option>
+          <option value="">Semua rumah</option>
           {houseOptions.map((house) => (
             <option key={house.id} value={house.id}>
               {house.area.code} - {house.houseNumber}
@@ -182,25 +183,25 @@ export function ResidentsPage() {
           setStatus(value);
           setPage(1);
         }}>
-          <option value="">Active records</option>
-          <option value="ACTIVE">Active</option>
-          <option value="INACTIVE">Archived</option>
-          <option value="MOVED">Moved</option>
+          <option value="">Data aktif</option>
+          <option value="ACTIVE">Aktif</option>
+          <option value="INACTIVE">Diarsipkan</option>
+          <option value="MOVED">Pindah</option>
         </SelectField>
-        <SelectField id="resident-sort-direction" label="Sort" value={sortDirection} onChange={(value) => setSortDirection(value as 'asc' | 'desc')}>
-          <option value="asc">A to Z</option>
-          <option value="desc">Z to A</option>
+        <SelectField id="resident-sort-direction" label="Urutan" value={sortDirection} onChange={(value) => setSortDirection(value as 'asc' | 'desc')}>
+          <option value="asc">A ke Z</option>
+          <option value="desc">Z ke A</option>
         </SelectField>
       </section>
-      {residentsQuery.isPending ? <ListSkeleton label="Loading residents" /> : null}
+      {residentsQuery.isPending ? <ListSkeleton label="Memuat data warga" /> : null}
       {residentsQuery.isError ? <QueryError onRetry={() => void residentsQuery.refetch()} /> : null}
       {residentsQuery.data ? (
         <div className="space-y-4">
           <div className="hidden md:block">
-            <DataTable columns={columns} rows={residentsQuery.data.items} getRowKey={(resident) => resident.id} emptyTitle="No residents found" emptyDescription="Adjust filters or create a resident after at least one assignable house exists." />
+            <DataTable columns={columns} rows={residentsQuery.data.items} getRowKey={(resident) => resident.id} emptyTitle="Warga tidak ditemukan" emptyDescription="Sesuaikan filter atau tambah warga setelah ada minimal satu rumah yang bisa ditempati." />
           </div>
           <div className="space-y-3 md:hidden">
-            {residentsQuery.data.items.length === 0 ? <EmptyState title="No residents found" description="Adjust filters or create a resident after at least one assignable house exists." /> : null}
+            {residentsQuery.data.items.length === 0 ? <EmptyState title="Warga tidak ditemukan" description="Sesuaikan filter atau tambah warga setelah ada minimal satu rumah yang bisa ditempati." /> : null}
             {residentsQuery.data.items.map((resident) => (
               <ResidentCard
                 key={resident.id}
@@ -216,16 +217,16 @@ export function ResidentsPage() {
           <PaginationControls page={residentsQuery.data.page} totalPages={residentsQuery.data.totalPages} total={residentsQuery.data.total} onPageChange={setPage} />
         </div>
       ) : null}
-      <RecordSheet open={Boolean(sheet)} title={sheetTitle(sheet)} description="Resident changes are tenant-scoped and audited by the backend." onOpenChange={(open) => !open && setSheet(null)}>
+      <RecordSheet open={Boolean(sheet)} title={sheetTitle(sheet)} description="Perubahan warga dibatasi per-RT dan diaudit oleh sistem." onOpenChange={(open) => !open && setSheet(null)}>
         {sheet?.mode === 'detail' && detailResident ? <ResidentDetail resident={detailResident} /> : null}
-        {sheet?.mode === 'edit' && detailQuery.isPending ? <ListSkeleton label="Loading resident detail" /> : null}
+        {sheet?.mode === 'edit' && detailQuery.isPending ? <ListSkeleton label="Memuat detail warga" /> : null}
         {sheet?.mode === 'edit' && detailQuery.isError ? <DetailLoadError /> : null}
         {sheet?.mode === 'create' ? (
           <ResidentForm
             initialResident={null}
             houses={assignableHouses}
             isPending={mutations.createResident.isPending || mutations.updateResident.isPending || mutations.moveResidentHouse.isPending}
-            submitLabel="Create resident"
+            submitLabel="Tambah warga"
             onSubmit={submitResident}
             onCancel={() => setSheet(null)}
           />
@@ -235,14 +236,14 @@ export function ResidentsPage() {
             initialResident={detailQuery.data}
             houses={assignableHouses}
             isPending={mutations.createResident.isPending || mutations.updateResident.isPending || mutations.moveResidentHouse.isPending}
-            submitLabel="Update resident"
+            submitLabel="Simpan perubahan"
             onSubmit={submitResident}
             onCancel={() => setSheet(null)}
           />
         ) : null}
       </RecordSheet>
-      <ConfirmActionDialog open={Boolean(archiveTarget)} title="Archive resident" description="Archiving removes the resident from active assignments. The backend records this action in audit logs." actionLabel="Archive" destructive isPending={mutations.archiveResident.isPending} onOpenChange={(open) => !open && setArchiveTarget(null)} onConfirm={confirmArchive} />
-      <ConfirmActionDialog open={Boolean(reactivateTarget)} title="Reactivate resident" description="Reactivation restores the resident to their assigned house when backend assignment rules allow it." actionLabel="Reactivate" isPending={mutations.reactivateResident.isPending} onOpenChange={(open) => !open && setReactivateTarget(null)} onConfirm={confirmReactivate} />
+      <ConfirmActionDialog open={Boolean(archiveTarget)} title="Arsipkan warga" description="Mengarsipkan akan melepas warga dari penugasan aktif. Sistem mencatat tindakan ini di log audit." actionLabel="Arsipkan" destructive isPending={mutations.archiveResident.isPending} onOpenChange={(open) => !open && setArchiveTarget(null)} onConfirm={confirmArchive} />
+      <ConfirmActionDialog open={Boolean(reactivateTarget)} title="Aktifkan kembali warga" description="Mengaktifkan kembali akan memulihkan warga ke rumah yang ditugaskan jika aturan penugasan sistem mengizinkan." actionLabel="Aktifkan kembali" isPending={mutations.reactivateResident.isPending} onOpenChange={(open) => !open && setReactivateTarget(null)} onConfirm={confirmReactivate} />
     </main>
   );
 }
@@ -251,21 +252,21 @@ function ResidentActions({ resident, permissions, onDetail, onEdit, onArchive, o
   const actions = getResidentActions(resident, permissions);
   return (
     <div className="flex justify-end gap-2">
-      <Button type="button" variant="ghost" size="icon" onClick={onDetail} aria-label={`View ${resident.fullName}`}>
+      <Button type="button" variant="ghost" size="icon" onClick={onDetail} aria-label={`Lihat ${resident.fullName}`}>
         <Eye className="h-4 w-4" aria-hidden="true" />
       </Button>
       {actions.includes('edit') ? (
-        <Button type="button" variant="ghost" size="icon" onClick={onEdit} aria-label={`Edit ${resident.fullName}`}>
+        <Button type="button" variant="ghost" size="icon" onClick={onEdit} aria-label={`Ubah ${resident.fullName}`}>
           <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>
       ) : null}
       {actions.includes('archive') ? (
-        <Button type="button" variant="ghost" size="icon" onClick={onArchive} aria-label={`Archive ${resident.fullName}`}>
+        <Button type="button" variant="ghost" size="icon" onClick={onArchive} aria-label={`Arsipkan ${resident.fullName}`}>
           <Archive className="h-4 w-4" aria-hidden="true" />
         </Button>
       ) : null}
       {actions.includes('reactivate') ? (
-        <Button type="button" variant="ghost" size="icon" onClick={onReactivate} aria-label={`Reactivate ${resident.fullName}`}>
+        <Button type="button" variant="ghost" size="icon" onClick={onReactivate} aria-label={`Aktifkan kembali ${resident.fullName}`}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
         </Button>
       ) : null}
@@ -276,7 +277,7 @@ function ResidentActions({ resident, permissions, onDetail, onEdit, onArchive, o
 function ResidentCard(props: { resident: ResidentListRow; permissions: ReadonlySet<string>; onDetail: () => void; onEdit: () => void; onArchive: () => void; onReactivate: () => void }) {
   const { resident } = props;
   return (
-    <article className="rounded-lg border bg-card p-4">
+    <article className="rounded-xl border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold">{resident.fullName}</h2>
@@ -287,7 +288,7 @@ function ResidentCard(props: { resident: ResidentListRow; permissions: ReadonlyS
         <ResidentStatusBadge status={resident.status} />
       </div>
       <div className="mt-3 flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{resident.telegramAccountId ? 'Telegram bound' : 'Telegram not bound'}</span>
+        <span className="text-muted-foreground">{resident.telegramAccountId ? 'Telegram tertaut' : 'Telegram belum tertaut'}</span>
         <ResidentActions {...props} />
       </div>
     </article>
@@ -297,26 +298,26 @@ function ResidentCard(props: { resident: ResidentListRow; permissions: ReadonlyS
 function ResidentDetail({ resident }: { resident: ResidentRecord }) {
   return (
     <DetailList>
-      <DetailItem label="Name" value={resident.fullName} />
-      <DetailItem label="House" value={`${resident.house.area.code} - ${resident.house.houseNumber}`} />
-      <DetailItem label="House occupancy" value={<HouseStatusBadge status={resident.house.status} />} />
+      <DetailItem label="Nama" value={resident.fullName} />
+      <DetailItem label="Rumah" value={`${resident.house.area.code} - ${resident.house.houseNumber}`} />
+      <DetailItem label="Hunian rumah" value={<HouseStatusBadge status={resident.house.status} />} />
       <DetailItem label="Status" value={<ResidentStatusBadge status={resident.status} />} />
-      <DetailItem label="Phone" value={resident.phone} />
-      <DetailItem label="Default jimpitan" value={resident.defaultJimpitanAmount} />
-      <DetailItem label="Telegram" value={resident.telegramAccountId ? 'Bound' : 'Not bound'} />
-      <DetailItem label="Notes" value={resident.notes} />
-      <DetailItem label="Created" value={new Date(resident.createdAt).toLocaleString()} />
-      <DetailItem label="Updated" value={new Date(resident.updatedAt).toLocaleString()} />
+      <DetailItem label="Telepon" value={resident.phone} />
+      <DetailItem label="Jimpitan default" value={resident.defaultJimpitanAmount} />
+      <DetailItem label="Telegram" value={resident.telegramAccountId ? 'Tertaut' : 'Belum tertaut'} />
+      <DetailItem label="Catatan" value={resident.notes} />
+      <DetailItem label="Dibuat" value={new Date(resident.createdAt).toLocaleString()} />
+      <DetailItem label="Diperbarui" value={new Date(resident.updatedAt).toLocaleString()} />
     </DetailList>
   );
 }
 
 function QueryError({ onRetry }: { onRetry: () => void }) {
   return (
-    <section className="rounded-lg border bg-card p-4" role="alert">
-      <p className="text-sm font-medium">Residents could not be loaded.</p>
+    <section className="rounded-xl border bg-card p-4" role="alert">
+      <p className="text-sm font-medium">Data warga gagal dimuat.</p>
       <Button type="button" variant="outline" size="sm" className="mt-3" onClick={onRetry}>
-        Retry
+        Coba lagi
       </Button>
     </section>
   );
@@ -324,9 +325,9 @@ function QueryError({ onRetry }: { onRetry: () => void }) {
 
 function DetailLoadError() {
   return (
-    <section className="rounded-lg border bg-card p-4" role="alert">
-      <p className="text-sm font-medium">Resident detail could not be loaded.</p>
-      <p className="mt-1 text-sm text-muted-foreground">Close the sheet and try again.</p>
+    <section className="rounded-xl border bg-card p-4" role="alert">
+      <p className="text-sm font-medium">Detail warga gagal dimuat.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Tutup panel lalu coba lagi.</p>
     </section>
   );
 }
@@ -340,10 +341,10 @@ function toFallbackResident(sheet: ResidentSheetState | null): ResidentRecord | 
 
 function sheetTitle(sheet: ResidentSheetState | null): string {
   if (!sheet) {
-    return 'Resident';
+    return 'Warga';
   }
   if (sheet.mode === 'create') {
-    return 'New resident';
+    return 'Tambah warga';
   }
-  return sheet.mode === 'edit' ? `Edit ${sheet.resident.fullName}` : sheet.resident.fullName;
+  return sheet.mode === 'edit' ? `Ubah ${sheet.resident.fullName}` : sheet.resident.fullName;
 }

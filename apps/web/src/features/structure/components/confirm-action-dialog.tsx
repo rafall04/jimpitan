@@ -38,10 +38,10 @@ export function ConfirmActionDialog({
         </DialogHeader>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
+            Batal
           </Button>
           <Button type="button" variant={destructive ? 'destructive' : 'default'} onClick={onConfirm} disabled={isPending}>
-            {isPending ? 'Working' : actionLabel}
+            {isPending ? 'Memproses…' : actionLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

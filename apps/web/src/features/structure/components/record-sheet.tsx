@@ -44,7 +44,7 @@ export function DetailItem({ label, value }: { label: string; value: ReactNode }
   return (
     <div className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
       <dt className="font-medium text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 break-words">{value || <span className="text-muted-foreground">None</span>}</dd>
+      <dd className="min-w-0 break-words">{value || <span className="text-muted-foreground">Tidak ada</span>}</dd>
     </div>
   );
 }

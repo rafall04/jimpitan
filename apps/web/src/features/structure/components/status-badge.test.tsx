@@ -13,8 +13,8 @@ import { HouseStatusBadge, ResidentStatusBadge } from './status-badge';
 
 describe('structure status UI', () => {
   it('renders backend enum labels in status badges', () => {
-    expect(renderToStaticMarkup(<ResidentStatusBadge status="MOVED" />)).toContain('Moved');
-    expect(renderToStaticMarkup(<HouseStatusBadge status="INACTIVE" />)).toContain('Inactive');
+    expect(renderToStaticMarkup(<ResidentStatusBadge status="MOVED" />)).toContain('Pindah');
+    expect(renderToStaticMarkup(<HouseStatusBadge status="INACTIVE" />)).toContain('Diarsipkan');
   });
 
   it('renders table rows with status content', () => {
@@ -32,6 +32,6 @@ describe('structure status UI', () => {
     );
 
     expect(html).toContain('Budi');
-    expect(html).toContain('Active');
+    expect(html).toContain('Aktif');
   });
 });
